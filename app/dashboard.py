@@ -1,23 +1,26 @@
 """
 app/dashboard.py
 
-Streamlit dashboard for the Guardian pipeline.
+Streamlit dashboard, updated to use the REAL fusion/decision/explain
+implementations in place of the stubs.
 
-STAGE 3: runs entirely on the STUB chain built so far:
-    data.loader.replay_stub
-    streams.{context,motion,physiology,quality}
-    core.fusion.fuse_stub
-    core.decision.decide_stub
-    core.explain.explain_stub
+Evidence streams shown: context, motion, physiology -- three streams,
+per this review's scope. streams/quality.py is not one of them here
+and is not called by this file.
 
-This file does NOT implement any real algorithm. It only wires and
-displays what the stub pipeline already produces, exactly as proven
-in test_pipeline_stub.py. When real modules replace the stubs later
-(Stage 9), this file should not need to change -- it consumes the
-same interfaces (score/last_quality, fuse/decide/explain).
+Context/motion are still the stub classes at this point (owned by a
+teammate, not modified here). Real ContextStream/MotionStream will
+drop in later without requiring changes to this file, because fusion
+reads their attributes via getattr() with safe defaults.
 
-Run with:
-    streamlit run app/dashboard.py
+Physiology needs the current context label to apply its motion-gating
+rule. Per fusion's design, context labels are never put into the
+window dict for FUSION's sake -- but physiology.py (unchanged, already
+implemented) reads context_state from window.get("context_state").
+That's satisfied here by passing physiology a shallow COPY of the
+window with context_state added, while the original window (and what
+fusion receives) stays untouched. This is orchestration glue local to
+this file, not a change to the window contract or to fusion's inputs.
 """
 
 import streamlit as st
@@ -27,25 +30,24 @@ from data.loader import replay_stub
 from streams.context import ContextStream
 from streams.motion import MotionStream
 from streams.physiology import PhysiologyStream
-from streams.quality import QualityStream
-from core.fusion import fuse_stub
-from core.decision import decide_stub
-from core.explain import explain_stub
+from core.fusion import fuse
+from core.decision import DecisionStateMachine
+from core.explain import explain
 
 
-st.set_page_config(page_title="Guardian Dashboard (stub pipeline)", layout="wide")
-st.title("Guardian — Replay Dashboard (Stage 3: stub pipeline)")
+st.set_page_config(page_title="Guardian Dashboard", layout="wide")
+st.title("Guardian — Replay Dashboard")
 st.caption(
-    "All scores below come from stub modules (constant/placeholder logic). "
-    "This confirms the pipeline wiring, not real detection accuracy."
+    "Context and motion are still stub streams pending the teammate branch merge. "
+    "Physiology is real. Fusion, decision, and explanation are real."
 )
+st.info("Physiology uses a **scripted physiological trace — hardware pending**. "
+        "It is not real sensor data.")
 
 # --- Sidebar controls -------------------------------------------------
 
 st.sidebar.header("Replay controls")
 
-# Scenario selector: labels only for now. Real scenario -> dataset-file
-# mapping is Stage 9, once data/loader.py replays real recordings.
 scenario = st.sidebar.selectbox(
     "Scenario",
     [
@@ -66,28 +68,37 @@ run_clicked = st.sidebar.button("Run replay")
 st.sidebar.caption(f"Selected: {scenario}")
 st.sidebar.caption(f"Speed setting: {replay_speed} (not yet affecting playback)")
 
-# --- Session state: holds replay history across Streamlit reruns ------
+# --- Session state ------------------------------------------------------
 
 if "history" not in st.session_state:
-    st.session_state.history = []  # list of dicts, one per window
+    st.session_state.history = []
 
-# --- Run the stub pipeline end-to-end on button press ------------------
+# --- Run the real pipeline -----------------------------------------------
 
 if run_clicked:
-    streams = {
-        "context": ContextStream(),
-        "motion": MotionStream(),
-        "physiology": PhysiologyStream(),
-        "quality": QualityStream(),
-    }
+    context_stream = ContextStream()
+    motion_stream = MotionStream()
+    physiology_stream = PhysiologyStream()
+    decision_machine = DecisionStateMachine()
 
     history = []
     for window in replay_stub(n_windows=n_windows):
-        scores = {name: s.score(window) for name, s in streams.items()}
-        qualities = {name: s.last_quality for name, s in streams.items()}
-        risk = fuse_stub(scores)
-        state = decide_stub(risk)
-        explanation = explain_stub(risk, scores)
+        context_score = context_stream.score(window)
+        motion_score = motion_stream.score(window)
+
+        phys_window = dict(window)
+        phys_window["context_state"] = getattr(context_stream, "last_state", None)
+        physiology_score = physiology_stream.score(phys_window)
+
+        scores = {
+            "context": context_score,
+            "motion": motion_score,
+            "physiology": physiology_score,
+        }
+
+        risk, contributions = fuse(scores, context_stream, motion_stream)
+        state = decision_machine.update(risk, window["t"], contributions=contributions)
+        explanation = explain(risk, contributions)
 
         history.append(
             {
@@ -95,8 +106,12 @@ if run_clicked:
                 "risk": risk,
                 "state": state,
                 "explanation": explanation,
-                **{f"score_{k}": v for k, v in scores.items()},
-                **{f"quality_{k}": v for k, v in qualities.items()},
+                "score_context": context_score,
+                "score_motion": motion_score,
+                "score_physiology": physiology_score,
+                "contrib_context": contributions.get("context"),
+                "contrib_motion": contributions.get("motion"),
+                "contrib_physiology": contributions.get("physiology"),
             }
         )
 
@@ -107,35 +122,26 @@ if run_clicked:
 history = st.session_state.history
 
 if not history:
-    st.info("Click 'Run replay' in the sidebar to run the stub pipeline.")
+    st.info("Click 'Run replay' in the sidebar to run the pipeline.")
 else:
     df = pd.DataFrame(history)
     latest = df.iloc[-1]
 
-    # 1. Risk score over time
     st.subheader("Risk score over replay time")
     st.line_chart(df.set_index("t")["risk"])
 
-    # 2. Current decision state
     st.subheader("Current decision state")
     st.markdown(f"## `{latest['state']}`")
 
-    # 3. Four stream score/quality bars
-    st.subheader("Stream scores and quality")
-    stream_names = ["context", "motion", "physiology", "quality"]
-    cols = st.columns(4)
+    st.subheader("Stream scores")
+    stream_names = ["context", "motion", "physiology"]
+    cols = st.columns(3)
     for col, name in zip(cols, stream_names):
         with col:
-            st.metric(
-                label=name.capitalize(),
-                value=f"{latest[f'score_{name}']:.2f}",
-            )
-            st.progress(latest[f"quality_{name}"], text="quality")
+            st.metric(label=name.capitalize(), value=f"{latest[f'score_{name}']:.2f}")
 
-    # 4. Ranked explanation panel
     st.subheader("Explanation (latest window)")
     st.code(latest["explanation"])
 
-    # Raw table, useful for debugging while wiring is stub-only
     with st.expander("Raw replay history"):
         st.dataframe(df)

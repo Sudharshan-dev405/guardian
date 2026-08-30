@@ -1,17 +1,32 @@
 """
 core/explain.py
 
-STUB. Real implementation (Stage 7) will sort fusion's actual
-contributions descending and render them in plain language, e.g.
-"Emergency risk 0.82 -- high impact 0.31, immobility 0.28, ...".
-It must use fusion's real numbers, never invent its own.
+REAL ranked explanation. Uses the EXACT contribution values returned
+by core.fusion.fuse() -- never recomputes or re-derives numbers, and
+never substitutes raw stream scores for contributions (a contribution
+already reflects weight and any suppression fusion applied, which a
+raw score does not).
 
-For now: a placeholder string, just to confirm the explanation panel
-is wired into the pipeline and the dashboard.
+INTERFACE
+---------
+explain(risk, contributions) -> str
+
+- risk: the fused risk value (already computed by fusion).
+- contributions: the exact dict returned by fuse() -- same numbers,
+  no recalculation.
 """
 
+LABELS = {
+    "motion": "motion evidence",
+    "context": "context evidence",
+    "physiology": "heart rate elevated",
+}
 
-def explain_stub(risk: float, scores: dict) -> str:
-    ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
-    parts = ", ".join(f"{name} {val:.2f}" for name, val in ranked)
-    return f"[STUB] risk {risk:.2f} -- {parts}"
+
+def explain(risk: float, contributions: dict) -> str:
+    if not contributions:
+        return f"Risk {risk:.2f} -- no reliable evidence available this window"
+
+    ranked = sorted(contributions.items(), key=lambda kv: kv[1], reverse=True)
+    parts = ", ".join(f"{LABELS.get(name, name)} {value:.2f}" for name, value in ranked)
+    return f"Emergency risk {risk:.2f} -- {parts}"
