@@ -33,11 +33,21 @@ SUPPRESS_STATE = "seated hand activity"
 SUPPRESS_CONF = 0.7
 
 
-def trace(path, ctx_model="models/context.joblib", mot_model="models/motion.joblib"):
+def _reader(dataset):
+    """Pick the loader. Both produce the same window contract."""
+    if dataset == "fallalld":
+        from data.loader_fallalld import read_record, iter_windows as iw
+        return read_record, iw
+    return read_umafall, iter_windows
+
+
+def trace(path, ctx_model="models/context.joblib", mot_model="models/motion.joblib",
+          dataset="umafall"):
     path = Path(path)
     ctx = ContextStream.load(ctx_model)
     mot = MotionStream.load(mot_model)
-    rec = read_umafall(path)
+    read, iter_win = _reader(dataset)
+    rec = read(path)
 
     print(f"\n{path.name}")
     print(f"  activity={rec.activity}  is_fall={rec.is_fall}  "
@@ -47,7 +57,7 @@ def trace(path, ctx_model="models/context.joblib", mot_model="models/motion.jobl
     print("-" * 78)
 
     conflicts = 0
-    for w, _meta in iter_windows(rec):
+    for w, _meta in iter_win(rec):
         # Score FIRST, then read the attributes. Reading last_state before
         # calling score() gives the previous window's value.
         cs = ctx.score(w)
@@ -84,11 +94,18 @@ def main(argv=None):
     ap.add_argument("path", nargs="?")
     ap.add_argument("--glob", help="pattern to pick the first matching file")
     ap.add_argument("--root", default="data/raw/UMAFall")
+    ap.add_argument("--dataset", choices=["umafall", "fallalld"],
+                    default="umafall",
+                    help="which loader to use; fallalld also changes the "
+                         "default root and glob suffix")
     ap.add_argument("--context", default="models/context.joblib")
     ap.add_argument("--motion", default="models/motion.joblib")
     ap.add_argument("--all", action="store_true",
                     help="trace every file matching --glob, summary only")
     a = ap.parse_args(argv)
+
+    if a.dataset == "fallalld" and a.root == "data/raw/UMAFall":
+        a.root = r"data\raw\FallAllD\FallAllD"
 
     if a.path:
         files = [a.path]
@@ -106,15 +123,16 @@ def main(argv=None):
     if a.all:
         ctx = ContextStream.load(a.context)
         mot = MotionStream.load(a.motion)
+        read, iter_win = _reader(a.dataset)
         print(f"{'file':<58} {'peak':>5} {'conflicts':>9}")
         for f in files:
             try:
-                rec = read_umafall(Path(f))
+                rec = read(Path(f))
             except Exception:                                # noqa: BLE001
                 continue
             mot.reset()
             peak, conf_n = 0.0, 0
-            for w, _ in iter_windows(rec):
+            for w, _ in iter_win(rec):
                 ctx.score(w)
                 st, cf = ctx.last_state, ctx.last_confidence
                 ms = mot.score(w)
@@ -125,7 +143,7 @@ def main(argv=None):
         return
 
     for f in files:
-        trace(f, a.context, a.motion)
+        trace(f, a.context, a.motion, a.dataset)
 
 
 if __name__ == "__main__":
