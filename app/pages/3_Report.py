@@ -115,31 +115,22 @@ st.markdown('<div class="g-section-title">1. System Overview</div>', unsafe_allo
 st.markdown(
     """
     <div class="g-panel">
-        <p style="margin: 0; font-size: 0.83rem; color: #5B6470; line-height: 1.5;">
-            Guardian is a multi-modal edge safety analytics architecture designed for continuous fall detection,
+        <p style="margin: 0 0 0.65rem 0; font-size: 0.83rem; color: #5B6470; line-height: 1.5;">
+            Guardian is an edge safety analytics architecture designed for continuous fall detection,
             activity context tracking, and physiological risk assessment from wearable sensor streams.
-            The pipeline is built on an isolated-stream contract where independent evidence streams
-            (<strong style="color: #1B222B;">MotionStream</strong>, <strong style="color: #1B222B;">ContextStream</strong>, <strong style="color: #1B222B;">PhysiologyStream</strong>) process
-            standardized 2.5-second windows (125 samples @ 50 Hz, 50% overlap) and combine via a weighted late-fusion engine.
+            The pipeline is built on an isolated-stream contract where independent evidence streams process standardized 2.5-second windows (125 samples @ 50 Hz, 50% overlap), each exposing its own continuous score, confidence, and signal quality metrics.
         </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; margin-top: 0.75rem;">
-            <div style="padding: 0.6rem 0.75rem; background-color: #F4F5F6; border: 1px solid #DCDFE2; border-left: 2px solid #2F6F62;">
-                <div style="font-size: 0.74rem; font-weight: 600; color: #1B222B;">Motion Kinematics</div>
-                <div style="font-size: 0.8rem; color: #5B6470; margin-top: 0.15rem;">Stage 1 Gate (2.5g) + Stage 2 RF (18 features) + 10s Stillness</div>
-            </div>
-            <div style="padding: 0.6rem 0.75rem; background-color: #F4F5F6; border: 1px solid #DCDFE2; border-left: 2px solid #2F6F62;">
-                <div style="font-size: 0.74rem; font-weight: 600; color: #1B222B;">Activity Context</div>
-                <div style="font-size: 0.8rem; color: #5B6470; margin-top: 0.15rem;">4-State Classifier with Temperature Calibration & Reject</div>
-            </div>
-            <div style="padding: 0.6rem 0.75rem; background-color: #F4F5F6; border: 1px solid #DCDFE2; border-left: 2px solid #2F6F62;">
-                <div style="font-size: 0.74rem; font-weight: 600; color: #1B222B;">Late Fusion Engine</div>
-                <div style="font-size: 0.8rem; color: #5B6470; margin-top: 0.15rem;">Suppresses hand impact false alarms during seated activity</div>
-            </div>
+        <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.82rem; color: #5B6470; line-height: 1.45; border-top: 1px solid #DCDFE2; padding-top: 0.6rem;">
+            <div><strong style="color: #1B222B;">Motion:</strong> Two-stage detection pipeline with a 2.5g impact gate, 18-feature Random Forest classifier, and 10s post-impact stillness tracking.</div>
+            <div><strong style="color: #1B222B;">Activity:</strong> 4-state activity classification (ambulating, stationary, seated hand activity, lying/immobile) with temperature calibration and open-set rejection (implemented via the codebase's <code>ContextStream</code> class).</div>
+            <div><strong style="color: #1B222B;">Physiological:</strong> Rule-based heart-rate deviation tracking with dwell time scaling (scripted trace; hardware integration pending).</div>
+            <div><strong style="color: #1B222B;">Context:</strong> Derived multi-stream behavioral context signal across motion, activity, and physiology (designed, not built). <em>Note: distinct from the codebase's <code>ContextStream</code> class, which implements the 4-state Activity stream above.</em></div>
         </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 # ==============================================================================
@@ -273,11 +264,12 @@ with col_m1:
         <div class="g-panel">
             <div style="font-size: 0.82rem; font-weight: 600; color: #1B222B; margin-bottom: 0.4rem;">Pipeline Configuration</div>
             <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; color: #5B6470; line-height: 1.5;">
-                <li><strong style="color: #1B222B;">Stage 1 Gate:</strong> SVM Peak > 2.5 g (Wrist threshold).</li>
-                <li><strong style="color: #1B222B;">Stage 2 Classifier:</strong> Random Forest (400 estimators, min_samples_leaf=2).</li>
-                <li><strong style="color: #1B222B;">Segment Scope:</strong> -2.0 s pre-trigger to +1.5 s post-trigger.</li>
-                <li><strong style="color: #1B222B;">Post-Impact Stillness:</strong> Forearm gravity tilt + SVM variance over 10.0 s.</li>
-                <li><strong style="color: #1B222B;">Score Combination:</strong> 0.6 * Impact + 0.4 * Stillness.</li>
+                <li><strong style="color: #1B222B;">Stage 1 Gate Threshold:</strong> SVM Peak > <span class="g-telemetry-num">2.5 g</span> (wrist threshold). <em>Design justification:</em> Retains <span class="g-telemetry-num">91%</span> fall recall and <span class="g-telemetry-num">91%</span> coverage at <span class="g-telemetry-num">20 Hz</span>.</li>
+                <li><strong style="color: #1B222B;">Gyroscope Gate Exclusion:</strong> Excluded from the Stage 1 gate due to high-acceleration ADLs at the wrist, but retained as a Stage 2 feature. <em>Gate-conditional ablation:</em> AUC increases from <span class="g-telemetry-num">0.584</span> to <span class="g-telemetry-num">0.679</span> (evaluated on a <span class="g-telemetry-num">300</span>-segment, <span class="g-telemetry-num">2</span>-subject FallAllD subset).</li>
+                <li><strong style="color: #1B222B;">Stage 2 Classifier:</strong> Random Forest (<span class="g-telemetry-num">400</span> estimators, <code>min_samples_leaf=2</code>).</li>
+                <li><strong style="color: #1B222B;">Segment Scope:</strong> <span class="g-telemetry-num">-2.0 s</span> pre-trigger to <span class="g-telemetry-num">+1.5 s</span> post-trigger. Centered on the <em>first gate crossing</em> rather than the global peak because a live stream has no oracle peak-finder.</li>
+                <li><strong style="color: #1B222B;">Post-Impact Stillness:</strong> Forearm gravity tilt + SVM variance over <span class="g-telemetry-num">10.0 s</span>.</li>
+                <li><strong style="color: #1B222B;">Score Combination:</strong> <span class="g-telemetry-num">0.6</span> * Impact + <span class="g-telemetry-num">0.4</span> * Stillness.</li>
             </ul>
         </div>
         """,
@@ -291,14 +283,15 @@ with col_m2:
             <div style="font-size: 0.82rem; font-weight: 600; color: #1B222B; margin-bottom: 0.4rem;">Evaluation & Calibration</div>
             <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.82rem; color: #5B6470; line-height: 1.5;">
                 <li><strong style="color: #1B222B;">Validation Protocol:</strong> Leave-One-Subject-Out (LOSO) Cross-Validation.</li>
-                <li><strong style="color: #1B222B;">Calibration Strategy:</strong> Platt / Temperature Scaling (T >= 1.0).</li>
+                <li><strong style="color: #1B222B;">Calibration Strategy:</strong> Platt / Temperature Scaling (<span class="g-telemetry-num">T &ge; 1.0</span>).</li>
                 <li><strong style="color: #1B222B;">Contract Telemetry:</strong> Exposes <code>last_quality</code>, <code>last_impact</code>, <code>last_stillness</code>.</li>
-                <li><strong style="color: #1B222B;">Event Hold / Decay:</strong> 60s hold time with exponential decay (tau=30s).</li>
+                <li><strong style="color: #1B222B;">Event Hold / Decay:</strong> <span class="g-telemetry-num">60s</span> hold time with exponential decay (<span class="g-telemetry-num">&tau; = 30s</span>).</li>
             </ul>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
 
 
 # ==============================================================================
@@ -440,7 +433,7 @@ st.markdown(
             <li><strong style="color: #1B222B;">Impact Detection Rate:</strong> <span class="g-telemetry-num">{result.records_with_impact}</span> of <span class="g-telemetry-num">{readable_falls}</span> readable fall recordings (<span class="g-telemetry-num">{impact_rate:.1f}%</span>) triggered the MotionStream impact gate with valid timestamp reconstruction.</li>
             <li><strong style="color: #1B222B;">Pre-Impact Baseline:</strong> <span style="color: #1B222B; font-weight: 500;">{before_state}</span> accounted for <span class="g-telemetry-num">{before_pct:.1f}%</span> of all classified pre-impact windows (<span class="g-telemetry-num">{result.before_counts.get(before_state, 0)}</span> of <span class="g-telemetry-num">{result.before_total}</span>), indicating active ambulation prior to impact.</li>
             <li><strong style="color: #1B222B;">Post-Impact Transition:</strong> Ambulation drops post-impact, while <span style="color: #1B222B; font-weight: 500;">{after_state}</span> rises to <span class="g-telemetry-num">{after_pct:.1f}%</span> and lying/immobile accounts for <span class="g-telemetry-num">{100.0 * result.after_counts.get('lying/immobile', 0) / result.after_total:.1f}%</span> (<span class="g-telemetry-num">{result.after_counts.get('lying/immobile', 0)}</span> windows).</li>
-            <li><strong style="color: #1B222B;">Cross-Dataset Generalizability:</strong> FallAllD benchmark analysis indicates that models omitting gyroscopic rotational rate features (<code>no_gyro</code>, 13 features) achieve higher generalizability (<span class="g-telemetry-num">AUC = 0.653</span>) than the full 18-feature model (<span class="g-telemetry-num">AUC = 0.604</span>).</li>
+            <li><strong style="color: #1B222B;">Cross-Dataset Generalizability:</strong> FallAllD benchmark analysis provides directional support that models omitting gyroscopic rotational rate features (<code>no_gyro</code>, 13 features) achieve higher cross-dataset generalizability (<span class="g-telemetry-num">AUC = 0.653</span>) than the full 18-feature model (<span class="g-telemetry-num">AUC = 0.604</span>). <em>Caveat:</em> Evaluated on a limited subset (<span class="g-telemetry-num">3</span> of <span class="g-telemetry-num">13</span> subjects evaluated &mdash; indicative, not conclusive).</li>
         </ul>
     </div>
     """,
@@ -458,11 +451,28 @@ skipped_pct = (100.0 * result.records_skipped / result.scanned_records) if resul
 
 st.markdown(
     f"""
-    <div class="g-panel" style="border-left: 3px solid #5B6470; font-size: 0.82rem; color: #5B6470; line-height: 1.5;">
-        <strong style="color: #1B222B;">Data Coverage & Hardware Note:</strong>
-        {result.records_skipped} fall records ({skipped_pct:.1f}% of the scanned cohort) could not be evaluated because raw UMAFall files lack wrist sensor channels (<code>SensorID=2</code>) and contain only pocket, chest, waist, or ankle sensor nodes. In accordance with clinical validation standards, these records are excluded without data fabrication or sensor-node reinterpretation.
+    <div class="g-panel" style="font-size: 0.82rem; color: #5B6470; line-height: 1.55;">
+        <ul style="margin: 0; padding-left: 1.15rem;">
+            <li style="margin-bottom: 0.45rem;">
+                <strong style="color: #1B222B;">Hardware & Sensor Coverage Exclusion:</strong>
+                {result.records_skipped} fall records ({skipped_pct:.1f}% of the scanned cohort) could not be evaluated because raw UMAFall files lack wrist sensor channels (<code>SensorID=2</code>) and contain only pocket, chest, waist, or ankle sensor nodes. In accordance with clinical validation standards, these records are excluded without data fabrication or sensor-node reinterpretation.
+            </li>
+            <li style="margin-bottom: 0.45rem;">
+                <strong style="color: #1B222B;">Staged vs. Real-World Evaluation:</strong>
+                Benchmark Motion AUC metrics (e.g. <span class="g-telemetry-num">0.998</span>) reflect staged, mattress-cushioned falls in controlled laboratory settings. Continuous real-world monitoring yields lower sensitivity and higher false alarm rates (Bagal&agrave; et al., 2012: <span class="g-telemetry-num">57%</span> mean sensitivity on real-world falls, <span class="g-telemetry-num">3&ndash;85</span> false alarms/day).
+            </li>
+            <li style="margin-bottom: 0.45rem;">
+                <strong style="color: #1B222B;">Sampling Rate Uniformity:</strong>
+                Sensor streams were standardized via upsampling to a uniform <span class="g-telemetry-num">50 Hz</span> grid rather than recorded natively at that fixed rate across all trials.
+            </li>
+            <li>
+                <strong style="color: #1B222B;">Sensor Placement Tradeoff:</strong>
+                The wrist location was chosen for high longitudinal user adherence rather than optimal impact biomechanics (the trunk/waist provides superior fall dynamics but lower continuous wear adherence).
+            </li>
+        </ul>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 
