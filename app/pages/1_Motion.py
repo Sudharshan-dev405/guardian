@@ -1,6 +1,5 @@
 """
 Guardian — Motion Module
-
 Motion analysis using the UMAFall dataset and the trained MotionStream model.
 """
 
@@ -10,24 +9,17 @@ import sys
 import pandas as pd
 import streamlit as st
 
-
 # ==========================================================================
-# PROJECT PATH
+# PROJECT PATH & IMPORTS
 # ==========================================================================
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-
-# ==========================================================================
-# Guardian imports
-# ==========================================================================
-
+from app.ui_theme import apply_theme, render_page_header, render_sidebar_header
 from data.loader import iter_windows, read_umafall
 from streams.motion import MotionStream
-
 
 # ==========================================================================
 # PAGE CONFIGURATION
@@ -35,10 +27,11 @@ from streams.motion import MotionStream
 
 st.set_page_config(
     page_title="Guardian — Motion",
-    page_icon="🛡️",
     layout="wide",
 )
 
+apply_theme()
+render_sidebar_header()
 
 # ==========================================================================
 # PATHS
@@ -49,7 +42,7 @@ MOTION_MODEL_PATH = PROJECT_ROOT / "models" / "motion.joblib"
 
 
 # ==========================================================================
-# DATA HELPERS
+# DATA HELPERS (PRESERVED EXACTLY)
 # ==========================================================================
 
 @st.cache_data
@@ -60,6 +53,7 @@ def list_umafall_files():
     return [
         str(path)
         for path in sorted(UMAFALL_ROOT.rglob("*.csv"))
+        if path.name.lower() != "fall_timestamps.csv"
     ]
 
 
@@ -178,22 +172,13 @@ def format_seconds(value) -> str:
 
 
 # ==========================================================================
-# MOTION MODULE
+# PAGE HEADER
 # ==========================================================================
 
-st.title("Motion Module")
-
-st.caption("Dataset: UMAFall")
-
-st.write(
-    "The MotionStream processes wrist IMU windows from UMAFall, "
-    "uses an impact gate and trained Random Forest model, and "
-    "examines post-impact stillness."
-)
-
-st.write(
-    "This module displays motion-specific outputs only. "
-    "Fusion and emergency-risk scoring are not used."
+render_page_header(
+    title="Motion Analysis",
+    subtitle="Wrist IMU kinematics, two-stage impact gating, Random Forest scoring, and post-impact stillness tracking.",
+    context_label="UMAFall Dataset",
 )
 
 
@@ -202,45 +187,40 @@ st.write(
 # ==========================================================================
 
 if not MOTION_MODEL_PATH.exists():
-
-    st.error(
-        f"Missing motion model: {MOTION_MODEL_PATH}"
-    )
-
+    st.error(f"Missing motion model: {MOTION_MODEL_PATH}")
     st.stop()
-
 
 record_files = list_umafall_files()
 
 if not record_files:
-
-    st.error(
-        f"No UMAFall CSV files were found under "
-        f"{UMAFALL_ROOT}."
-    )
-
+    st.error(f"No UMAFall CSV files were found under {UMAFALL_ROOT}.")
     st.stop()
 
 
 # ==========================================================================
-# RECORD SELECTION
+# RECORD SELECTION BAR
 # ==========================================================================
 
-selected_path = st.selectbox(
-    "UMAFall record",
-    options=record_files,
-    format_func=lambda path: Path(path).name,
-)
+col_select, col_badge = st.columns([4, 1])
+
+with col_select:
+    selected_path = st.selectbox(
+        "Select UMAFall Recording",
+        options=record_files,
+        format_func=lambda path: Path(path).name,
+        help="Select any raw UMAFall trial to run the real-time MotionStream pipeline.",
+    )
+
+with col_badge:
+    st.markdown("<div style='height: 1.75rem;'></div>", unsafe_allow_html=True)
+    st.markdown('<div style="font-size: 0.8rem; color: #5B6470; text-align: right; padding-top: 0.25rem;">50 Hz Uniform Grid</div>', unsafe_allow_html=True)
 
 
 # ==========================================================================
 # RUN MOTION ANALYSIS
 # ==========================================================================
 
-with st.spinner(
-    "Running MotionStream on the selected record..."
-):
-
+with st.spinner("Processing wrist IMU stream through MotionStream..."):
     info, motion_df, latest, peak = analyze_motion_record(
         selected_path,
         str(MOTION_MODEL_PATH),
@@ -249,108 +229,63 @@ with st.spinner(
 
 
 # ==========================================================================
-# RECORD INFORMATION
-# ==========================================================================
-
-st.subheader("Selected record")
-
-info_cols = st.columns(5)
-
-info_cols[0].metric(
-    "Subject",
-    info["subject"],
-)
-
-info_cols[1].metric(
-    "Activity",
-    info["activity"],
-)
-
-info_cols[2].metric(
-    "Trial",
-    info["trial"],
-)
-
-info_cols[3].metric(
-    "Samples",
-    info["samples"],
-)
-
-info_cols[4].metric(
-    "Duration",
-    f"{info['duration']:.2f} s",
-)
-
-
-# ==========================================================================
-# RESULTS
+# RECORD METADATA & TELEMETRY
 # ==========================================================================
 
 if motion_df.empty or latest is None:
-
-    st.warning(
-        "No motion windows were produced "
-        "for the selected record."
-    )
-
+    st.warning("No motion windows were produced for the selected record.")
     st.stop()
 
+st.markdown('<div class="g-section-title">Recording Telemetry</div>', unsafe_allow_html=True)
 
-st.subheader("Motion results")
-
-result_cols = st.columns(5)
-
-result_cols[0].metric(
-    "Motion score",
-    f"{latest['motion_score']:.2f}",
-)
-
-result_cols[1].metric(
-    "Impact",
-    f"{latest['impact']:.2f}",
-)
-
-result_cols[2].metric(
-    "Stillness",
-    f"{latest['stillness']:.2f}",
-)
-
-result_cols[3].metric(
-    "Time since impact",
-    format_seconds(
-        latest["time_since_impact"]
-    ),
-)
-
-result_cols[4].metric(
-    "Quality",
-    f"{latest['quality']:.2f}",
-)
+meta_cols = st.columns(5)
+meta_cols[0].metric("Subject", info["subject"])
+meta_cols[1].metric("Activity", info["activity"])
+meta_cols[2].metric("Trial", f"#{info['trial']}")
+meta_cols[3].metric("Samples", f"{info['samples']:,}")
+meta_cols[4].metric("Duration", f"{info['duration']:.2f} s")
 
 
 # ==========================================================================
-# CURRENT STATUS
+# STREAM OUTPUTS & DIAGNOSTIC KPIS
 # ==========================================================================
 
-gate_status = (
-    "Open"
+st.markdown('<div class="g-section-title">Stream Outputs & Impact Diagnostics</div>', unsafe_allow_html=True)
+
+res_cols = st.columns(5)
+res_cols[0].metric("Motion Score", f"{latest['motion_score']:.2f}")
+res_cols[1].metric("Impact Stage", f"{latest['impact']:.2f}")
+res_cols[2].metric("Stillness Score", f"{latest['stillness']:.2f}")
+res_cols[3].metric("Time Since Impact", format_seconds(latest["time_since_impact"]))
+res_cols[4].metric("Signal Quality", f"{latest['quality']:.2f}")
+
+gate_status_panel_class = "g-panel-alert" if latest["gate_open"] else "g-panel-normal"
+gate_indicator = (
+    '<span class="g-indicator g-indicator-alert"><span class="g-dot g-dot-alert"></span> Gate Open (Impact Triggered)</span>'
     if latest["gate_open"]
-    else "Closed"
+    else '<span class="g-indicator g-indicator-normal"><span class="g-dot g-dot-normal"></span> Gate Closed (Normal)</span>'
 )
 
-st.caption(
-    f"Current gate status: {gate_status}. "
-    f"Peak motion score: "
-    f"{peak['motion_score']:.2f} "
-    f"at t = {peak['t']:.2f}s."
+st.markdown(
+    f"""
+    <div class="{gate_status_panel_class}" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; margin-bottom: 0.75rem;">
+        <div style="font-size: 0.83rem; color: #5B6470;">
+            Peak motion score: <strong class="g-telemetry-num" style="color: #1B222B;">{peak['motion_score']:.2f}</strong> at <span class="g-telemetry-num">t = {peak['t']:.2f}s</span>
+        </div>
+        <div>
+            {gate_indicator}
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 
 # ==========================================================================
-# GRAPH
+# TIME-SERIES SIGNAL VISUALIZATION
 # ==========================================================================
 
-st.subheader("Motion stream graph")
+st.markdown('<div class="g-section-title">Multi-Signal Time Series</div>', unsafe_allow_html=True)
 
 chart_df = motion_df[
     [
@@ -370,5 +305,19 @@ chart_df = motion_df[
 )
 
 st.line_chart(
-    chart_df.set_index("t")
+    chart_df.set_index("t"),
+    height=380,
 )
+
+
+# ==========================================================================
+# WINDOW-LEVEL DATA EXPANDER
+# ==========================================================================
+
+with st.expander("Window-Level Telemetry Data"):
+    st.caption("Window timeline with per-step feature and gate telemetry.")
+    st.dataframe(
+        motion_df,
+        use_container_width=True,
+        hide_index=True,
+    )
