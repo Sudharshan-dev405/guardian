@@ -255,7 +255,12 @@ def read_umafall(path: Path, sensor_id: int = UMA_WRIST_ID) -> Record:
         gyro_r = None
         notes.append("no wrist gyroscope in this file -- Stage 1 gate falls back to the accelerometer only")
     else:
-        gyro = _gyro_to_dps(gyro, notes)
+        # UMAFall's wrist gyro is deg/s for the whole dataset (one sensor model).
+        # Per-file auto-detection read 573 of 617 records as deg/s and flagged 44
+        # as rad/s only because their 99.5th-percentile rate stayed under 20,
+        # which is what a quiet recording looks like in deg/s. A rad/s dataset
+        # would have flagged nearly every file. Those 44 were being multiplied
+        # by 57, so the conversion is switched off for UMAFall.
         gyro_r = np.empty((len(grid), 3), dtype=np.float32)
         for k in range(3):
             gyro_r[:, k] = np.interp(grid, t_w, gyro[:, k])

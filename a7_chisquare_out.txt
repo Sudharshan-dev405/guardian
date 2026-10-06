@@ -1,0 +1,30 @@
+fall records read: 189   (check value: 189)
+
+records affected: 77 / 189   (check value: 77 / 189)
+
+per direction (check values: forward 47.7%, backward 1.5%, lateral 78.9%)
+  forward     31 yes / 65  records  (47.7%)
+  backward     1 yes / 67  records  (1.5%)
+  lateral     45 yes / 57  records  (78.9%)
+
+OBSERVED 3x2 table   rows = direction, cols = [affected, not affected]
+            affected  not_affected   total
+forward           31            34      65
+backward           1            66      67
+lateral           45            12      57
+total             77           112     189
+
+chi-square statistic : np.float64(78.51448535753327)
+p-value              : 8.928862e-18
+p-value (repr)       : np.float64(8.928862392590324e-18)
+degrees of freedom   : 2
+
+EXPECTED counts
+              affected    not_affected
+forward      26.481481       38.518519
+backward     27.296296       39.703704
+lateral      23.222222       33.777778
+
+expected cells below 5: 0 of 6
+
+saved -> a7_outputs\contingency_observed.csv, contingency_expected.csv, chisquare_result.csv

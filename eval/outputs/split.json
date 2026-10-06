@@ -1,0 +1,34 @@
+{
+  "test_subjects": [
+    "S02",
+    "S06",
+    "S11"
+  ],
+  "dev_subjects": [
+    "S01",
+    "S03",
+    "S04",
+    "S05",
+    "S07",
+    "S08",
+    "S09",
+    "S10",
+    "S12",
+    "S14",
+    "S15",
+    "S16",
+    "S17",
+    "S18",
+    "S19"
+  ],
+  "dev_without_falls": [
+    "S01",
+    "S03",
+    "S09",
+    "S10",
+    "S12",
+    "S19"
+  ],
+  "seed": 0,
+  "note": "Test subjects are opened only in Stage 3."
+}

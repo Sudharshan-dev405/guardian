@@ -1,0 +1,24 @@
+{
+  "select": [
+    "S04",
+    "S05",
+    "S06",
+    "S10",
+    "S11",
+    "S14",
+    "S15"
+  ],
+  "report": [
+    "S01",
+    "S02",
+    "S03",
+    "S09",
+    "S12",
+    "S13"
+  ],
+  "falls": {
+    "select": 252,
+    "report": 271
+  },
+  "rule": "model chosen on 'select' only; 'report' is the cross-dataset result"
+}

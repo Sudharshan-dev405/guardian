@@ -1,0 +1,113 @@
+### PY FILES 
+C:\Users\mvpva\guardian\contract.py
+C:\Users\mvpva\guardian\test_contract.py
+C:\Users\mvpva\guardian\data\loader.py
+C:\Users\mvpva\guardian\data\loader_fallalld.py
+C:\Users\mvpva\guardian\data\__init__.py
+C:\Users\mvpva\guardian\eval\cross_dataset.py
+C:\Users\mvpva\guardian\eval\__init__.py
+C:\Users\mvpva\guardian\streams\context.py
+C:\Users\mvpva\guardian\streams\motion.py
+C:\Users\mvpva\guardian\streams\__init__.py
+C:\Users\mvpva\guardian\tools\context_on_falls.py
+C:\Users\mvpva\guardian\tools\probe_fallalld.py
+C:\Users\mvpva\guardian\tools\probe_fallalld2.py
+C:\Users\mvpva\guardian\tools\trace.py
+C:\Users\mvpva\guardian\tools\__init__.py
+### TOOLS DIR 
+C:\Users\mvpva\guardian\tools\context_on_falls.py
+C:\Users\mvpva\guardian\tools\probe_fallalld.py
+C:\Users\mvpva\guardian\tools\probe_fallalld2.py
+C:\Users\mvpva\guardian\tools\trace.py
+C:\Users\mvpva\guardian\tools\__init__.py
+### CLI FLAGS 
+data\loader.py:556:    ap.add_argument("--inspect", metavar="FILE")
+data\loader.py:557:    ap.add_argument("--scan", metavar="DIR")
+data\loader.py:558:    ap.add_argument("--mapping", action="store_true")
+data\loader.py:559:    ap.add_argument("--selftest", action="store_true")
+data\loader_fallalld.py:534:    ap.add_argument("--inspect", metavar="ACC_FILE")
+data\loader_fallalld.py:535:    ap.add_argument("--scan", action="store_true")
+data\loader_fallalld.py:536:    ap.add_argument("--root", default=str(DEFAULT_ROOT))
+data\loader_fallalld.py:537:    ap.add_argument("--device", type=int, default=WRIST_DEVICE)
+data\loader_fallalld.py:538:    ap.add_argument("--mapping", action="store_true")
+data\loader_fallalld.py:539:    ap.add_argument("--selftest", action="store_true")
+eval\cross_dataset.py:780:    ap.add_argument(
+eval\cross_dataset.py:785:    ap.add_argument(
+eval\cross_dataset.py:792:    ap.add_argument(
+eval\cross_dataset.py:799:    ap.add_argument(
+streams\context.py:501:    ap.add_argument("--train", metavar="DIR")
+streams\context.py:502:    ap.add_argument("--out", default="models/context.joblib")
+streams\context.py:503:    ap.add_argument("--elderly", action="store_true",
+streams\context.py:505:    ap.add_argument("--report", metavar="MODEL")
+streams\context.py:506:    ap.add_argument("--selftest", action="store_true")
+streams\motion.py:760:    ap.add_argument("--train", metavar="DIR")
+streams\motion.py:761:    ap.add_argument("--out", default="models/motion.joblib")
+streams\motion.py:762:    ap.add_argument("--tune", metavar="DIR")
+streams\motion.py:763:    ap.add_argument("--selftest", action="store_true")
+streams\motion.py:764:    ap.add_argument("--ablation", metavar="DIR")
+tools\context_on_falls.py:53:    ap.add_argument("--root", default=r"data\raw\UMAFall")
+tools\context_on_falls.py:54:    ap.add_argument("--model", default="models/context.joblib")
+tools\context_on_falls.py:55:    ap.add_argument("--csv", help="write per-record rows to this file")
+tools\probe_fallalld.py:177:    ap.add_argument("--root", default=r"data\raw\FallAllD\FallAllD")
+tools\probe_fallalld.py:178:    ap.add_argument("--n", type=int, default=40,
+tools\probe_fallalld2.py:106:    ap.add_argument("--root", default=r"data\raw\FallAllD\FallAllD")
+tools\probe_fallalld2.py:107:    ap.add_argument("--subjects", nargs="*",
+tools\probe_fallalld2.py:109:    ap.add_argument("--n", type=int, default=40)
+tools\trace.py:94:    ap.add_argument("path", nargs="?")
+tools\trace.py:95:    ap.add_argument("--glob", help="pattern to pick the first matching file")
+tools\trace.py:96:    ap.add_argument("--root", default="data/raw/UMAFall")
+tools\trace.py:97:    ap.add_argument("--dataset", choices=["umafall", "fallalld"],
+tools\trace.py:101:    ap.add_argument("--context", default="models/context.joblib")
+tools\trace.py:102:    ap.add_argument("--motion", default="models/motion.joblib")
+tools\trace.py:103:    ap.add_argument("--all", action="store_true",
+### MAPPING REFS 
+data\loader.py:24:    py -m data.loader --mapping
+data\loader.py:55:# Context label mapping -- this table goes in the report
+data\loader.py:98:def mapping_table_markdown() -> str:
+data\loader.py:511:        print(f"\n{bad} files did not match the mapping table -- add them to ACTIVITY_MAP.")
+data\loader.py:558:    ap.add_argument("--mapping", action="store_true")
+data\loader.py:565:    elif a.mapping:
+data\loader.py:566:        print(mapping_table_markdown())
+data\loader_fallalld.py:40:    py -m data.loader_fallalld --mapping
+data\loader_fallalld.py:120:# Context mapping -- FallAllD's own version of the table. Goes in the report.
+data\loader_fallalld.py:191:def mapping_table_markdown() -> str:
+data\loader_fallalld.py:360:                     f"{UNMAPPED_REASONS.get(aid, 'not in the mapping table')}")
+data\loader_fallalld.py:538:    ap.add_argument("--mapping", action="store_true")
+data\loader_fallalld.py:545:    elif a.mapping:
+data\loader_fallalld.py:546:        print(mapping_table_markdown())
+### CONTEXT_ON_FALLS REFS 
+tools\context_on_falls.py:2:tools/context_on_falls.py -- what does the context classifier output on fall
+tools\context_on_falls.py:22:    py -m tools.context_on_falls
+tools\context_on_falls.py:23:    py -m tools.context_on_falls --csv falls_context.csv
+### ENTRY POINTS 
+data\loader.py:30:import argparse
+data\loader.py:555:    ap = argparse.ArgumentParser(description="Guardian dataset loader")
+data\loader.py:573:if __name__ == "__main__":
+data\loader_fallalld.py:46:import argparse
+data\loader_fallalld.py:533:    ap = argparse.ArgumentParser(description="FallAllD loader (wrist = D2)")
+data\loader_fallalld.py:553:if __name__ == "__main__":
+eval\cross_dataset.py:37:import argparse
+eval\cross_dataset.py:776:    ap = argparse.ArgumentParser(
+eval\cross_dataset.py:870:if __name__ == "__main__":
+streams\context.py:29:import argparse
+streams\context.py:500:    ap = argparse.ArgumentParser(description="Guardian context stream")
+streams\context.py:518:if __name__ == "__main__":
+streams\motion.py:34:import argparse
+streams\motion.py:759:    ap = argparse.ArgumentParser(description="Guardian motion stream")
+streams\motion.py:778:if __name__ == "__main__":
+tools\context_on_falls.py:28:import argparse
+tools\context_on_falls.py:51:    ap = argparse.ArgumentParser(
+tools\context_on_falls.py:143:if __name__ == "__main__":
+tools\probe_fallalld.py:30:import argparse
+tools\probe_fallalld.py:176:    ap = argparse.ArgumentParser(description="Probe FallAllD structure")
+tools\probe_fallalld.py:189:if __name__ == "__main__":
+tools\probe_fallalld2.py:33:import argparse
+tools\probe_fallalld2.py:105:    ap = argparse.ArgumentParser()
+tools\probe_fallalld2.py:170:if __name__ == "__main__":
+tools\trace.py:21:import argparse
+tools\trace.py:93:    ap = argparse.ArgumentParser(description="Trace one record through both streams")
+tools\trace.py:149:if __name__ == "__main__":
+### CONFIGS 
+### DATA RAW TOP LEVEL 
+FallAllD
+UMAFall

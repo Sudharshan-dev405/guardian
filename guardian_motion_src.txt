@@ -1,0 +1,254 @@
+=== _train ===
+def _train(root, out):
+    from sklearn.model_selection import LeaveOneGroupOut
+
+    X, y, g, gated = _collect(root)
+    if len(X) == 0:
+        print("No segments. Run: py -m data.loader --scan <dir>")
+        return
+    subjects = sorted(set(g.tolist()))
+    print(f"{len(X)} segments  falls={int(y.sum())}  ADLs={int((1-y).sum())}  "
+          f"subjects={len(subjects)}")
+    print(f"stage-1 gate fires on {gated.mean()*100:.1f}% of records "
+          f"({gated[y==1].mean()*100:.1f}% of falls, {gated[y==0].mean()*100:.1f}% of ADLs)")
+
+    # Leave-one-subject-out. A random or few-subject split on 617 stereotyped
+    # staged records gives an AUC near 1.0 that no panel will believe. LOSO
+    # over every subject is the number to report.
+    oof = np.full(len(y), np.nan)
+    fold_auc = []
+    for tr, te in LeaveOneGroupOut().split(X, y, groups=g):
+        if len(np.unique(y[tr])) < 2:
+            continue
+        m = RandomForestClassifier(n_estimators=400, min_samples_leaf=2,
+                                   class_weight="balanced_subsample",
+                                   n_jobs=-1, random_state=0).fit(X[tr], y[tr])
+        fi = list(m.classes_).index(1)
+        p = m.predict_proba(X[te])[:, fi]
+        oof[te] = p
+        if len(np.unique(y[te])) == 2:
+            fold_auc.append(roc_auc_score(y[te], p))
+
+    print(f"\n--- leave-one-subject-out, {len(fold_auc)} evaluable folds ---")
+    if fold_auc:
+        a = np.asarray(fold_auc)
+        print(f"per-subject AUC  mean {a.mean():.3f}  sd {a.std():.3f}  "
+              f"min {a.min():.3f}  max {a.max():.3f}")
+
+    def _roc_report(mask, label):
+        m = mask & ~np.isnan(oof)
+        if m.sum() < 10 or len(np.unique(y[m])) < 2:
+            print(f"{label}: too few samples to score")
+            return
+        fpr, tpr, thr = roc_curve(y[m], oof[m])
+        auc = roc_auc_score(y[m], oof[m])
+        k95, k90 = fpr <= 0.05, fpr <= 0.10
+        s95 = float(tpr[k95].max()) if k95.any() else 0.0
+        t95 = float(thr[k95][int(np.argmax(tpr[k95]))]) if k95.any() else float("nan")
+        s90 = float(tpr[k90].max()) if k90.any() else 0.0
+        print(f"{label}  n={int(m.sum())} "
+              f"(falls {int(y[m].sum())}, ADLs {int((1-y[m]).sum())})")
+        print(f"   AUC {auc:.3f}   sens@95%spec {s95:.3f} (thr {t95:.2f})   "
+              f"sens@90%spec {s90:.3f}")
+
+    print()
+    _roc_report(np.ones(len(y), bool), "ALL RECORDS      ")
+    _roc_report(gated, "GATE-CONDITIONAL ")
+    print("   ^ this is the number to report. Stage 2 only ever runs on segments")
+    print("     Stage 1 gated, so the ungated ADLs are negatives the scorer never")
+    print("     sees in deployment. Including them inflates the AUC.")
+
+    # Final model on everything, calibrated on a subject-disjoint holdout.
+    ms = MotionStream().fit_segments(X, y, g)
+    imp = sorted(zip(FEATURE_NAMES, ms.model.feature_importances_),
+                 key=lambda kv: -kv[1])[:6]
+    print("\ntop features: " + ", ".join(f"{k} {v:.3f}" for k, v in imp))
+    print(f"temperature T = {ms.temperature:.3f}")
+    print(f"saved -> {ms.save(out)}")
+
+=== _tune ===
+def _tune(root):
+    """The 2.5 g / 200 deg/s thresholds come from higher-rate wrist studies.
+    Show what they actually do on this data before trusting them."""
+    from data.loader import scan
+    peaks_f, peaks_a, gyro_f, gyro_a = [], [], [], []
+    for rec in scan(root):
+        svm = np.linalg.norm(np.asarray(rec.acc, dtype=float), axis=1)
+        gr = (np.linalg.norm(np.asarray(rec.gyro, dtype=float), axis=1).max()
+              if rec.gyro is not None else 0.0)
+        (peaks_f if rec.is_fall else peaks_a).append(float(svm.max()))
+        (gyro_f if rec.is_fall else gyro_a).append(float(gr))
+    if not peaks_f or not peaks_a:
+        print("need both falls and ADLs"); return
+    for name, f, a, thr, unit in (("SVM peak", peaks_f, peaks_a, GATE_SVM_G, "g"),
+                                  ("gyro peak", gyro_f, gyro_a, GATE_GYRO_DPS, "deg/s")):
+        f, a = np.asarray(f), np.asarray(a)
+        print(f"\n{name}: falls median {np.median(f):.2f} {unit} "
+              f"(p10 {np.percentile(f,10):.2f}), ADLs median {np.median(a):.2f} "
+              f"(p90 {np.percentile(a,90):.2f})")
+        print(f"  current threshold {thr} {unit}: catches {np.mean(f>thr)*100:.0f}% of falls, "
+              f"fires on {np.mean(a>thr)*100:.0f}% of ADLs")
+        for q in (0.05, 0.10, 0.20):
+            t = float(np.quantile(f, q))
+            print(f"  at {t:.2f} {unit} (p{int(q*100)} of falls): "
+                  f"{np.mean(f>t)*100:.0f}% falls, {np.mean(a>t)*100:.0f}% ADLs")
+
+=== _collect ===
+def _collect(root):
+    from data.loader import scan                     # lazy: CLI only
+    X, y, g, gated = [], [], [], []
+    for rec in scan(root):
+        for f, lab, subj, hit in segments_from_record(rec):
+            X.append(f); y.append(lab); g.append(subj); gated.append(hit)
+    return np.asarray(X), np.asarray(y), np.asarray(g), np.asarray(gated)
+
+=== _ablation ===
+def _ablation(root):
+    """Train UMAFall-only models with different feature subsets and
+    report LOSO AUC. This is an experiment only; it does not overwrite
+    the production model.
+    """
+    from sklearn.model_selection import LeaveOneGroupOut
+
+    X, y, g, gated = _collect(root)
+
+    if len(X) == 0:
+        print("No segments.")
+        return
+
+    print("\n" + "=" * 74)
+    print("MOTION FEATURE ABLATION -- UMAFall LOSO")
+    print("=" * 74)
+    print(f"{len(X)} segments  falls={int(y.sum())}  "
+          f"ADLs={int((1-y).sum())}")
+    print()
+
+    results = []
+
+    for name, indices in FEATURE_SETS.items():
+        XX = X[:, indices]
+        oof = np.full(len(y), np.nan)
+
+        for tr, te in LeaveOneGroupOut().split(XX, y, groups=g):
+            if len(np.unique(y[tr])) < 2:
+                continue
+
+            m = RandomForestClassifier(
+                n_estimators=400,
+                min_samples_leaf=2,
+                class_weight="balanced_subsample",
+                n_jobs=-1,
+                random_state=0,
+            )
+
+            m.fit(XX[tr], y[tr])
+            fall_i = list(m.classes_).index(1)
+            oof[te] = m.predict_proba(XX[te])[:, fall_i]
+
+        mask = ~np.isnan(oof) & gated
+
+        if mask.sum() >= 10 and len(np.unique(y[mask])) == 2:
+            auc = roc_auc_score(y[mask], oof[mask])
+        else:
+            auc = float("nan")
+
+        results.append((name, len(indices), auc))
+        print(f"{name:<16} features={len(indices):2d}  "
+              f"gate-conditional AUC={auc:.3f}")
+
+    print("\n--- ranking ---")
+    for name, n, auc in sorted(
+        results,
+        key=lambda x: -x[2] if not np.isnan(x[2]) else -999
+    ):
+        print(f"{name:<16} {auc:.3f}")
+
+=== _selftest ===
+def _selftest():
+    """Synthetic fall and ADL fixtures pushed through as a window stream.
+    Machinery test only; never used as project data."""
+    fs, rng = 50, np.random.default_rng(0)
+
+    def stream(kind, secs=25.0):
+        n = int(secs * fs)
+        t = np.arange(n) / fs
+        acc = np.column_stack([rng.normal(0, .05, n), rng.normal(0, .05, n),
+                               1 + rng.normal(0, .05, n)])
+        gyro = rng.normal(0, 10, (n, 3))
+        k = int(8.0 * fs)
+        if kind == "fall":
+            acc[k-25:k, 2] = 0.15                       # free fall
+            acc[k:k+6, :] += np.array([4.0, 3.0, 5.0])  # impact
+            gyro[k-10:k+10] += 400
+            acc[k+10:, :] = np.array([0.98, 0.05, 0.08]) # forearm horizontal, still
+            acc[k+10:, :] += rng.normal(0, .01, (n-k-10, 3))
+            gyro[k+10:] = rng.normal(0, 1, (n-k-10, 3))
+        elif kind == "hand":                            # hard desk slam, then activity
+            acc[k:k+4, :] += np.array([3.0, 1.0, 2.5])
+            gyro[k-5:k+5] += 250
+            acc[k+10:, 0] += 0.5*np.sin(2*np.pi*0.9*t[k+10:])
+            gyro[k+10:] += rng.normal(0, 80, (n-k-10, 3))
+        for s in range(0, n - 125 + 1, 62):
+            yield {"t": s/fs, "acc": acc[s:s+125].astype(np.float32),
+                   "gyro": gyro[s:s+125].astype(np.float32),
+                   "hr": None, "temp": None, "fs": fs}
+
+    for kind in ("fall", "hand"):
+        ms = MotionStream()
+        peak, at_t, fired = 0.0, 0.0, False
+        for w in stream(kind):
+            s = ms.score(w)
+            assert isinstance(s, float) and 0.0 <= s <= 1.0 and not np.isnan(s)
+            assert 0.0 <= ms.last_quality <= 1.0
+            if ms.gate_open:
+                fired = True
+            if s > peak:
+                peak, at_t = s, w["t"]
+        print(f"{kind:5s}: gate fired={fired}  peak score={peak:.2f} at t={at_t:.1f}s  "
+              f"impact={ms.last_impact:.2f} stillness={ms.last_stillness:.2f} "
+              f"q={ms.last_quality:.2f}")
+
+    # A quiet stream must never trigger.
+    ms = MotionStream()
+    quiet = 0.0
+    for w in stream("quiet"):
+        quiet = max(quiet, ms.score(w))
+    print(f"quiet: peak score={quiet:.2f} (must be 0.00)")
+    assert quiet == 0.0
+
+    # Contract edges.
+    ms = MotionStream()
+    assert ms.score({"acc": None, "fs": 50}) == 0.0 and ms.last_quality == 0.0
+    assert ms.score({}) == 0.0
+    ms2 = MotionStream()
+    w = {"t": 0.0, "acc": np.ones((125, 3), np.float32)/np.sqrt(3),
+         "gyro": None, "hr": None, "temp": None, "fs": 50}
+    assert 0.0 <= ms2.score(w) <= 1.0
+    print("no-gyro window handled, quality =", round(ms2.last_quality, 2))
+    print("SELFTEST PASS")
+
+data\loader_fallalld.py:28:folded back into the band. This matters: a fall impact has energy well above
+data\loader_fallalld.py:254:    filter is the point: without it, impact energy above 25 Hz folds back into
+data\loader_fallalld.py:483:    # correct anti-alias filter it is attenuated; naive decimation would fold
+data\loader_fallalld.py:495:          f"folds to 10 Hz at full amplitude)")
+guardian_folds.py:1:"""scratch_folds.py -- read-only. Subject spans + UMAFall fall-direction split."""
+scratch_folds.py:1:"""scratch_folds.py -- read-only. Subject spans + UMAFall fall-direction split."""
+streams\context.py:38:from sklearn.model_selection import GroupShuffleSplit
+streams\context.py:70:REJECT_THRESHOLD_MAX = 0.85  # cap, so a degenerate fold cannot reject everything
+streams\context.py:278:        splitter = GroupShuffleSplit(n_splits=1, test_size=holdout_frac, random_state=seed)
+streams\context.py:303:        # Guard: on an easy held-out fold every correct prediction sits at
+streams\context.py:308:            print(f"[context] held-out fold was degenerate (raw reject threshold "
+streams\motion.py:44:from sklearn.model_selection import GroupShuffleSplit
+streams\motion.py:463:        tr, ho = next(GroupShuffleSplit(n_splits=1, test_size=holdout_frac,
+streams\motion.py:541:    report LOSO AUC. This is an experiment only; it does not overwrite
+streams\motion.py:544:    from sklearn.model_selection import LeaveOneGroupOut
+streams\motion.py:553:    print("MOTION FEATURE ABLATION -- UMAFall LOSO")
+streams\motion.py:565:        for tr, te in LeaveOneGroupOut().split(XX, y, groups=g):
+streams\motion.py:600:    from sklearn.model_selection import LeaveOneGroupOut
+streams\motion.py:613:    # staged records gives an AUC near 1.0 that no panel will believe. LOSO
+streams\motion.py:616:    fold_auc = []
+streams\motion.py:617:    for tr, te in LeaveOneGroupOut().split(X, y, groups=g):
+streams\motion.py:627:            fold_auc.append(roc_auc_score(y[te], p))
+streams\motion.py:629:    print(f"\n--- leave-one-subject-out, {len(fold_auc)} evaluable folds ---")
+streams\motion.py:630:    if fold_auc:
+streams\motion.py:631:        a = np.asarray(fold_auc)

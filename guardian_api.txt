@@ -1,0 +1,257 @@
+=== UMA.Record ===
+@dataclass
+class Record:
+    """One raw trial, resampled to TARGET_FS."""
+    path: Path
+    subject: str
+    activity: str
+    trial: str
+    t: np.ndarray                    # (M,) seconds from 0
+    acc: np.ndarray                  # (M, 3) g
+    gyro: np.ndarray | None          # (M, 3) deg/s, or None if absent
+    fs_raw: float
+    state: str | None = None
+    is_fall: bool = False
+    notes: list = field(default_factory=list)
+
+    @property
+    def duration(self) -> float:
+        return float(self.t[-1] - self.t[0]) if len(self.t) else 0.0
+
+    def summary(self) -> str:
+        g = "none" if self.gyro is None else f"{self.gyro.shape[0]}x3"
+        return (f"{self.path.name}\n"
+                f"  subject={self.subject}  activity={self.activity}  trial={self.trial}\n"
+                f"  state={self.state}  is_fall={self.is_fall}\n"
+                f"  raw fs~{self.fs_raw:.1f} Hz -> {TARGET_FS} Hz, {self.duration:.1f} s\n"
+                f"  acc={self.acc.shape[0]}x3 g   gyro={g}\n"
+                + "".join(f"  ! {n}\n" for n in self.notes))
+
+=== UMA.iter_windows ===
+def iter_windows(record: Record, trace: "ScriptedTrace | None" = None,
+                 t0: float = 0.0):
+    """
+    Yield (window, meta) as fast as the CPU allows.
+
+    window follows contract.py exactly. meta carries ground truth and
+    provenance and must never be passed to a stream's score().
+    """
+    n = record.acc.shape[0]
+    if n < WINDOW_N:
+        return
+    for start in range(0, n - WINDOW_N + 1, HOP_N):
+        stop = start + WINDOW_N
+        t = t0 + start / TARGET_FS
+        hr, temp = trace.at(t) if trace is not None else (None, None)
+        window = {
+            "t": float(t),
+            "acc": record.acc[start:stop],
+            "gyro": None if record.gyro is None else record.gyro[start:stop],
+            "hr": hr,
+            "temp": temp,
+            "fs": TARGET_FS,
+        }
+        meta = {
+            "subject": record.subject,
+            "activity": record.activity,
+            "state": record.state,
+            "is_fall": record.is_fall,
+            "trial": record.trial,
+            "source": record.path.name,
+            "start_sample": start,
+        }
+        yield window, meta
+
+=== UMA.scan ===
+def scan(root, pattern="*.csv", reader=read_umafall, limit=None):
+    """Yield Records for every readable file under root. Files that fail are
+    reported and skipped rather than killing the run."""
+    root = Path(root)
+    files = sorted(root.rglob(pattern))
+    if limit:
+        files = files[:limit]
+    for f in files:
+        try:
+            yield reader(f)
+        except Exception as e:                      # noqa: BLE001
+            print(f"[skip] {f.name}: {e}", file=sys.stderr)
+
+=== UMA.load_dataset ===
+def load_dataset(root, pattern="*.csv", reader=read_umafall, falls=None):
+    """
+    Collect windows for training. Returns (X_meta, windows) as two lists,
+    same length and order.
+      falls=None  -> everything
+      falls=False -> ADLs only (context classifier training)
+      falls=True  -> falls only
+    """
+    windows, metas = [], []
+    for rec in scan(root, pattern, reader):
+        if falls is True and not rec.is_fall:
+            continue
+        if falls is False and rec.is_fall:
+            continue
+        for w, m in iter_windows(rec):
+            windows.append(w)
+            metas.append(m)
+    return windows, metas
+
+=== UMA._scan_report ===
+def _scan_report(root):
+    counts, subjects, bad = {}, set(), 0
+    total_windows = 0
+    for rec in scan(root):
+        key = f"{rec.state or ('FALL' if rec.is_fall else 'UNMAPPED:' + rec.activity)}"
+        counts[key] = counts.get(key, 0) + 1
+        subjects.add(rec.subject)
+        total_windows += sum(1 for _ in iter_windows(rec))
+        if rec.state is None and not rec.is_fall:
+            bad += 1
+    print(f"subjects: {len(subjects)}  {sorted(subjects)}")
+    for k in sorted(counts):
+        print(f"  {k:24s} {counts[k]} files")
+    print(f"total windows: {total_windows}")
+    if bad:
+        print(f"\n{bad} files did not match the mapping table -- add them to ACTIVITY_MAP.")
+
+=== FAD.Record ===
+@dataclass
+class Record:
+    path: Path
+    subject: str
+    activity: str
+    activity_id: int
+    trial: str
+    t: np.ndarray
+    acc: np.ndarray                  # (M, 3) g at TARGET_FS
+    gyro: np.ndarray | None          # (M, 3) deg/s at TARGET_FS
+    fs_raw: float
+    state: str | None = None
+    is_fall: bool = False
+    clipped_frac: float = 0.0
+    notes: list = field(default_factory=list)
+
+    @property
+    def duration(self):
+        return float(self.t[-1] - self.t[0]) if len(self.t) else 0.0
+
+    def summary(self):
+        g = "none" if self.gyro is None else f"{self.gyro.shape[0]}x3"
+        return (f"{self.path.name}\n"
+                f"  subject={self.subject}  A{self.activity_id:03d} "
+                f"= {self.activity}  trial={self.trial}\n"
+                f"  state={self.state}  is_fall={self.is_fall}\n"
+                f"  {self.fs_raw:.0f} Hz -> {TARGET_FS} Hz, {self.duration:.1f} s\n"
+                f"  acc={self.acc.shape[0]}x3 g   gyro={g}   "
+                f"clipped={self.clipped_frac*100:.2f}%\n"
+                + "".join(f"  ! {n}\n" for n in self.notes))
+
+=== FAD.iter_windows ===
+def iter_windows(record: Record, t0: float = 0.0):
+    """Yield (window, meta). window has exactly the six contract keys."""
+    n = record.acc.shape[0]
+    if n < WINDOW_N:
+        return
+    for start in range(0, n - WINDOW_N + 1, HOP_N):
+        stop = start + WINDOW_N
+        t = t0 + start / TARGET_FS
+        window = {
+            "t": float(t),
+            "acc": record.acc[start:stop],
+            "gyro": None if record.gyro is None else record.gyro[start:stop],
+            "hr": None,
+            "temp": None,
+            "fs": TARGET_FS,
+        }
+        meta = {
+            "subject": record.subject,
+            "activity": record.activity,
+            "activity_id": record.activity_id,
+            "state": record.state,
+            "is_fall": record.is_fall,
+            "trial": record.trial,
+            "source": record.path.name,
+            "start_sample": start,
+            "dataset": "FallAllD",
+        }
+        yield window, meta
+
+=== FAD.scan ===
+def scan(root=DEFAULT_ROOT, device=WRIST_DEVICE, activities=None, limit=None,
+         match_umafall_path=False):
+    """Yield Records for wrist accelerometer files. activities is an optional
+    iterable of activity IDs to keep."""
+    root = Path(root)
+    files = sorted(root.glob(f"S*_D{device}_A*_T*_A.dat"))
+    if activities is not None:
+        keep = set(activities)
+        files = [f for f in files
+                 if (m := parse_name(f.name)) and m["activity_id"] in keep]
+    if limit:
+        files = files[:limit]
+    for f in files:
+        try:
+            yield read_record(f, device, match_umafall_path)
+        except Exception as e:                              # noqa: BLE001
+            print(f"[skip] {f.name}: {e}", file=sys.stderr)
+
+=== FAD._scan_report ===
+def _scan_report(root, device):
+    counts, subjects, unmapped = {}, set(), {}
+    total_windows = 0
+    n = 0
+    for rec in scan(root, device):
+        key = rec.state or ("FALL" if rec.is_fall
+                            else f"UNMAPPED A{rec.activity_id:03d}")
+        counts[key] = counts.get(key, 0) + 1
+        if rec.state is None and not rec.is_fall:
+            unmapped[rec.activity_id] = unmapped.get(rec.activity_id, 0) + 1
+        subjects.add(rec.subject)
+        total_windows += sum(1 for _ in iter_windows(rec))
+        n += 1
+    print(f"device D{device} (wrist)   {n} records   "
+          f"{len(subjects)} subjects: {sorted(subjects)}")
+    for k in sorted(counts):
+        if k.startswith("UNMAPPED"):
+            continue
+        print(f"  {k:24s} {counts[k]:>5} records")
+    if unmapped:
+        tot = sum(unmapped.values())
+        print(f"  {'(unmapped, by design)':24s} {tot:>5} records across "
+              f"{len(unmapped)} activity types")
+    print(f"total windows: {total_windows}")
+    print()
+    print("scenario-1 candidates (hard hand impact, static body):")
+    for aid in SCENARIO1_ACTIVITIES:
+        c = sum(1 for _ in scan(root, device, activities=[aid]))
+        print(f"  A{aid:03d} {ACTIVITY_NAMES.get(aid,'?'):<40} {c:>4} records")
+
+=== M.segments_from_record ===
+def segments_from_record(rec, gate_svm=GATE_SVM_G, gate_gyro=GATE_GYRO_DPS):
+    """One segment per record, centred on its strongest gate trigger. If the
+    gate never fires (common for quiet ADLs), centre on the peak SVM anyway
+    and keep it as a hard negative -- otherwise the classifier only ever sees
+    the ADLs that already look violent."""
+    fs = 50.0
+    acc = np.asarray(rec.acc, dtype=float)
+    gyro = np.asarray(rec.gyro, dtype=float) if rec.gyro is not None else None
+    n = len(acc)
+    pre_n, post_n = int(PRE_SEC * fs), int(POST_SEC * fs)
+    if n < pre_n + post_n + 2:
+        return []
+    svm = np.linalg.norm(acc, axis=1)
+    hit = svm > gate_svm
+    if gyro is not None:
+        hit = hit | (np.linalg.norm(gyro, axis=1) > gate_gyro)
+    # Use the FIRST gate crossing, not the global peak. The live stream has no
+    # oracle: _check_gate fires on a threshold crossing and takes that instant
+    # as the trigger. Training on a perfectly-centred impact and deploying on
+    # an approximately-centred one is a train/deploy mismatch that flatters the
+    # offline number. Ungated records fall back to their peak as hard negatives.
+    idx = int(np.flatnonzero(hit)[0]) if hit.any() else int(np.argmax(svm))
+    i = int(np.clip(idx, pre_n, n - post_n - 1))
+    seg_a = acc[i - pre_n:i + post_n + 1]
+    seg_g = gyro[i - pre_n:i + post_n + 1] if gyro is not None else None
+    f = segment_features(seg_a, seg_g, fs, pre_n)
+    return [(f, int(rec.is_fall), rec.subject, bool(hit.any()))]
+

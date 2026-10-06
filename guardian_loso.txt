@@ -869,3 +869,18 @@ def main(argv=None):
 
 if __name__ == "__main__":
     main()
+
+usage: cross_dataset.py [-h] [--root ROOT] [--limit LIMIT] [--ablation]
+                        [--matched]
+
+Cross-dataset evaluation
+
+options:
+  -h, --help     show this help message and exit
+  --root ROOT
+  --limit LIMIT  cap records read, for a quick pass
+  --ablation     train UMAFall-only feature-ablation models and evaluate them
+                 on FallAllD
+  --matched      ALSO run with FallAllD forced through UMAFall's 238->20->50
+                 Hz path, to separate sampling path from subject/protocol as
+                 the cause of any context drop

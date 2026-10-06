@@ -81,6 +81,35 @@ FEATURE_NAMES = (
     "tilt_change_deg", "tilt_post_mean", "has_gyro",
 )
 
+# Feature sets used for cross-dataset robustness experiments.
+FEATURE_SETS = {
+    "all_18": list(range(18)),
+
+    # Remove absolute forearm orientation.
+    "no_abs_tilt": [
+        0, 1, 2, 3, 4, 5, 6, 7,
+        8, 9, 10, 11, 12, 13, 14, 15, 17
+    ],
+
+    # Remove gyro-dependent features.
+    "no_gyro": [
+        0, 1, 2, 3, 4, 5, 6, 7,
+        12, 13, 14, 15, 16
+    ],
+
+    # Remove jerk features.
+    "no_jerk": [
+        0, 1, 2, 3, 4, 5,
+        8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+    ],
+
+    # Conservative impact/event-shape feature set.
+    "robust_core": [
+        0, 1, 2, 3, 4, 5,
+        12, 13, 14, 15
+    ],
+}
+
 
 # --------------------------------------------------------------------------
 # Segment features
@@ -147,6 +176,14 @@ def segment_features(acc: np.ndarray, gyro, fs: float, trig_i: int) -> np.ndarra
     ], dtype=np.float64)
     return np.nan_to_num(f, nan=0.0, posinf=0.0, neginf=0.0)
 
+def select_features(X, feature_set="all_18"):
+    """Select a named subset of motion features."""
+    if feature_set not in FEATURE_SETS:
+        raise ValueError(
+            f"Unknown feature set '{feature_set}'. "
+            f"Available: {list(FEATURE_SETS)}"
+        )
+    return np.asarray(X)[:, FEATURE_SETS[feature_set]]
 
 def forearm_tilt(acc: np.ndarray, fs: float) -> np.ndarray:
     """Angle in degrees between the low-passed gravity estimate and the
@@ -499,6 +536,65 @@ def _collect(root):
             X.append(f); y.append(lab); g.append(subj); gated.append(hit)
     return np.asarray(X), np.asarray(y), np.asarray(g), np.asarray(gated)
 
+def _ablation(root):
+    """Train UMAFall-only models with different feature subsets and
+    report LOSO AUC. This is an experiment only; it does not overwrite
+    the production model.
+    """
+    from sklearn.model_selection import LeaveOneGroupOut
+
+    X, y, g, gated = _collect(root)
+
+    if len(X) == 0:
+        print("No segments.")
+        return
+
+    print("\n" + "=" * 74)
+    print("MOTION FEATURE ABLATION -- UMAFall LOSO")
+    print("=" * 74)
+    print(f"{len(X)} segments  falls={int(y.sum())}  "
+          f"ADLs={int((1-y).sum())}")
+    print()
+
+    results = []
+
+    for name, indices in FEATURE_SETS.items():
+        XX = X[:, indices]
+        oof = np.full(len(y), np.nan)
+
+        for tr, te in LeaveOneGroupOut().split(XX, y, groups=g):
+            if len(np.unique(y[tr])) < 2:
+                continue
+
+            m = RandomForestClassifier(
+                n_estimators=400,
+                min_samples_leaf=2,
+                class_weight="balanced_subsample",
+                n_jobs=-1,
+                random_state=0,
+            )
+
+            m.fit(XX[tr], y[tr])
+            fall_i = list(m.classes_).index(1)
+            oof[te] = m.predict_proba(XX[te])[:, fall_i]
+
+        mask = ~np.isnan(oof) & gated
+
+        if mask.sum() >= 10 and len(np.unique(y[mask])) == 2:
+            auc = roc_auc_score(y[mask], oof[mask])
+        else:
+            auc = float("nan")
+
+        results.append((name, len(indices), auc))
+        print(f"{name:<16} features={len(indices):2d}  "
+              f"gate-conditional AUC={auc:.3f}")
+
+    print("\n--- ranking ---")
+    for name, n, auc in sorted(
+        results,
+        key=lambda x: -x[2] if not np.isnan(x[2]) else -999
+    ):
+        print(f"{name:<16} {auc:.3f}")
 
 def _train(root, out):
     from sklearn.model_selection import LeaveOneGroupOut
@@ -665,9 +761,12 @@ def main(argv=None):
     ap.add_argument("--out", default="models/motion.joblib")
     ap.add_argument("--tune", metavar="DIR")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--ablation", metavar="DIR")
     a = ap.parse_args(argv)
     if a.train:
         _train(a.train, a.out)
+    elif a.ablation:
+        _ablation(a.ablation)
     elif a.tune:
         _tune(a.tune)
     elif a.selftest:
