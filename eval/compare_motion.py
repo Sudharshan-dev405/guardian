@@ -64,14 +64,18 @@ def direction_of(activity: str) -> str:
     return ""
 
 
-def collect(root, scanner=None, **scan_kw):
+def collect(root, scanner=None, transform=None, **scan_kw):
     """scanner defaults to the UMAFall loader; pass data.loader_fallalld.scan
-    for FallAllD (both yield the same Record shape at 50 Hz)."""
+    for FallAllD (both yield the same Record shape at 50 Hz). transform, if
+    given, maps (acc, gyro) -> (acc, gyro) before gating and features
+    (Stage 3 passes streams.motion.harmonise)."""
     rows, X, raw = [], [], []
     pre_n, post_n = int(PRE_SEC * FS), int(POST_SEC * FS)
     for rec in (scanner or scan)(root, **scan_kw):
         acc = np.asarray(rec.acc, dtype=float)
         gyro = np.asarray(rec.gyro, dtype=float) if rec.gyro is not None else None
+        if transform is not None:
+            acc, gyro = transform(acc, gyro)
         n = len(acc)
         if n < pre_n + post_n + 2:
             continue

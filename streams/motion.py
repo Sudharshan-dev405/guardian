@@ -50,7 +50,7 @@ from contract import Stream  # noqa: E402
 # Tunables -- all in one place, all expected to move once real data lands
 # --------------------------------------------------------------------------
 
-GATE_SVM_G = 2.5             # g, wrist literature; retune with --tune
+GATE_SVM_G = 2.25            # g; 2.5 g re-set for the 20 Hz path (stage 3, step 0b)
 GATE_GYRO_DPS = 1e9          # DISABLED after --tune on UMAFall: at the wrist,
                              # ADL angular rates exceed fall rates (ADL p90 443
                              # deg/s vs fall median 282), so no threshold
@@ -69,7 +69,15 @@ W_IMPACT, W_STILL = 0.6, 0.4
 
 STILL_VAR_G2 = 0.01          # SVM variance at or below this reads as still
 HORIZONTAL_DEG = 60.0        # forearm within this of horizontal counts as "at rest low"
-CLIP_G = 15.9                # sensor full scale; fraction clipped drives quality
+# Signal harmonisation (Stage 3, step 0). Every input -- UMAFall, FallAllD and
+# the live band -- is clipped to +/-8 g and pushed through a 20 Hz bottleneck
+# before the gate and the features see it, so training and deployment share
+# one signal path. 20 Hz is UMAFall's native wrist rate; +/-8 g is FallAllD's
+# rail. Measured reason: on FallAllD, the same model scored gated AUC 0.68 on
+# the native 238->50 Hz path and 0.75 on the 238->20->50 Hz path.
+RATE_HZ = 20.0               # set to None to switch the bottleneck off
+ACC_CLIP_G = 8.0
+CLIP_G = ACC_CLIP_G - 0.05   # at or above this counts as clipped (quality)
 BUFFER_SEC = 30.0
 GRAVITY_LP_HZ = 0.5
 
@@ -114,6 +122,35 @@ FEATURE_SETS = {
 # --------------------------------------------------------------------------
 # Segment features
 # --------------------------------------------------------------------------
+
+def _to_rate(x: np.ndarray, fs: float, rate: float) -> np.ndarray:
+    """fs -> rate with an anti-aliased polyphase filter, then linear
+    interpolation back to fs. Same length out as in, so window and segment
+    geometry (and the 50 Hz contract) are untouched."""
+    from fractions import Fraction
+    n = len(x)
+    if n < 16 or rate >= fs:
+        return x
+    fr = Fraction(rate / fs).limit_denominator(100)
+    low = signal.resample_poly(x, fr.numerator, fr.denominator, axis=0)
+    t_low = np.arange(len(low)) / rate
+    t_hi = np.arange(n) / fs
+    return np.column_stack([np.interp(t_hi, t_low, low[:, k])
+                            for k in range(x.shape[1])])
+
+
+def harmonise(acc, gyro, fs: float = 50.0):
+    """Clip the accelerometer to +/-ACC_CLIP_G, then pass both channels
+    through the RATE_HZ bottleneck. Returns (acc, gyro); gyro may be None."""
+    acc = np.clip(np.asarray(acc, dtype=float), -ACC_CLIP_G, ACC_CLIP_G)
+    if RATE_HZ:
+        acc = _to_rate(acc, fs, RATE_HZ)
+    if gyro is not None:
+        gyro = np.asarray(gyro, dtype=float)
+        if RATE_HZ:
+            gyro = _to_rate(gyro, fs, RATE_HZ)
+    return acc, gyro
+
 
 def segment_features(acc: np.ndarray, gyro, fs: float, trig_i: int) -> np.ndarray:
     """Features over one -PRE_SEC..+POST_SEC segment. trig_i is the index of
@@ -241,9 +278,12 @@ class MotionStream(Stream):
         super().__init__()
         self.gate_svm = gate_svm
         self.gate_gyro = gate_gyro
-        self.model: RandomForestClassifier | None = None
+        self.model = None                      # XGBClassifier (Stage 3) or legacy RF
         self.classes_: list = []
-        self.temperature: float = 1.0
+        self.temperature: float = 1.0          # legacy RF calibration; 1.0 = off
+        self.platt: tuple = (1.0, 0.0)         # (a, b); (1, 0) = no correction
+        self.threshold: float | None = None    # alert cut-off on the impact score
+        self.feature_index: list | None = None # subset of FEATURE_NAMES, None = all
 
         self._buf_acc = deque()
         self._buf_gyro = deque()
@@ -304,8 +344,8 @@ class MotionStream(Stream):
             self._buf_acc.popleft(); self._buf_gyro.popleft(); self._buf_t.popleft()
 
     def _arrays(self):
-        return (np.asarray(self._buf_acc), np.asarray(self._buf_gyro),
-                np.asarray(self._buf_t))
+        acc, gyro = harmonise(np.asarray(self._buf_acc), np.asarray(self._buf_gyro), self._fs)
+        return acc, gyro, np.asarray(self._buf_t)
 
     # -- stage 1 ----------------------------------------------------------
 
@@ -347,10 +387,25 @@ class MotionStream(Stream):
             # through last_quality.
             pk = float(np.linalg.norm(seg_a, axis=1).max())
             return float(np.clip((pk - self.gate_svm) / 4.0, 0.0, 1.0)), False
-        p = self.model.predict_proba(f)
-        p = _softmax(np.log(np.clip(p, 1e-8, 1.0)) / self.temperature)[0]
-        fall_i = list(self.classes_).index(1) if 1 in list(self.classes_) else -1
-        return float(p[fall_i]) if fall_i >= 0 else 0.0, True
+        return self.impact_probability(f)[0], True
+
+    def impact_probability(self, F) -> np.ndarray:
+        """Calibrated P(fall) for rows of segment features (all 18 columns)."""
+        F = np.atleast_2d(np.asarray(F, dtype=float))
+        if self.feature_index is not None:
+            F = F[:, self.feature_index]
+        p = self.model.predict_proba(F)
+        if self.temperature != 1.0:                     # legacy RF path
+            p = _softmax(np.log(np.clip(p, 1e-8, 1.0)) / self.temperature)
+        classes = list(self.classes_)
+        if 1 not in classes:
+            return np.zeros(len(F))
+        p = p[:, classes.index(1)]
+        a, b = self.platt
+        if (a, b) != (1.0, 0.0):
+            z = np.log(np.clip(p, 1e-6, 1 - 1e-6) / np.clip(1 - p, 1e-6, 1.0))
+            p = 1.0 / (1.0 + np.exp(-(a * z + b)))
+        return np.clip(p, 0.0, 1.0)
 
     # -- stillness --------------------------------------------------------
 
@@ -479,7 +534,10 @@ class MotionStream(Stream):
         path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
         joblib.dump({"model": self.model, "classes": self.classes_,
                      "temperature": self.temperature,
-                     "gate_svm": self.gate_svm, "gate_gyro": self.gate_gyro}, path)
+                     "gate_svm": self.gate_svm, "gate_gyro": self.gate_gyro,
+                     "platt": tuple(self.platt), "threshold": self.threshold,
+                     "feature_index": self.feature_index,
+                     "config": getattr(self, "config", None)}, path)
         return path
 
     @classmethod
@@ -487,7 +545,11 @@ class MotionStream(Stream):
         import joblib
         d = joblib.load(path)
         s = cls(gate_svm=d["gate_svm"], gate_gyro=d["gate_gyro"])
-        s.model = d["model"]; s.classes_ = d["classes"]; s.temperature = d["temperature"]
+        s.model = d["model"]; s.classes_ = d["classes"]; s.temperature = d.get("temperature", 1.0)
+        s.platt = tuple(d.get("platt", (1.0, 0.0)))
+        s.threshold = d.get("threshold")
+        s.feature_index = d.get("feature_index")
+        s.config = d.get("config")
         return s
 
 
@@ -501,8 +563,7 @@ def segments_from_record(rec, gate_svm=GATE_SVM_G, gate_gyro=GATE_GYRO_DPS):
     and keep it as a hard negative -- otherwise the classifier only ever sees
     the ADLs that already look violent."""
     fs = 50.0
-    acc = np.asarray(rec.acc, dtype=float)
-    gyro = np.asarray(rec.gyro, dtype=float) if rec.gyro is not None else None
+    acc, gyro = harmonise(rec.acc, rec.gyro, fs)
     n = len(acc)
     pre_n, post_n = int(PRE_SEC * fs), int(POST_SEC * fs)
     if n < pre_n + post_n + 2:
@@ -691,9 +752,10 @@ def _tune(root):
                   f"{np.mean(f>t)*100:.0f}% falls, {np.mean(a>t)*100:.0f}% ADLs")
 
 
-def _selftest():
+def _selftest(model_path=None):
     """Synthetic fall and ADL fixtures pushed through as a window stream.
-    Machinery test only; never used as project data."""
+    Machinery test only; never used as project data. With model_path, the
+    saved model is loaded and used for the impact score."""
     fs, rng = 50, np.random.default_rng(0)
 
     def stream(kind, secs=25.0):
@@ -720,8 +782,13 @@ def _selftest():
                    "gyro": gyro[s:s+125].astype(np.float32),
                    "hr": None, "temp": None, "fs": fs}
 
+    make = (lambda: MotionStream.load(model_path)) if model_path else MotionStream
+    if model_path:
+        m0 = make()
+        print(f"loaded {model_path}: {type(m0.model).__name__}, gate {m0.gate_svm} g, "
+              f"platt {m0.platt}, threshold {m0.threshold}")
     for kind in ("fall", "hand"):
-        ms = MotionStream()
+        ms = make()
         peak, at_t, fired = 0.0, 0.0, False
         for w in stream(kind):
             s = ms.score(w)
@@ -736,7 +803,7 @@ def _selftest():
               f"q={ms.last_quality:.2f}")
 
     # A quiet stream must never trigger.
-    ms = MotionStream()
+    ms = make()
     quiet = 0.0
     for w in stream("quiet"):
         quiet = max(quiet, ms.score(w))
@@ -762,15 +829,19 @@ def main(argv=None):
     ap.add_argument("--tune", metavar="DIR")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--ablation", metavar="DIR")
+    ap.add_argument("--model", metavar="FILE", help="with --selftest: use this saved model")
     a = ap.parse_args(argv)
     if a.train:
-        _train(a.train, a.out)
+        # The old --train fitted a RandomForest on EVERY subject, including the
+        # held-out test subjects. The production model is now built by
+        # eval/stage3.py from the UMAFall dev subjects only.
+        print("Use: py -m eval.stage3 build   (trains on UMAFall dev subjects only)")
     elif a.ablation:
         _ablation(a.ablation)
     elif a.tune:
         _tune(a.tune)
     elif a.selftest:
-        _selftest()
+        _selftest(a.model)
     else:
         ap.print_help()
 

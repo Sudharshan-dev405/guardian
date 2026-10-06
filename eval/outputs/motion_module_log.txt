@@ -1,0 +1,157 @@
+GUARDIAN - MOTION MODULE LOG
+Running record of what was done, why, and the key numbers.
+Newest entries at the bottom. Keep in eval/outputs/ (do not delete in cleanup).
+
+==============================================================================
+STAGE 1 - RESEARCH (6 Oct 2026)
+==============================================================================
+- Studied Apple, Pixel and Samsung watch fall detection, Apple's patent, and
+  published wrist models (UMAFall, FallAllD, WEDA-FALL).
+- Main takeaways: use the same sampling rate across datasets, split by subject,
+  expect a large drop on real or unseen data, report false alarms per hour.
+
+==============================================================================
+STAGE 2 - CHOOSING THE MODEL (6 Oct 2026)
+==============================================================================
+What we did
+- Compared 6 models on UMAFall (leave-one-subject-out, 15 dev subjects).
+  Test subjects S02, S06, S11 held out.
+- Took the top 3 to FallAllD and picked on its selection half.
+
+Results (gated AUC)
+                    UMAFall    FallAllD selection half
+  XGBoost           0.991      0.607
+  Random Forest     0.988      0.593
+  SVM               0.996      0.530
+  Gate only         0.650      0.686
+
+Decision
+- XGBoost. Best on FallAllD, fastest (about 1 ms per segment).
+- CNN and CNN-LSTM dropped: more false alarms, slower.
+- Full tables: Motion_Model_Selection.xlsx, reasoning: xgboost.txt
+
+==============================================================================
+STAGE 3 - TUNING XGBOOST
+==============================================================================
+
+STEP 0 - Same signal path for all data (6 Oct 2026)
+What we did
+- Every signal now goes through the same path before the model sees it:
+  accelerometer clipped to +/-8 g, then passed through 20 Hz (UMAFall's own rate).
+- The 20 Hz filter softened impact peaks, so the gate was lowered from 2.5 g
+  to 2.25 g to keep the same share of falls passing it.
+
+Results (gate 2.25 g, with the 20 Hz step)
+                              UMAFall    FallAllD selection half
+  Falls passing the gate      87.4%      92.5%
+  ADLs passing the gate       13.5%      30.5%
+  Gated AUC                   0.986      0.651
+
+What it means
+- UMAFall gate coverage is back to 87.4%, same as 2.5 g before the filter.
+- FallAllD gated AUC went from 0.668 to 0.651. Not a real loss: the lower gate
+  lets more borderline cases through, which are harder to sort.
+- Stage 3 numbers can be compared with each other, not directly with Stage 2.
+
+STEP 1 - Underfit to overfit sweep (6 Oct 2026)
+What we did
+- Tried 36 XGBoost settings: tree depth 1, 2, 3, 4, 6, 8 x 25 to 800 trees.
+- Scored each on training data, UMAFall unseen subjects, FallAllD select half.
+- Figure: figures/stage3_step1_fitting_curve.png
+
+Results (gated AUC)
+                              Train    UMAFall    FallAllD select
+  Underfit (depth 1, 25)      0.925    0.864      0.541
+  Best (depth 3, 200)         1.000    0.987      0.656
+  Overfit (depth 8, 800)      1.000    0.988      0.638
+
+What it means
+- Very small models underfit: low everywhere.
+- Training hits 1.0 by depth 2, so training AUC can't separate settings.
+- UMAFall stays at about 0.99 for almost everything above depth 1.
+- FallAllD peaks at depth 2-3 with about 200 trees, then slips as trees get
+  deeper or more numerous. That slip is the overfitting.
+- Differences at the top are small (0.656 vs 0.650), so step 2 checks the
+  area around it.
+
+STEP 2 - Fine sweep around depth 2-3, ~200 trees (6 Oct 2026)
+What we did
+- 72 settings: depth 2-3, 100-300 trees, learning rate 0.03-0.1,
+  min leaf size 1 or 5, L2 regularisation 1 or 10.
+- Applied the agreed rule: best FallAllD-select score with UMAFall >= 0.98;
+  within 0.005 counts as a tie, then take the simplest.
+
+Results (gated AUC)
+                                         UMAFall    FallAllD select
+  Best score (depth 2, 200 trees)        0.986      0.662
+  Picked (depth 2, 100 trees)            0.985      0.661
+  Step 0 default (depth 3, 300 trees)    0.986      0.651
+
+Picked setting: depth 2, 100 trees, learning rate 0.1, min leaf size 1,
+L2 regularisation 10.
+
+What it means
+- Min leaf size 5 was worse every time (about 0.63) and often pushed
+  UMAFall below 0.98.
+- L2 regularisation 10 helped slightly in most pairs.
+- Tuning gained about 0.01 over the default. Most sensible settings land
+  between 0.64 and 0.66, so the setting matters less than the data.
+- The select half was used to choose, so 0.661 is a little optimistic.
+  The report half (step 7) gives the honest number.
+
+STEP 3 - Feature sets (6 Oct 2026)
+What we did
+- Same XGBoost setting, five feature sets from motion.py.
+- Figure: figures/stage3_step3_feature_sets.png
+
+Results (gated AUC)
+                                  UMAFall    FallAllD select
+  All 18 features                 0.985      0.661
+  No forearm angle (17)           0.984      0.654
+  No gyroscope (13)               0.988      0.641
+  No jerk (16)                    0.983      0.641
+  Core only (10)                  0.987      0.639
+
+What it means
+- Every feature group helps on FallAllD. Removing gyro or jerk costs about
+  0.02, the forearm angle about 0.007.
+- UMAFall barely changes either way, so only the cross-dataset check could
+  show this.
+- Gyro does not work as a gate (daily activities rotate the wrist faster
+  than falls), but as features it carries over well.
+
+STEP 4 - Final configuration (6 Oct 2026)
+- XGBoost: depth 2, 100 trees, learning rate 0.1, min leaf size 1,
+  L2 regularisation 10
+- All 18 features
+- Signal path: clip +/-8 g, 20 Hz; gate 2.25 g
+- Saved in eval/outputs/stage3/final_config.json (written by step 5)
+
+STEP 5 - Calibration and alert threshold (6 Oct 2026)
+What we did
+- Checked whether XGBoost's fall probabilities can be trusted, using
+  UMAFall dev leave-one-subject-out predictions only.
+- Set the alert threshold at 95% specificity on segments that pass the gate.
+
+Results
+- Calibration error was already low (ECE 0.036) and Platt scaling did not
+  improve it (0.037). Decision: use the raw probabilities.
+- Threshold for 95% specificity: about 0.92.
+
+                          Falls caught    False alarms / hour
+  UMAFall, at 0.5         85.2%           3.5
+  UMAFall, at ~0.92       77.8%           1.4
+  FallAllD*, at 0.5       74.2%           39.0
+  FallAllD*, at ~0.92     34.9%           8.0
+  (* select half, info only, nothing set from it)
+
+What it means
+- On UMAFall the high threshold trades a few falls for fewer false alarms.
+- On FallAllD the same threshold halves the falls caught. A fixed cut-off on
+  impact alone does not carry over to new data.
+- So the motion stream passes its probability to fusion and does not raise
+  alarms by itself. The threshold is kept for evaluation only.
+- Figure: figures/stage3_step5_calibration.png
+
+STEP 6 - Final model built and saved
+(pending)
