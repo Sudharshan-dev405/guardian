@@ -1,4 +1,5 @@
 __pycache__/
 *.pyc
 data/raw/
-listing.txt
+listing.txteval/outputs/*.pkl
+eval/outputs/stage3/*.pkl
