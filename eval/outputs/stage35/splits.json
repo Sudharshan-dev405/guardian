@@ -1,0 +1,81 @@
+{
+  "umafall": {
+    "dev": [
+      "S01",
+      "S03",
+      "S04",
+      "S05",
+      "S07",
+      "S08",
+      "S09",
+      "S10",
+      "S12",
+      "S14",
+      "S15",
+      "S16",
+      "S17",
+      "S18",
+      "S19"
+    ],
+    "test": [
+      "S02",
+      "S06",
+      "S11"
+    ],
+    "note": "test opened once before (stage 3 step 7, UMAFall-only model)"
+  },
+  "fallalld": {
+    "dev": [
+      "S04",
+      "S05",
+      "S06",
+      "S10",
+      "S11",
+      "S14",
+      "S15"
+    ],
+    "test": [
+      "S01",
+      "S02",
+      "S03",
+      "S09",
+      "S12",
+      "S13"
+    ],
+    "note": "dev = select half, test = report half; test opened once before (stage 3 step 7)"
+  },
+  "wedafall": {
+    "dev": [
+      "U01",
+      "U02",
+      "U03",
+      "U05",
+      "U06",
+      "U09",
+      "U11",
+      "U12",
+      "U13",
+      "U14",
+      "U23",
+      "U24",
+      "U25",
+      "U26",
+      "U27",
+      "U28",
+      "U30",
+      "U31"
+    ],
+    "test": [
+      "U04",
+      "U07",
+      "U08",
+      "U10",
+      "U21",
+      "U22",
+      "U29"
+    ],
+    "note": "4 young (falls + ADLs) and 3 elder (ADLs only) subjects, chosen at random with seed 0"
+  },
+  "seed": 0,
+  "rule": "test parts are opened once, in step 6; all choices use dev parts only"
+}

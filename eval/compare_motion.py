@@ -92,7 +92,9 @@ def collect(root, scanner=None, transform=None, **scan_kw):
         rows.append(dict(subject=rec.subject, label=int(rec.is_fall),
                          activity=rec.activity, direction=direction_of(rec.activity),
                          gated=bool(hit.any()), seconds=rec.duration,
-                         file=rec.path.name))
+                         file=rec.path.name,
+                         cause=getattr(rec, "cause", ""),
+                         elder=bool(getattr(rec, "elder", False))))
     meta = pd.DataFrame(rows)
     return meta, np.asarray(X), np.asarray(raw, dtype=np.float32)
 

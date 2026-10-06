@@ -1,0 +1,44 @@
+{
+  "model": "xgboost",
+  "params": {
+    "max_depth": 4,
+    "n_estimators": 100,
+    "reg_lambda": 1.0,
+    "learning_rate": 0.1,
+    "min_child_weight": 1.0
+  },
+  "feature_set": "all_18",
+  "feature_index": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "rate_hz": 20.0,
+  "acc_clip_g": 8.0,
+  "gate_svm_g": 2.25,
+  "platt": {
+    "a": 1.0,
+    "b": 0.0
+  },
+  "platt_used": false,
+  "threshold": 0.8860909342765809,
+  "threshold_rule": "95% specificity on gated ADL segments, WEDA-FALL dev LOSO, raw scores (evaluation only; fusion uses the probability)",
+  "trained_on": "WEDA-FALL dev subjects (stage 3.5 winner)",
+  "n_segments": 697,
+  "n_falls": 250
+}

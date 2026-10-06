@@ -25,6 +25,8 @@ Steps (run from the repo root):
                                           from UMAFall dev LOSO predictions only
     py -m eval.stage3 build       step 6  train the final model on all dev subjects
                                           and save models/motion.joblib
+    py -m eval.stage3 test        step 7  ONE-TIME test: UMAFall test subjects and the
+                                          FallAllD report half (segments + full stream)
 
 Figures worth keeping go to eval/outputs/figures/.
 """
@@ -560,6 +562,143 @@ def build(out="models/motion.joblib"):
 
 
 # --------------------------------------------------------------------------
+# step 7: the one-time test
+# --------------------------------------------------------------------------
+
+def _seg_metrics(meta, p, thr):
+    y, g = meta.label.values, meta.gated.values
+    gate_score = meta.svm_max.values
+    out = dict(falls=int(y.sum()), adls=int((y == 0).sum()),
+               gate_falls=g[y == 1].mean(), gate_adls=g[y == 0].mean(),
+               auc_gated=gated_auc(meta, p),
+               auc_gated_gate_only=gated_auc(meta, gate_score))
+    for name, t in (("0.5", 0.5), ("thr", thr)):
+        op = _operating(meta, p, t)
+        out[f"falls_caught_at_{name}"] = op["system_sensitivity"]
+        out[f"false_alarms_per_hour_at_{name}"] = op["false_alarms_per_hour"]
+    return out
+
+
+def _stream_scores(records, model_path):
+    """Replay each recording through the live MotionStream, window by window.
+    Per recording: max stream score (impact + stillness) and max impact."""
+    from streams.motion import MotionStream
+    rows = []
+    for rec, windows in records:
+        ms = MotionStream.load(model_path)
+        best, best_imp = 0.0, 0.0
+        for w in windows:
+            best = max(best, ms.score(w))
+            best_imp = max(best_imp, ms.last_impact if ms.gate_open else 0.0)
+        rows.append(dict(subject=rec.subject, label=int(rec.is_fall), file=rec.path.name,
+                         stream=best, impact_only=best_imp, seconds=rec.duration))
+    return pd.DataFrame(rows)
+
+
+def _stream_metrics(D):
+    from sklearn.metrics import roc_curve
+    out = dict(recordings=len(D), fall_recordings=int(D.label.sum()))
+    for col in ("impact_only", "stream"):
+        out[f"auc_{col}"] = roc_auc_score(D.label, D[col])
+        fpr, tpr, _ = roc_curve(D.label, D[col])
+        k = fpr <= 0.05
+        out[f"sens_at_95spec_{col}"] = float(tpr[k].max()) if k.any() else 0.0
+    return out
+
+
+def test(uma_root, fa_root, model_path="models/motion.joblib"):
+    from data import loader as uma_loader
+    from streams.motion import MotionStream, FEATURE_NAMES
+    flag = S3 / "step7_DONE.txt"
+    if flag.exists():
+        sys.exit(f"step 7 already ran ({flag.read_text().strip()}). "
+                 "Re-running after any change would turn the test set into a tuning set.")
+    split, fsplit = splits()
+    ms = MotionStream.load(model_path)
+    thr = float(ms.threshold)
+    i_svm = FEATURE_NAMES.index("svm_max")
+
+    um, uX = pd.read_pickle(S3 / "uma.pkl")
+    kt = um.subject.isin(split["test_subjects"]).values
+    um_t, uX_t = um[kt].reset_index(drop=True).assign(svm_max=uX[kt][:, i_svm]), uX[kt]
+    fr, fX = pd.read_pickle(S3 / "fa_report_LOCKED.pkl")
+    fr = fr.assign(svm_max=fX[:, i_svm])
+
+    rows = []
+    for name, m, X in (("UMAFall test (S02 S06 S11)", um_t, uX_t),
+                       ("FallAllD report half", fr, fX)):
+        p = ms.impact_probability(X)
+        rows.append(dict(set=name, **_seg_metrics(m, p, thr)))
+        if name.startswith("UMAFall"):
+            hit = m.gated.values & (p >= thr)
+            by_dir = (m.assign(hit=hit)[m.label == 1].groupby("direction").hit.mean())
+        _roc_data = (m, p) if name.startswith("UMAFall") else _roc_data + (m, p)
+    S = pd.DataFrame(rows).set_index("set")
+
+    print("Replaying recordings through the full stream (impact + stillness) ...")
+    test_set = set(split["test_subjects"])
+    uma_recs = [(r, uma_loader.iter_windows(r)) for r in uma_loader.scan(Path(uma_root))
+                if r.subject in test_set]
+    uma_recs = [(r, [w for w, _ in ws]) for r, ws in uma_recs]
+    fa_files = sorted(Path(fa_root).glob("S*_D2_A*_T*_A.dat"))
+    fa_recs = []
+    for f in fa_files:
+        meta = fa.parse_name(f.name)
+        if meta and meta["subject"] in fsplit["report"]:
+            try:
+                r = fa.read_record(f)
+            except Exception as e:  # noqa: BLE001
+                print(f"[skip] {f.name}: {e}", file=sys.stderr)
+                continue
+            fa_recs.append((r, [w for w, _ in fa.iter_windows(r)]))
+    St = pd.DataFrame([dict(set="UMAFall test (S02 S06 S11)", **_stream_metrics(_stream_scores(uma_recs, model_path))),
+                       dict(set="FallAllD report half", **_stream_metrics(_stream_scores(fa_recs, model_path)))]).set_index("set")
+
+    pd.set_option("display.width", 220)
+    print(f"\nmodel: {model_path}   threshold {thr:.4f} (set on UMAFall dev)")
+    print("\nA. Impact segments (what the XGBoost model scores)")
+    print(S.round(3).T.to_string())
+    print("\n   UMAFall test, falls caught at the threshold, by direction:")
+    print(by_dir.round(3).to_string())
+    print("\nB. Full stream, per recording (max score while replaying the recording)")
+    print(St.round(3).T.to_string())
+
+    S.round(4).to_csv(S3 / "step7_segments.csv")
+    St.round(4).to_csv(S3 / "step7_stream.csv")
+    by_dir.round(4).to_csv(S3 / "step7_umafall_by_direction.csv")
+    _plot_roc(*_roc_data)
+    import datetime
+    flag.write_text(f"run {datetime.datetime.now():%Y-%m-%d %H:%M} with {model_path}\n")
+    print(f"\nsaved step7_segments.csv, step7_stream.csv, step7_umafall_by_direction.csv")
+    print(f"figure: {FIG / 'stage3_step7_roc.png'}")
+    print("The test set is now spent. Any further change must be judged on the dev/select data.")
+
+
+def _plot_roc(um, pu, fr, pf):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import roc_curve
+    fig, ax = plt.subplots(1, 2, figsize=(10, 4.5), sharey=True)
+    for a, (m, p, title) in zip(ax, ((um, pu, "UMAFall test subjects"),
+                                     (fr, pf, "FallAllD report half"))):
+        g = m.gated.values
+        y = m.label.values[g]
+        for score, lab in ((p[g], "XGBoost"), (m.svm_max.values[g], "gate only (peak |a|)")):
+            fpr, tpr, _ = roc_curve(y, score)
+            a.plot(fpr, tpr, label=f"{lab}  AUC {roc_auc_score(y, score):.3f}")
+        a.plot([0, 1], [0, 1], "k--", lw=1)
+        a.set_title(f"{title} (gated segments)")
+        a.set_xlabel("false positive rate")
+        a.legend(loc="lower right", fontsize=8)
+        a.grid(alpha=0.3)
+    ax[0].set_ylabel("true positive rate")
+    fig.tight_layout()
+    FIG.mkdir(parents=True, exist_ok=True)
+    fig.savefig(FIG / "stage3_step7_roc.png", dpi=150)
+
+
+# --------------------------------------------------------------------------
 # step 0b: the gate after the bottleneck
 # --------------------------------------------------------------------------
 
@@ -609,7 +748,7 @@ def gate(uma_root, target=None):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("step", choices=["prep", "gate", "sweep", "replot", "fine", "features", "calibrate", "build"])
+    ap.add_argument("step", choices=["prep", "gate", "sweep", "replot", "fine", "features", "calibrate", "build", "test"])
     ap.add_argument("--uma-root", default=UMA_ROOT)
     ap.add_argument("--fa-root", default=str(fa.DEFAULT_ROOT))
     a = ap.parse_args(argv)
@@ -629,6 +768,8 @@ def main(argv=None):
         calibrate()
     elif a.step == "build":
         build()
+    elif a.step == "test":
+        test(a.uma_root, a.fa_root)
 
 
 if __name__ == "__main__":

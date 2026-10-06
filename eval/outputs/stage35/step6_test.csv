@@ -1,0 +1,7 @@
+model,test,seen,threshold,falls,adls,auc_gated,auc_all,falls_caught,false_alarms_per_hour,faint_caught,elder_adl_false_alarms
+WEDA-trained (winner),UMAFall,unseen dataset,0.8861,54,81,0.8763,0.9707,0.3704,2.9959,,
+WEDA-trained (winner),FallAllD,unseen dataset,0.8861,271,966,0.7067,0.9012,0.2731,1.4509,,
+WEDA-trained (winner),WEDA-FALL,"same dataset, new people",0.8861,100,168,0.9651,0.9854,0.71,0.0,0.625,0 of 38
+UMAFall-trained (current),UMAFall,"same dataset, new people",0.9256,54,81,1.0,1.0,0.9074,0.0,,
+UMAFall-trained (current),FallAllD,unseen dataset,0.9256,271,966,0.6946,0.8755,0.4982,8.4981,,
+UMAFall-trained (current),WEDA-FALL,unseen dataset,0.9256,100,168,0.795,0.8893,0.62,17.3278,0.65,1 of 38

@@ -1,0 +1,7 @@
+dataset,part,subjects,segments,falls,adls,gate_falls,gate_adls,faint_falls,gate_faint,elder_adls,gate_elder_adls
+umafall,dev,15,482,135,347,0.874,0.135,,,,
+umafall,test,3,135,54,81,,,,,,
+fallalld,dev,7,1278,252,1026,0.925,0.305,,,,
+fallalld,test,6,1237,271,966,,,,,,
+wedafall,dev,18,697,250,447,0.992,0.365,100.0,0.99,118.0,0.11
+wedafall,test,7,268,100,168,,,,,,

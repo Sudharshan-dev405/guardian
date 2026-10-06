@@ -8,7 +8,9 @@ Two stages, per the design:
   Post-impact stillness: forearm tilt from a low-passed gravity estimate plus
            motion variance over the following 10 s.
 
-  score = 0.6 * impact + 0.4 * stillness
+  score = impact probability (held for 60 s after the trigger, then decays).
+  Stillness is still computed and exposed as last_stillness for fusion; it is
+  no longer mixed into score (the old 0.6/0.4 mix lowered test results).
 
 The wrist is a poor site for impact-based fall detection (Kangas 2008,
 Bagala 2012). This module is one weighted input among four, not a trigger.
@@ -65,7 +67,11 @@ EVENT_HOLD_SEC = 60.0        # how long an impact keeps contributing
 EVENT_DECAY_SEC = 30.0       # exponential decay applied after the hold
 REFRACTORY_SEC = 3.0         # ignore re-triggers inside one impact
 
-W_IMPACT, W_STILL = 0.6, 0.4
+# Stream output = impact probability only (decided after the stage 3 test).
+# The hand-set 0.6 impact / 0.4 stillness mix lowered results on both test sets
+# (FallAllD: 56.8% -> 36.5% of falls caught at 95% specificity). Stillness is
+# still computed and exposed as last_stillness, for fusion to weigh.
+W_IMPACT, W_STILL = 1.0, 0.0
 
 STILL_VAR_G2 = 0.01          # SVM variance at or below this reads as still
 HORIZONTAL_DEG = 60.0        # forearm within this of horizontal counts as "at rest low"

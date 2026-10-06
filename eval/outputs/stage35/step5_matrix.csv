@@ -1,0 +1,7 @@
+train,depth,trees,reg_lambda,own_loso,floor_ok,cross_mean,umafall,fallalld,wedafall,weda_faint_auc
+umafall,2,50,10,0.9834,True,0.6782,0.9834,0.6537,0.7026,0.7481
+fallalld,2,100,1,0.7201,False,0.7388,0.8471,0.7201,0.6305,0.5883
+wedafall,4,100,1,0.9031,False,0.8198,0.9558,0.6837,0.9031,
+uma+fa,2,50,1,0.7767,False,0.7513,0.9811,0.6726,0.7513,0.7612
+uma+weda,2,300,1,0.9419,False,0.6566,0.9894,0.6566,0.9129,
+fa+weda,2,100,10,0.7765,False,0.9656,0.9656,0.709,0.847,
