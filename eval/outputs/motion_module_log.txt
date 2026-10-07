@@ -431,3 +431,114 @@ Rules for fusion
   temperature rules. Note these as future work if not built.
 - Test data: WEDA-FALL F06-F08 for faint-type falls (simulated). No public
   wrist data has real faints, seizures or cardiac events.
+
+==============================================================================
+STAGE 4 - LEARN FROM EXISTING WORK, THEN IMPROVE (planned 7 Oct 2026)
+==============================================================================
+Part A (done): how existing detectors work and our algorithm in simple
+steps -> stage4_existing_methods.txt
+
+Part B: four experiments, each aimed at a lesson from Part A.
+  E1 Device threshold: set the threshold from the new device's own daily
+     activity (on the real band: the first days of normal wear).
+  E2 Device scaling: scale each feature by the device's own daily-activity
+     average and spread, so a different sensor looks like the training one.
+  E3 Longer look after impact: 3 s and 5 s after instead of 1.5 s.
+  E4 Lower gate: 1.8 and 2.0 g instead of 2.25 g, for softer falls.
+
+Rules, fixed before any results (dev parts only; test parts are spent):
+- Model changes (E2, E3): mean gated AUC on UMAFall dev + FallAllD dev,
+  WEDA LOSO >= 0.893, adopt only if the mean rises by >= 0.01.
+- Operating changes (E1, E4): falls caught on UMAFall dev + FallAllD dev
+  with false alarms held at 95% specificity on their daily activities;
+  adopt only if the mean rises by >= 5 points.
+- Whatever is adopted has dev numbers only. The real test will be
+  Guardian's own band.
+
+E1 - Device threshold (7 Oct 2026)
+- Fixed WEDA threshold 0.857 on new devices: UMAFall 30% caught (0 FA/h),
+  FallAllD 20% caught (4.9 FA/h).
+- Device threshold (set on half the people, scored on the other half):
+  UMAFall 62% caught but specificity fell to 81% (6.3 FA/h);
+  FallAllD 11% caught (3.5 FA/h), worse than fixed.
+- The script first said ADOPT (+11 points). That ignored the "held at 95%
+  specificity" part of the rule. On UMAFall it was not held (81%), so the
+  gain was bought with false alarms. Corrected verdict: REJECT.
+- Why: the calibration halves had too few daily activities past the gate
+  (UMAFall about 20 per half) to set a 95% point reliably.
+- Lesson for the band: per-device calibration needs a lot of normal-wear
+  data (many gate events, i.e. days of wear), not a few scripted clips.
+
+E2 - Device scaling (7 Oct 2026)
+    none    WEDA 0.909  UMAFall 0.947  FallAllD 0.671  unseen 0.809
+    robust  WEDA 0.909  UMAFall 0.947  FallAllD 0.682  unseen 0.814
+    zscore  WEDA 0.909  UMAFall 0.902  FallAllD 0.690  unseen 0.796
+- Best +0.006, below the 0.01 noise bar. REJECT. Mean/std scaling hurt UMAFall.
+
+E3 - Longer look after impact (7 Oct 2026)
+- Same 1822 recordings for all three (shorter ones cannot fit 5 s).
+    1.5 s   WEDA 0.909  UMAFall 0.955  FallAllD 0.650  unseen 0.802
+    3.0 s   WEDA 0.928  UMAFall 0.938  FallAllD 0.698  unseen 0.818
+    5.0 s   WEDA 0.945  UMAFall 0.719  FallAllD 0.684  unseen 0.701
+- 3 s: +0.016, passes the 0.01 bar -> ADOPT. Gain comes from FallAllD
+  (+0.048); UMAFall dropped a little (-0.017).
+- 5 s: best on WEDA itself but UMAFall collapsed. It learns how WEDA
+  volunteers behaved after falling, which other datasets do not share.
+  Classic overfitting to one dataset's protocol.
+- Cost: the stream scores 3 s after the impact instead of 1.5 s. Fine for
+  an emergency alert (Apple waits about a minute).
+
+E4 - Lower gate (7 Oct 2026)
+- Falls caught at 95% specificity (gate + model together):
+    2.25 g  WEDA 0.816  UMAFall 0.852  FallAllD 0.337  unseen 0.595
+    2.0 g   WEDA 0.732  UMAFall 0.919  FallAllD 0.349  unseen 0.634
+    1.8 g   WEDA 0.704  UMAFall 0.941  FallAllD 0.329  unseen 0.635
+- Best +0.040, below the +0.05 bar -> REJECT. Lower gates let more falls
+  through (UMAFall 87% -> 97%) but also many more daily activities, and
+  WEDA got worse. Gate stays at 2.25 g.
+
+BUILD CHECK AND A BUG (7 Oct 2026)
+- The build check (1.5 s vs 3 s on all 1823 recordings long enough for 3 s)
+  showed no gain: unseen 0.809 vs 0.809 (UMAFall -0.029, FallAllD +0.030).
+- Cause found: WEDA files share names across activity folders
+  (F01/U01_R01_accel.csv and D01/U01_R01_accel.csv), so "same recordings"
+  matching was wrong for WEDA. The 1.5 s side kept some short WEDA
+  recordings the 3 s and 5 s sides did not. UMAFall and FallAllD were fine.
+- Fix: recordings are now keyed by folder + name, with a check that keys
+  are unique. E3 must be re-run before the 3 s change is kept.
+
+E3 RE-RUN with the fix (7 Oct 2026)
+- Same 2378 recordings for all three, now matched correctly.
+    1.5 s   WEDA 0.894  UMAFall 0.926  FallAllD 0.622  unseen 0.774
+    3.0 s   WEDA 0.922  UMAFall 0.953  FallAllD 0.701  unseen 0.827
+    5.0 s   WEDA 0.945  UMAFall 0.719  FallAllD 0.684  unseen 0.701
+- 3 s: +0.053, and this time both unseen datasets improve. ADOPT stands.
+- 5 s still overfits to WEDA (UMAFall 0.719).
+- Note: changing which WEDA recordings go into training moved the 1.5 s
+  scores by up to 0.05 (0.809 on all recordings, 0.774 here). Small
+  training sets make these numbers jumpy; only clear gains count.
+
+BUILD CHECK, CORRECT MATCHING (7 Oct 2026)
+- All 2432 recordings long enough for 3 s:
+    1.5 s   WEDA 0.907  UMAFall 0.943  FallAllD 0.679  unseen 0.811
+    3.0 s   WEDA 0.935  UMAFall 0.918  FallAllD 0.701  unseen 0.809
+- So the +0.053 from E3 only shows on the 2378 longer recordings. With the
+  54 extra recordings in, it is a tie.
+- Where 3 s stands in every comparison: FallAllD better (+0.08, +0.02),
+  WEDA better (+0.03, +0.03), UMAFall mixed (+0.03, -0.03).
+- Decision: keep 3 s (the rule adopted it, and it is never worse on
+  average), but claim NO improvement in reports. Say "no worse, helps the
+  hardest dataset".
+- Bigger lesson: with 18 WEDA training people, scores swing by up to 0.05
+  just from which recordings are in. The 0.01 bar was too small; treat
+  anything under about 0.05 as noise from now on.
+
+STAGE 4 SUMMARY
+- E1 device threshold: REJECT (needs days of real wear to work).
+- E2 device scaling: REJECT (+0.006).
+- E3 3 s after impact: kept, but a tie on full data.
+- E4 lower gate: REJECT (+0.04, WEDA worse).
+- The motion model is at the limit of what this data can show. Real gains
+  now need real data from the band, and fusion with the other streams.
+- Model now: models/motion.joblib = WEDA-trained, 3 s after impact,
+  672 segments, 250 falls, threshold 0.8107 (evaluation only).

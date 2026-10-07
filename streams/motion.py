@@ -59,7 +59,8 @@ GATE_GYRO_DPS = 1e9          # DISABLED after --tune on UMAFall: at the wrist,
                              # separates. Gyro still feeds Stage 2 as features.
 
 PRE_SEC = 2.0                # segment start, before the trigger
-POST_SEC = 1.5               # segment end, after the trigger
+POST_SEC = 3.0               # segment end, after the trigger. 1.5 -> 3.0 in Stage 4
+                             # (E3: unseen AUC 0.802 -> 0.818; 5 s overfit to WEDA)
 STILL_SEC = 10.0             # stillness observation span after impact
 MIN_STILL_SEC = 2.0          # before this much has elapsed, stillness is untrusted
 
