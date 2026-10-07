@@ -1,229 +1,229 @@
 t,stream,score,quality,extras
-2.5,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.4130780004886532, ""gate_open"": true, ""time_since_impact"": 1.18}"
-2.5,activity,0.85,0.6537562797685365,"{""state"": ""lying/immobile"", ""confidence"": 0.6537562797685365, ""probs"": {""ambulating"": 0.18610521161005833, ""lying/immobile"": 0.6537562797685365, ""seated hand activity"": 0.019133697905362124, ""stationary"": 0.14100481071604315}}"
+2.5,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.4130780004886532, ""gate_open"": true, ""time_since_impact"": 1.18, ""movement"": 0.825412581323999, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
+2.5,activity,0.85,0.6537562797685365,"{""state"": ""lying/immobile"", ""confidence"": 0.6537562797685365, ""probs"": {""ambulating"": 0.1861052116100583, ""lying/immobile"": 0.6537562797685365, ""seated hand activity"": 0.019133697905362124, ""stationary"": 0.14100481071604315}}"
 2.5,physiological,0.0,0.0,{}
-3.74,motion,0.0,0.52625,"{""impact"": 0.0, ""stillness"": 0.4212793786459719, ""gate_open"": true, ""time_since_impact"": 2.42}"
+3.74,motion,0.0,0.52625,"{""impact"": 0.0, ""stillness"": 0.4212793786459719, ""gate_open"": true, ""time_since_impact"": 2.42, ""movement"": 0.87004791090309, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
 3.74,activity,0.15,0.863850887393139,"{""state"": ""ambulating"", ""confidence"": 0.863850887393139, ""probs"": {""ambulating"": 0.863850887393139, ""lying/immobile"": 0.0968400288028238, ""seated hand activity"": 0.020624377873707647, ""stationary"": 0.018684705930329382}}"
 3.74,physiological,0.0,0.0,{}
-4.98,motion,0.5153055191040039,0.60375,"{""impact"": 0.5153055191040039, ""stillness"": 0.4069617159601572, ""gate_open"": true, ""time_since_impact"": 3.66}"
+4.98,motion,0.5153055191040039,0.60375,"{""impact"": 0.5153055191040039, ""stillness"": 0.4069617159601572, ""gate_open"": true, ""time_since_impact"": 3.66, ""movement"": 0.8691084432928831, ""still_s"": 0.0, ""moved_after_impact_s"": 1.24, ""recovered"": false}"
 4.98,activity,0.15,0.9337580628946897,"{""state"": ""ambulating"", ""confidence"": 0.9337580628946897, ""probs"": {""ambulating"": 0.9337580628946897, ""lying/immobile"": 0.02718971337227361, ""seated hand activity"": 0.03905221902572534, ""stationary"": 4.7073115217058335e-09}}"
 4.98,physiological,0.0,0.0,{}
-6.22,motion,0.5153055191040039,0.68125,"{""impact"": 0.5153055191040039, ""stillness"": 0.4055965544514615, ""gate_open"": true, ""time_since_impact"": 4.9}"
+6.22,motion,0.5153055191040039,0.68125,"{""impact"": 0.5153055191040039, ""stillness"": 0.4055965544514615, ""gate_open"": true, ""time_since_impact"": 4.9, ""movement"": 0.9455343979773747, ""still_s"": 0.0, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 6.22,activity,0.15,0.9785926972976827,"{""state"": ""ambulating"", ""confidence"": 0.9785926972976827, ""probs"": {""ambulating"": 0.9785926972976827, ""lying/immobile"": 0.008481844387064865, ""seated hand activity"": 0.01292545364228159, ""stationary"": 4.672970953721193e-09}}"
 6.22,physiological,0.0,0.0,{}
-7.46,motion,0.5153055191040039,0.75875,"{""impact"": 0.5153055191040039, ""stillness"": 0.40808456215954325, ""gate_open"": true, ""time_since_impact"": 6.14}"
+7.46,motion,0.5153055191040039,0.75875,"{""impact"": 0.5153055191040039, ""stillness"": 0.40808456215954325, ""gate_open"": true, ""time_since_impact"": 6.14, ""movement"": 0.7341342561228049, ""still_s"": 0.0, ""moved_after_impact_s"": 3.72, ""recovered"": false}"
 7.46,activity,0.15,0.9718210898076803,"{""state"": ""ambulating"", ""confidence"": 0.9718210898076803, ""probs"": {""ambulating"": 0.9718210898076803, ""lying/immobile"": 0.01466278645964583, ""seated hand activity"": 0.013516119053598976, ""stationary"": 4.679074765490759e-09}}"
 7.46,physiological,0.0,0.0,{}
-8.7,motion,0.5153055191040039,0.8362499999999999,"{""impact"": 0.5153055191040039, ""stillness"": 0.40958925560093445, ""gate_open"": true, ""time_since_impact"": 7.38}"
-8.7,activity,0.15,0.7688391132523561,"{""state"": ""ambulating"", ""confidence"": 0.7688391132523561, ""probs"": {""ambulating"": 0.7688391132523561, ""lying/immobile"": 0.06132309699097326, ""seated hand activity"": 0.08763141762925916, ""stationary"": 0.08220637212741148}}"
+8.7,motion,0.5153055191040039,0.8362499999999999,"{""impact"": 0.5153055191040039, ""stillness"": 0.40958925560093445, ""gate_open"": true, ""time_since_impact"": 7.38, ""movement"": 0.667441561858012, ""still_s"": 0.0, ""moved_after_impact_s"": 4.96, ""recovered"": false}"
+8.7,activity,0.15,0.7688391132523561,"{""state"": ""ambulating"", ""confidence"": 0.7688391132523561, ""probs"": {""ambulating"": 0.7688391132523561, ""lying/immobile"": 0.06132309699097326, ""seated hand activity"": 0.08763141762925916, ""stationary"": 0.08220637212741144}}"
 8.7,physiological,0.0,0.0,{}
-9.94,motion,0.5153055191040039,0.91375,"{""impact"": 0.5153055191040039, ""stillness"": 0.4135440100687839, ""gate_open"": true, ""time_since_impact"": 8.62}"
+9.94,motion,0.5153055191040039,0.91375,"{""impact"": 0.5153055191040039, ""stillness"": 0.4135440100687839, ""gate_open"": true, ""time_since_impact"": 8.62, ""movement"": 0.585714006259601, ""still_s"": 0.0, ""moved_after_impact_s"": 6.2, ""recovered"": false}"
 9.94,activity,0.15,0.9287179859097593,"{""state"": ""ambulating"", ""confidence"": 0.9287179859097593, ""probs"": {""ambulating"": 0.9287179859097593, ""lying/immobile"": 0.027558780861445083, ""seated hand activity"": 0.03966836904418948, ""stationary"": 0.004054864184606169}}"
 9.94,physiological,0.0,0.0,{}
-11.18,motion,0.5153055191040039,0.99125,"{""impact"": 0.5153055191040039, ""stillness"": 0.4145211391990122, ""gate_open"": true, ""time_since_impact"": 9.86}"
-11.18,activity,0.15,0.8472082029112527,"{""state"": ""ambulating"", ""confidence"": 0.8472082029112527, ""probs"": {""ambulating"": 0.8472082029112527, ""lying/immobile"": 0.036230879923648374, ""seated hand activity"": 0.09203820352584485, ""stationary"": 0.024522713639254155}}"
+11.18,motion,0.5153055191040039,0.99125,"{""impact"": 0.5153055191040039, ""stillness"": 0.4145211391990122, ""gate_open"": true, ""time_since_impact"": 9.86, ""movement"": 0.5713548543673701, ""still_s"": 0.0, ""moved_after_impact_s"": 7.44, ""recovered"": false}"
+11.18,activity,0.15,0.8472082029112527,"{""state"": ""ambulating"", ""confidence"": 0.8472082029112527, ""probs"": {""ambulating"": 0.8472082029112527, ""lying/immobile"": 0.036230879923648374, ""seated hand activity"": 0.09203820352584485, ""stationary"": 0.02452271363925417}}"
 11.18,physiological,0.0,0.0,{}
-12.42,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 11.1}"
+12.42,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 11.1, ""movement"": 0.7331557834120701, ""still_s"": 0.0, ""moved_after_impact_s"": 8.68, ""recovered"": true}"
 12.42,activity,0.15,0.9141122401143473,"{""state"": ""ambulating"", ""confidence"": 0.9141122401143473, ""probs"": {""ambulating"": 0.9141122401143473, ""lying/immobile"": 0.05563131387180488, ""seated hand activity"": 0.014077970903698915, ""stationary"": 0.016178475110149013}}"
 12.42,physiological,0.0,0.0,{}
-13.66,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 12.34}"
+13.66,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 12.34, ""movement"": 0.7820560616809775, ""still_s"": 0.0, ""moved_after_impact_s"": 9.92, ""recovered"": true}"
 13.66,activity,0.15,0.9579027402174974,"{""state"": ""ambulating"", ""confidence"": 0.9579027402174974, ""probs"": {""ambulating"": 0.9579027402174974, ""lying/immobile"": 0.02842664496636711, ""seated hand activity"": 0.008973216328666713, ""stationary"": 0.004697398487468631}}"
 13.66,physiological,0.0,0.0,{}
-14.9,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 13.58}"
+14.9,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 13.58, ""movement"": 0.7792338315662781, ""still_s"": 0.0, ""moved_after_impact_s"": 11.16, ""recovered"": true}"
 14.9,activity,0.15,0.9757465694516064,"{""state"": ""ambulating"", ""confidence"": 0.9757465694516064, ""probs"": {""ambulating"": 0.9757465694516064, ""lying/immobile"": 0.015641387759314267, ""seated hand activity"": 0.008612038113658484, ""stationary"": 4.675420926224978e-09}}"
 14.9,physiological,0.0,0.0,{}
-16.14,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 14.82}"
+16.14,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 14.82, ""movement"": 0.8016090729200303, ""still_s"": 0.0, ""moved_after_impact_s"": 12.4, ""recovered"": true}"
 16.14,activity,0.15,0.9064362990940334,"{""state"": ""ambulating"", ""confidence"": 0.9064362990940334, ""probs"": {""ambulating"": 0.9064362990940334, ""lying/immobile"": 0.019544869645079916, ""seated hand activity"": 0.06776978482784735, ""stationary"": 0.006249046433039198}}"
 16.14,physiological,0.0,0.0,{}
-17.38,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 16.06}"
+17.38,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 16.06, ""movement"": 0.6971784559054959, ""still_s"": 0.0, ""moved_after_impact_s"": 13.64, ""recovered"": true}"
 17.38,activity,0.15,0.7865588042419893,"{""state"": ""ambulating"", ""confidence"": 0.7865588042419893, ""probs"": {""ambulating"": 0.7865588042419893, ""lying/immobile"": 0.14584707277770514, ""seated hand activity"": 0.038356486546518034, ""stationary"": 0.02923763643378745}}"
 17.38,physiological,0.0,0.0,{}
-18.62,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 17.3}"
-18.62,activity,0.85,0.6144986829582799,"{""state"": ""lying/immobile"", ""confidence"": 0.6144986829582799, ""probs"": {""ambulating"": 0.25785651919470304, ""lying/immobile"": 0.6144986829582799, ""seated hand activity"": 0.050212469842606744, ""stationary"": 0.0774323280044103}}"
+18.62,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 17.3, ""movement"": 0.8333194006461027, ""still_s"": 0.0, ""moved_after_impact_s"": 14.88, ""recovered"": true}"
+18.62,activity,0.85,0.6144986829582799,"{""state"": ""lying/immobile"", ""confidence"": 0.6144986829582799, ""probs"": {""ambulating"": 0.25785651919470304, ""lying/immobile"": 0.6144986829582799, ""seated hand activity"": 0.050212469842606716, ""stationary"": 0.0774323280044103}}"
 18.62,physiological,0.0,0.0,{}
-19.86,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 18.54}"
+19.86,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 18.54, ""movement"": 0.7244201303800673, ""still_s"": 0.0, ""moved_after_impact_s"": 16.12, ""recovered"": true}"
 19.86,activity,0.85,0.57899057052466,"{""state"": ""lying/immobile"", ""confidence"": 0.57899057052466, ""probs"": {""ambulating"": 0.13597696260765824, ""lying/immobile"": 0.57899057052466, ""seated hand activity"": 0.054972659996984974, ""stationary"": 0.23005980687069677}}"
 19.86,physiological,0.0,0.0,{}
-21.1,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 19.78}"
-21.1,activity,0.4,0.4788079549361274,"{""state"": ""stationary"", ""confidence"": 0.4788079549361274, ""probs"": {""ambulating"": 0.04788556885520187, ""lying/immobile"": 0.39819264953546385, ""seated hand activity"": 0.07511382667320685, ""stationary"": 0.4788079549361274}}"
+21.1,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 19.78, ""movement"": 0.5961252332203819, ""still_s"": 0.0, ""moved_after_impact_s"": 17.36, ""recovered"": true}"
+21.1,activity,0.4,0.4788079549361275,"{""state"": ""stationary"", ""confidence"": 0.4788079549361275, ""probs"": {""ambulating"": 0.047885568855201885, ""lying/immobile"": 0.3981926495354638, ""seated hand activity"": 0.07511382667320686, ""stationary"": 0.4788079549361275}}"
 21.1,physiological,0.0,0.0,{}
-22.34,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 21.02}"
-22.34,activity,0.85,0.7711756752344112,"{""state"": ""lying/immobile"", ""confidence"": 0.7711756752344112, ""probs"": {""ambulating"": 0.029235574374636416, ""lying/immobile"": 0.7711756752344112, ""seated hand activity"": 0.013902838776955091, ""stationary"": 0.1856859116139974}}"
+22.34,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 21.02, ""movement"": 0.6482774173358853, ""still_s"": 0.0, ""moved_after_impact_s"": 18.6, ""recovered"": true}"
+22.34,activity,0.85,0.771175675234411,"{""state"": ""lying/immobile"", ""confidence"": 0.771175675234411, ""probs"": {""ambulating"": 0.029235574374636412, ""lying/immobile"": 0.771175675234411, ""seated hand activity"": 0.013902838776955088, ""stationary"": 0.1856859116139974}}"
 22.34,physiological,0.0,0.0,{}
-23.58,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 22.259999999999998}"
-23.58,activity,0.15,0.628573139434359,"{""state"": ""ambulating"", ""confidence"": 0.628573139434359, ""probs"": {""ambulating"": 0.628573139434359, ""lying/immobile"": 0.19456174917532953, ""seated hand activity"": 0.07849430490933301, ""stationary"": 0.09837080648097847}}"
+23.58,motion,0.5153055191040039,1.0,"{""impact"": 0.5153055191040039, ""stillness"": 0.4153452919642348, ""gate_open"": true, ""time_since_impact"": 22.259999999999998, ""movement"": 0.7180027881677135, ""still_s"": 0.0, ""moved_after_impact_s"": 19.84, ""recovered"": true}"
+23.58,activity,0.15,0.628573139434359,"{""state"": ""ambulating"", ""confidence"": 0.628573139434359, ""probs"": {""ambulating"": 0.628573139434359, ""lying/immobile"": 0.1945617491753296, ""seated hand activity"": 0.07849430490933304, ""stationary"": 0.0983708064809785}}"
 23.58,physiological,0.0,0.0,{}
-24.82,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": true, ""time_since_impact"": 0.019999999999999574}"
-24.82,activity,0.15,0.5819787995421114,"{""state"": ""ambulating"", ""confidence"": 0.5819787995421114, ""probs"": {""ambulating"": 0.5819787995421114, ""lying/immobile"": 0.2508197936948543, ""seated hand activity"": 0.05025179430105741, ""stationary"": 0.11694961246197691}}"
+24.82,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": true, ""time_since_impact"": 0.019999999999999574, ""movement"": 1.0, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
+24.82,activity,0.15,0.5819787995421114,"{""state"": ""ambulating"", ""confidence"": 0.5819787995421114, ""probs"": {""ambulating"": 0.5819787995421114, ""lying/immobile"": 0.25081979369485424, ""seated hand activity"": 0.05025179430105744, ""stationary"": 0.11694961246197691}}"
 24.82,physiological,0.0,0.0,{}
-26.06,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 7.857234482938433e-07, ""gate_open"": true, ""time_since_impact"": 1.259999999999998}"
-26.06,activity,0.15,0.6124424905091429,"{""state"": ""ambulating"", ""confidence"": 0.6124424905091429, ""probs"": {""ambulating"": 0.6124424905091429, ""lying/immobile"": 0.2685562405731878, ""seated hand activity"": 0.05891831064576301, ""stationary"": 0.06008295827190635}}"
+26.06,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 7.857234482938433e-07, ""gate_open"": true, ""time_since_impact"": 1.259999999999998, ""movement"": 1.0, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
+26.06,activity,0.15,0.6124424905091428,"{""state"": ""ambulating"", ""confidence"": 0.6124424905091428, ""probs"": {""ambulating"": 0.6124424905091428, ""lying/immobile"": 0.2685562405731877, ""seated hand activity"": 0.058918310645762986, ""stationary"": 0.06008295827190636}}"
 26.06,physiological,0.0,0.0,{}
-27.3,motion,0.0,0.53125,"{""impact"": 0.0, ""stillness"": 0.0005879951897999294, ""gate_open"": true, ""time_since_impact"": 2.5}"
+27.3,motion,0.0,0.53125,"{""impact"": 0.0, ""stillness"": 0.0005879951897999294, ""gate_open"": true, ""time_since_impact"": 2.5, ""movement"": 1.0, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
 27.3,activity,0.15,0.5163562600320467,"{""state"": ""ambulating"", ""confidence"": 0.5163562600320467, ""probs"": {""ambulating"": 0.5163562600320467, ""lying/immobile"": 0.2673326376260177, ""seated hand activity"": 0.10995820955514556, ""stationary"": 0.10635289278678992}}"
 27.3,physiological,0.0,0.0,{}
-28.54,motion,0.907586932182312,0.6087499999999999,"{""impact"": 0.907586932182312, ""stillness"": 0.005779900717039225, ""gate_open"": true, ""time_since_impact"": 3.7399999999999984}"
-28.54,activity,0.05,0.5859158090281537,"{""state"": ""seated hand activity"", ""confidence"": 0.5859158090281537, ""probs"": {""ambulating"": 0.07418267166535523, ""lying/immobile"": 0.07163772793034469, ""seated hand activity"": 0.5859158090281537, ""stationary"": 0.2682637913761464}}"
+28.54,motion,0.907586932182312,0.6087499999999999,"{""impact"": 0.907586932182312, ""stillness"": 0.005779900717039225, ""gate_open"": true, ""time_since_impact"": 3.7399999999999984, ""movement"": 0.13812951957011085, ""still_s"": 0.0, ""moved_after_impact_s"": 1.24, ""recovered"": false}"
+28.54,activity,0.05,0.5859158090281537,"{""state"": ""seated hand activity"", ""confidence"": 0.5859158090281537, ""probs"": {""ambulating"": 0.07418267166535523, ""lying/immobile"": 0.07163772793034469, ""seated hand activity"": 0.5859158090281537, ""stationary"": 0.2682637913761463}}"
 28.54,physiological,0.0,0.0,{}
-29.78,motion,0.907586932182312,0.68625,"{""impact"": 0.907586932182312, ""stillness"": 0.0146285496764811, ""gate_open"": true, ""time_since_impact"": 4.98}"
+29.78,motion,0.907586932182312,0.68625,"{""impact"": 0.907586932182312, ""stillness"": 0.0146285496764811, ""gate_open"": true, ""time_since_impact"": 4.98, ""movement"": 0.23538019656545114, ""still_s"": 0.0, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 29.78,activity,0.05,0.5788806422765813,"{""state"": ""seated hand activity"", ""confidence"": 0.5788806422765813, ""probs"": {""ambulating"": 0.1696598337919492, ""lying/immobile"": 0.057628999210643385, ""seated hand activity"": 0.5788806422765813, ""stationary"": 0.19383052472082607}}"
 29.78,physiological,0.0,0.0,{}
-31.02,motion,0.907586932182312,0.7637499999999999,"{""impact"": 0.907586932182312, ""stillness"": 0.08113889063902782, ""gate_open"": true, ""time_since_impact"": 6.219999999999999}"
-31.02,activity,0.4,0.6389143574578867,"{""state"": ""stationary"", ""confidence"": 0.6389143574578867, ""probs"": {""ambulating"": 0.05287673718183708, ""lying/immobile"": 0.12625186254562634, ""seated hand activity"": 0.18195704281464983, ""stationary"": 0.6389143574578867}}"
+31.02,motion,0.907586932182312,0.7637499999999999,"{""impact"": 0.907586932182312, ""stillness"": 0.08113889063902782, ""gate_open"": true, ""time_since_impact"": 6.219999999999999, ""movement"": 0.4137746783637931, ""still_s"": 0.0, ""moved_after_impact_s"": 3.72, ""recovered"": false}"
+31.02,activity,0.4,0.6389143574578867,"{""state"": ""stationary"", ""confidence"": 0.6389143574578867, ""probs"": {""ambulating"": 0.05287673718183711, ""lying/immobile"": 0.1262518625456264, ""seated hand activity"": 0.18195704281464983, ""stationary"": 0.6389143574578867}}"
 31.02,physiological,0.0,0.0,{}
-32.26,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.48542623847826577, ""gate_open"": true, ""time_since_impact"": 0.0799999999999983}"
-32.26,activity,0.15,0.5038724868014897,"{""state"": ""ambulating"", ""confidence"": 0.5038724868014897, ""probs"": {""ambulating"": 0.5038724868014897, ""lying/immobile"": 0.3222765044628287, ""seated hand activity"": 0.05803323370941091, ""stationary"": 0.11581777502627066}}"
+32.26,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.48542623847826577, ""gate_open"": true, ""time_since_impact"": 0.0799999999999983, ""movement"": 1.0, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
+32.26,activity,0.15,0.5038724868014897,"{""state"": ""ambulating"", ""confidence"": 0.5038724868014897, ""probs"": {""ambulating"": 0.5038724868014897, ""lying/immobile"": 0.32227650446282874, ""seated hand activity"": 0.05803323370941093, ""stationary"": 0.11581777502627072}}"
 32.26,physiological,0.0,0.0,{}
-33.5,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.10353847880233717, ""gate_open"": true, ""time_since_impact"": 1.3199999999999932}"
+33.5,motion,0.0,0.5,"{""impact"": 0.0, ""stillness"": 0.10353847880233717, ""gate_open"": true, ""time_since_impact"": 1.3199999999999932, ""movement"": 1.0, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
 33.5,activity,0.15,0.5215981484793762,"{""state"": ""ambulating"", ""confidence"": 0.5215981484793762, ""probs"": {""ambulating"": 0.5215981484793762, ""lying/immobile"": 0.29734383581488244, ""seated hand activity"": 0.10293328014432286, ""stationary"": 0.07812473556141844}}"
 33.5,physiological,0.0,0.0,{}
-34.74,motion,0.0,0.5349999999999997,"{""impact"": 0.0, ""stillness"": 0.07637368107361904, ""gate_open"": true, ""time_since_impact"": 2.559999999999995}"
-34.74,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3467371016839815, ""probs"": {""ambulating"": 0.2358124115445539, ""lying/immobile"": 0.21718610633055724, ""seated hand activity"": 0.2002643804409074, ""stationary"": 0.3467371016839815}}"
+34.74,motion,0.0,0.5349999999999997,"{""impact"": 0.0, ""stillness"": 0.07637368107361904, ""gate_open"": true, ""time_since_impact"": 2.559999999999995, ""movement"": 0.5424592743687339, ""still_s"": 0.0, ""moved_after_impact_s"": 0.0, ""recovered"": false}"
+34.74,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.34673710168398136, ""probs"": {""ambulating"": 0.23581241154455398, ""lying/immobile"": 0.21718610633055718, ""seated hand activity"": 0.20026438044090747, ""stationary"": 0.34673710168398136}}"
 34.74,physiological,0.0,0.0,{}
-35.98,motion,0.5030521750450134,0.6124999999999994,"{""impact"": 0.5030521750450134, ""stillness"": 0.07715977403966806, ""gate_open"": true, ""time_since_impact"": 3.79999999999999}"
-35.98,activity,0.05,0.5735821419533732,"{""state"": ""seated hand activity"", ""confidence"": 0.5735821419533732, ""probs"": {""ambulating"": 0.17684329877796395, ""lying/immobile"": 0.08956207514314943, ""seated hand activity"": 0.5735821419533732, ""stationary"": 0.1600124841255134}}"
+35.98,motion,0.5030521750450134,0.6124999999999994,"{""impact"": 0.5030521750450134, ""stillness"": 0.07715977403966806, ""gate_open"": true, ""time_since_impact"": 3.79999999999999, ""movement"": 0.28678379308392254, ""still_s"": 0.0, ""moved_after_impact_s"": 1.24, ""recovered"": false}"
+35.98,activity,0.05,0.5735821419533732,"{""state"": ""seated hand activity"", ""confidence"": 0.5735821419533732, ""probs"": {""ambulating"": 0.17684329877796395, ""lying/immobile"": 0.08956207514314947, ""seated hand activity"": 0.5735821419533732, ""stationary"": 0.1600124841255134}}"
 35.98,physiological,0.0,0.0,{}
-37.22,motion,0.5030521750450134,0.6899999999999995,"{""impact"": 0.5030521750450134, ""stillness"": 0.13292573926079884, ""gate_open"": true, ""time_since_impact"": 5.039999999999992}"
-37.22,activity,0.05,0.6715141968110918,"{""state"": ""seated hand activity"", ""confidence"": 0.6715141968110918, ""probs"": {""ambulating"": 0.09386846644485333, ""lying/immobile"": 0.10741537658289195, ""seated hand activity"": 0.6715141968110918, ""stationary"": 0.1272019601611628}}"
+37.22,motion,0.5030521750450134,0.6899999999999995,"{""impact"": 0.5030521750450134, ""stillness"": 0.13292573926079884, ""gate_open"": true, ""time_since_impact"": 5.039999999999992, ""movement"": 0.14905924932818382, ""still_s"": 0.0, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+37.22,activity,0.05,0.6715141968110919,"{""state"": ""seated hand activity"", ""confidence"": 0.6715141968110919, ""probs"": {""ambulating"": 0.09386846644485335, ""lying/immobile"": 0.10741537658289192, ""seated hand activity"": 0.6715141968110919, ""stationary"": 0.12720196016116284}}"
 37.22,physiological,0.0,0.0,{}
-38.46,motion,0.5030521750450134,0.7674999999999996,"{""impact"": 0.5030521750450134, ""stillness"": 0.17605634156391226, ""gate_open"": true, ""time_since_impact"": 6.279999999999994}"
+38.46,motion,0.5030521750450134,0.7674999999999996,"{""impact"": 0.5030521750450134, ""stillness"": 0.17605634156391226, ""gate_open"": true, ""time_since_impact"": 6.279999999999994, ""movement"": 0.027762297094852575, ""still_s"": 2.5, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 38.46,activity,0.05,0.7604747458091798,"{""state"": ""seated hand activity"", ""confidence"": 0.7604747458091798, ""probs"": {""ambulating"": 0.029149901277628436, ""lying/immobile"": 0.016502421782886054, ""seated hand activity"": 0.7604747458091798, ""stationary"": 0.1938729311303055}}"
 38.46,physiological,0.0,0.0,{}
-39.7,motion,0.5030521750450134,0.8449999999999998,"{""impact"": 0.5030521750450134, ""stillness"": 0.16502259425624924, ""gate_open"": true, ""time_since_impact"": 7.519999999999996}"
+39.7,motion,0.5030521750450134,0.8449999999999998,"{""impact"": 0.5030521750450134, ""stillness"": 0.16502259425624924, ""gate_open"": true, ""time_since_impact"": 7.519999999999996, ""movement"": 0.02660873918167137, ""still_s"": 3.74, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 39.7,activity,0.05,0.7667800770505214,"{""state"": ""seated hand activity"", ""confidence"": 0.7667800770505214, ""probs"": {""ambulating"": 0.015619081600329272, ""lying/immobile"": 0.0247326064325706, ""seated hand activity"": 0.7667800770505214, ""stationary"": 0.19286823491657876}}"
 39.7,physiological,0.0,0.0,{}
-40.94,motion,0.5030521750450134,0.9224999999999994,"{""impact"": 0.5030521750450134, ""stillness"": 0.19754990091087749, ""gate_open"": true, ""time_since_impact"": 8.759999999999991}"
+40.94,motion,0.5030521750450134,0.9224999999999994,"{""impact"": 0.5030521750450134, ""stillness"": 0.19754990091087749, ""gate_open"": true, ""time_since_impact"": 8.759999999999991, ""movement"": 0.023551028084487533, ""still_s"": 4.98, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 40.94,activity,0.05,0.7940358848614217,"{""state"": ""seated hand activity"", ""confidence"": 0.7940358848614217, ""probs"": {""ambulating"": 0.01366891926845067, ""lying/immobile"": 0.006074812038406373, ""seated hand activity"": 0.7940358848614217, ""stationary"": 0.18622038383172132}}"
 40.94,physiological,0.0,0.0,{}
-42.18,motion,0.5030521750450134,0.9999999999999996,"{""impact"": 0.5030521750450134, ""stillness"": 0.20952449742362425, ""gate_open"": true, ""time_since_impact"": 9.999999999999993}"
+42.18,motion,0.5030521750450134,0.9999999999999996,"{""impact"": 0.5030521750450134, ""stillness"": 0.20952449742362425, ""gate_open"": true, ""time_since_impact"": 9.999999999999993, ""movement"": 0.02450638572923538, ""still_s"": 6.22, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 42.18,activity,0.05,0.7693875775389599,"{""state"": ""seated hand activity"", ""confidence"": 0.7693875775389599, ""probs"": {""ambulating"": 0.012889418840122057, ""lying/immobile"": 0.017829802532489628, ""seated hand activity"": 0.7693875775389599, ""stationary"": 0.19989320108842842}}"
 42.18,physiological,0.0,0.0,{}
-43.42,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2639345327109909, ""gate_open"": true, ""time_since_impact"": 11.239999999999995}"
+43.42,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2639345327109909, ""gate_open"": true, ""time_since_impact"": 11.239999999999995, ""movement"": 0.027086269413246572, ""still_s"": 7.46, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 43.42,activity,0.05,0.7618562881886375,"{""state"": ""seated hand activity"", ""confidence"": 0.7618562881886375, ""probs"": {""ambulating"": 0.01936551334856748, ""lying/immobile"": 0.02393693379430498, ""seated hand activity"": 0.7618562881886375, ""stationary"": 0.19484126466849017}}"
 43.42,physiological,0.0,0.0,{}
-44.66,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2711854260535776, ""gate_open"": true, ""time_since_impact"": 12.47999999999999}"
-44.66,activity,0.05,0.8007829363892885,"{""state"": ""seated hand activity"", ""confidence"": 0.8007829363892885, ""probs"": {""ambulating"": 0.016461026460307306, ""lying/immobile"": 0.012987202363576894, ""seated hand activity"": 0.8007829363892885, ""stationary"": 0.16976883478682733}}"
+44.66,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2711854260535776, ""gate_open"": true, ""time_since_impact"": 12.47999999999999, ""movement"": 0.025909347150116297, ""still_s"": 8.7, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+44.66,activity,0.05,0.8007829363892885,"{""state"": ""seated hand activity"", ""confidence"": 0.8007829363892885, ""probs"": {""ambulating"": 0.016461026460307306, ""lying/immobile"": 0.012987202363576884, ""seated hand activity"": 0.8007829363892885, ""stationary"": 0.16976883478682728}}"
 44.66,physiological,0.0,0.0,{}
-45.9,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.22155404714891563, ""gate_open"": true, ""time_since_impact"": 13.719999999999992}"
+45.9,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.22155404714891563, ""gate_open"": true, ""time_since_impact"": 13.719999999999992, ""movement"": 0.025516475186008393, ""still_s"": 9.94, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 45.9,activity,0.05,0.8096257412883643,"{""state"": ""seated hand activity"", ""confidence"": 0.8096257412883643, ""probs"": {""ambulating"": 0.014097473489067779, ""lying/immobile"": 0.008859565142208573, ""seated hand activity"": 0.8096257412883643, ""stationary"": 0.16741722008035925}}"
 45.9,physiological,0.0,0.0,{}
-47.14,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.22451485881822358, ""gate_open"": true, ""time_since_impact"": 14.959999999999994}"
-47.14,activity,0.05,0.8024768484780417,"{""state"": ""seated hand activity"", ""confidence"": 0.8024768484780417, ""probs"": {""ambulating"": 0.013156579788958038, ""lying/immobile"": 0.013424249047977902, ""seated hand activity"": 0.8024768484780417, ""stationary"": 0.17094232268502252}}"
+47.14,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.22451485881822358, ""gate_open"": true, ""time_since_impact"": 14.959999999999994, ""movement"": 0.02524904149645119, ""still_s"": 11.18, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+47.14,activity,0.05,0.8024768484780417,"{""state"": ""seated hand activity"", ""confidence"": 0.8024768484780417, ""probs"": {""ambulating"": 0.013156579788958038, ""lying/immobile"": 0.013424249047977902, ""seated hand activity"": 0.8024768484780417, ""stationary"": 0.17094232268502246}}"
 47.14,physiological,0.0,0.0,{}
-48.38,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.21003082628300868, ""gate_open"": true, ""time_since_impact"": 16.199999999999996}"
+48.38,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.21003082628300868, ""gate_open"": true, ""time_since_impact"": 16.199999999999996, ""movement"": 0.025107821389017234, ""still_s"": 12.42, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 48.38,activity,0.05,0.8052405453866157,"{""state"": ""seated hand activity"", ""confidence"": 0.8052405453866157, ""probs"": {""ambulating"": 0.010762454337289163, ""lying/immobile"": 0.01993290855632871, ""seated hand activity"": 0.8052405453866157, ""stationary"": 0.16406409171976644}}"
 48.38,physiological,0.0,0.0,{}
-49.62,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.26393453271098277, ""gate_open"": true, ""time_since_impact"": 17.43999999999999}"
+49.62,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.26393453271098277, ""gate_open"": true, ""time_since_impact"": 17.43999999999999, ""movement"": 0.025903604327772178, ""still_s"": 13.66, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 49.62,activity,0.05,0.7918891893469238,"{""state"": ""seated hand activity"", ""confidence"": 0.7918891893469238, ""probs"": {""ambulating"": 0.014283681889373337, ""lying/immobile"": 0.0258025488656908, ""seated hand activity"": 0.7918891893469238, ""stationary"": 0.16802457989801206}}"
 49.62,physiological,0.0,0.0,{}
-50.86,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2711854260535822, ""gate_open"": true, ""time_since_impact"": 18.679999999999993}"
-50.86,activity,0.05,0.773100084695913,"{""state"": ""seated hand activity"", ""confidence"": 0.773100084695913, ""probs"": {""ambulating"": 0.019696800304063115, ""lying/immobile"": 0.035512097899869546, ""seated hand activity"": 0.773100084695913, ""stationary"": 0.17169101710015444}}"
+50.86,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2711854260535822, ""gate_open"": true, ""time_since_impact"": 18.679999999999993, ""movement"": 0.027046475761364812, ""still_s"": 14.9, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+50.86,activity,0.05,0.773100084695913,"{""state"": ""seated hand activity"", ""confidence"": 0.773100084695913, ""probs"": {""ambulating"": 0.019696800304063126, ""lying/immobile"": 0.03551209789986957, ""seated hand activity"": 0.773100084695913, ""stationary"": 0.17169101710015444}}"
 50.86,physiological,0.0,0.0,{}
-52.1,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2215540471489147, ""gate_open"": true, ""time_since_impact"": 19.919999999999995}"
+52.1,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2215540471489147, ""gate_open"": true, ""time_since_impact"": 19.919999999999995, ""movement"": 0.02789256909788368, ""still_s"": 16.14, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 52.1,activity,0.05,0.7862186621622499,"{""state"": ""seated hand activity"", ""confidence"": 0.7862186621622499, ""probs"": {""ambulating"": 0.014283643629832058, ""lying/immobile"": 0.02172893837261392, ""seated hand activity"": 0.7862186621622499, ""stationary"": 0.17776875583530422}}"
 52.1,physiological,0.0,0.0,{}
-53.34,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.22451485881821878, ""gate_open"": true, ""time_since_impact"": 21.159999999999997}"
-53.34,activity,0.05,0.7884008616730839,"{""state"": ""seated hand activity"", ""confidence"": 0.7884008616730839, ""probs"": {""ambulating"": 0.01856724542892109, ""lying/immobile"": 0.01836108146278895, ""seated hand activity"": 0.7884008616730839, ""stationary"": 0.1746708114352062}}"
+53.34,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.22451485881821878, ""gate_open"": true, ""time_since_impact"": 21.159999999999997, ""movement"": 0.02684067829304794, ""still_s"": 17.38, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+53.34,activity,0.05,0.7884008616730839,"{""state"": ""seated hand activity"", ""confidence"": 0.7884008616730839, ""probs"": {""ambulating"": 0.01856724542892108, ""lying/immobile"": 0.018361081462788944, ""seated hand activity"": 0.7884008616730839, ""stationary"": 0.17467081143520619}}"
 53.34,physiological,0.0,0.0,{}
-54.58,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2100308262830075, ""gate_open"": true, ""time_since_impact"": 22.39999999999999}"
-54.58,activity,0.05,0.7966734998968511,"{""state"": ""seated hand activity"", ""confidence"": 0.7966734998968511, ""probs"": {""ambulating"": 0.016981012045587187, ""lying/immobile"": 0.010994234478567823, ""seated hand activity"": 0.7966734998968511, ""stationary"": 0.1753512535789939}}"
+54.58,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2100308262830075, ""gate_open"": true, ""time_since_impact"": 22.39999999999999, ""movement"": 0.02725236755650706, ""still_s"": 18.62, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+54.58,activity,0.05,0.7966734998968511,"{""state"": ""seated hand activity"", ""confidence"": 0.7966734998968511, ""probs"": {""ambulating"": 0.01698101204558718, ""lying/immobile"": 0.010994234478567823, ""seated hand activity"": 0.7966734998968511, ""stationary"": 0.1753512535789939}}"
 54.58,physiological,0.0,0.0,{}
-55.82,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2639345327109835, ""gate_open"": true, ""time_since_impact"": 23.639999999999993}"
+55.82,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2639345327109835, ""gate_open"": true, ""time_since_impact"": 23.639999999999993, ""movement"": 0.02656643330700165, ""still_s"": 19.86, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 55.82,activity,0.05,0.8014382444709967,"{""state"": ""seated hand activity"", ""confidence"": 0.8014382444709967, ""probs"": {""ambulating"": 0.014941234336560943, ""lying/immobile"": 0.013519200598473715, ""seated hand activity"": 0.8014382444709967, ""stationary"": 0.17010132059396862}}"
 55.82,physiological,0.0,0.0,{}
-57.06,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2711854260535829, ""gate_open"": true, ""time_since_impact"": 24.879999999999995}"
-57.06,activity,0.05,0.7784064453876535,"{""state"": ""seated hand activity"", ""confidence"": 0.7784064453876535, ""probs"": {""ambulating"": 0.01492148318993942, ""lying/immobile"": 0.013594576954831393, ""seated hand activity"": 0.7784064453876535, ""stationary"": 0.1930774944675758}}"
+57.06,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2711854260535829, ""gate_open"": true, ""time_since_impact"": 24.879999999999995, ""movement"": 0.026249459130780143, ""still_s"": 21.1, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+57.06,activity,0.05,0.7784064453876535,"{""state"": ""seated hand activity"", ""confidence"": 0.7784064453876535, ""probs"": {""ambulating"": 0.01492148318993942, ""lying/immobile"": 0.013594576954831404, ""seated hand activity"": 0.7784064453876535, ""stationary"": 0.19307749446757583}}"
 57.06,physiological,0.0,0.0,{}
-58.3,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2215540471489158, ""gate_open"": true, ""time_since_impact"": 26.11999999999999}"
+58.3,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2215540471489158, ""gate_open"": true, ""time_since_impact"": 26.11999999999999, ""movement"": 0.02871507726194471, ""still_s"": 22.34, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 58.3,activity,0.05,0.7765338327043969,"{""state"": ""seated hand activity"", ""confidence"": 0.7765338327043969, ""probs"": {""ambulating"": 0.01658236636393227, ""lying/immobile"": 0.021134484136959144, ""seated hand activity"": 0.7765338327043969, ""stationary"": 0.18574931679471168}}"
 58.3,physiological,0.0,0.0,{}
-59.54,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2245148588182207, ""gate_open"": true, ""time_since_impact"": 27.359999999999992}"
+59.54,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.2245148588182207, ""gate_open"": true, ""time_since_impact"": 27.359999999999992, ""movement"": 0.028313436455593175, ""still_s"": 23.58, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 59.54,activity,0.05,0.776151940540517,"{""state"": ""seated hand activity"", ""confidence"": 0.776151940540517, ""probs"": {""ambulating"": 0.01761620009613902, ""lying/immobile"": 0.02556588613765277, ""seated hand activity"": 0.776151940540517, ""stationary"": 0.18066597322569145}}"
 59.54,physiological,0.0,0.0,{}
-60.78,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.21003082628300784, ""gate_open"": true, ""time_since_impact"": 28.599999999999994}"
+60.78,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.21003082628300784, ""gate_open"": true, ""time_since_impact"": 28.599999999999994, ""movement"": 0.02583463819677184, ""still_s"": 24.82, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 60.78,activity,0.05,0.80361918151352,"{""state"": ""seated hand activity"", ""confidence"": 0.80361918151352, ""probs"": {""ambulating"": 0.01591831036110108, ""lying/immobile"": 0.01776534879826494, ""seated hand activity"": 0.80361918151352, ""stationary"": 0.16269715932711404}}"
 60.78,physiological,0.0,0.0,{}
-62.02,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.26331847658787255, ""gate_open"": true, ""time_since_impact"": 29.839999999999996}"
-62.02,activity,0.05,0.7764526293620645,"{""state"": ""seated hand activity"", ""confidence"": 0.7764526293620645, ""probs"": {""ambulating"": 0.014720422891284436, ""lying/immobile"": 0.022414271946605665, ""seated hand activity"": 0.7764526293620645, ""stationary"": 0.18641267580004545}}"
+62.02,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.26331847658787255, ""gate_open"": true, ""time_since_impact"": 29.839999999999996, ""movement"": 0.024201203184991867, ""still_s"": 26.06, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+62.02,activity,0.05,0.7764526293620645,"{""state"": ""seated hand activity"", ""confidence"": 0.7764526293620645, ""probs"": {""ambulating"": 0.014720422891284436, ""lying/immobile"": 0.022414271946605665, ""seated hand activity"": 0.7764526293620645, ""stationary"": 0.18641267580004547}}"
 62.02,physiological,0.0,0.0,{}
-63.26,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5318395394347154, ""gate_open"": true, ""time_since_impact"": 31.07999999999999}"
+63.26,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5318395394347154, ""gate_open"": true, ""time_since_impact"": 31.07999999999999, ""movement"": 0.024326411783120932, ""still_s"": 27.3, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 63.26,activity,0.05,0.7690027774997215,"{""state"": ""seated hand activity"", ""confidence"": 0.7690027774997215, ""probs"": {""ambulating"": 0.014517186508548816, ""lying/immobile"": 0.015027114333138135, ""seated hand activity"": 0.7690027774997215, ""stationary"": 0.2014529216585915}}"
 63.26,physiological,0.0,0.0,{}
-64.5,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5726841829690495, ""gate_open"": true, ""time_since_impact"": 32.32}"
-64.5,activity,0.05,0.7911555829077493,"{""state"": ""seated hand activity"", ""confidence"": 0.7911555829077493, ""probs"": {""ambulating"": 0.015087886972885298, ""lying/immobile"": 0.013228571480812076, ""seated hand activity"": 0.7911555829077493, ""stationary"": 0.18052795863855323}}"
+64.5,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5726841829690495, ""gate_open"": true, ""time_since_impact"": 32.32, ""movement"": 0.024203518922313226, ""still_s"": 28.54, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+64.5,activity,0.05,0.7911555829077493,"{""state"": ""seated hand activity"", ""confidence"": 0.7911555829077493, ""probs"": {""ambulating"": 0.015087886972885298, ""lying/immobile"": 0.013228571480812076, ""seated hand activity"": 0.7911555829077493, ""stationary"": 0.18052795863855317}}"
 64.5,physiological,0.0,0.0,{}
-65.74,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5911273182018517, ""gate_open"": true, ""time_since_impact"": 33.559999999999995}"
-65.74,activity,0.05,0.7906186584947879,"{""state"": ""seated hand activity"", ""confidence"": 0.7906186584947879, ""probs"": {""ambulating"": 0.012585874767474785, ""lying/immobile"": 0.01841409652151764, ""seated hand activity"": 0.7906186584947879, ""stationary"": 0.1783813702162198}}"
+65.74,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5911273182018517, ""gate_open"": true, ""time_since_impact"": 33.559999999999995, ""movement"": 0.02491481255211354, ""still_s"": 29.78, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+65.74,activity,0.05,0.7906186584947879,"{""state"": ""seated hand activity"", ""confidence"": 0.7906186584947879, ""probs"": {""ambulating"": 0.012585874767474796, ""lying/immobile"": 0.01841409652151764, ""seated hand activity"": 0.7906186584947879, ""stationary"": 0.1783813702162198}}"
 65.74,physiological,0.0,0.0,{}
-66.98,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5853539524471995, ""gate_open"": true, ""time_since_impact"": 34.800000000000004}"
-66.98,activity,0.05,0.7889782447098349,"{""state"": ""seated hand activity"", ""confidence"": 0.7889782447098349, ""probs"": {""ambulating"": 0.012580007001548767, ""lying/immobile"": 0.013160871384116543, ""seated hand activity"": 0.7889782447098349, ""stationary"": 0.18528087690449968}}"
+66.98,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5853539524471995, ""gate_open"": true, ""time_since_impact"": 34.800000000000004, ""movement"": 0.024654643033857195, ""still_s"": 31.02, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+66.98,activity,0.05,0.788978244709835,"{""state"": ""seated hand activity"", ""confidence"": 0.788978244709835, ""probs"": {""ambulating"": 0.012580007001548769, ""lying/immobile"": 0.013160871384116547, ""seated hand activity"": 0.788978244709835, ""stationary"": 0.18528087690449965}}"
 66.98,physiological,0.0,0.0,{}
-68.22,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852422518117883, ""gate_open"": true, ""time_since_impact"": 36.04}"
-68.22,activity,0.05,0.7847082346740749,"{""state"": ""seated hand activity"", ""confidence"": 0.7847082346740749, ""probs"": {""ambulating"": 0.018213790725858964, ""lying/immobile"": 0.02179199748257661, ""seated hand activity"": 0.7847082346740749, ""stationary"": 0.17528597711748944}}"
+68.22,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852422518117883, ""gate_open"": true, ""time_since_impact"": 36.04, ""movement"": 0.025548840485208314, ""still_s"": 32.26, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+68.22,activity,0.05,0.7847082346740749,"{""state"": ""seated hand activity"", ""confidence"": 0.7847082346740749, ""probs"": {""ambulating"": 0.018213790725858964, ""lying/immobile"": 0.02179199748257661, ""seated hand activity"": 0.7847082346740749, ""stationary"": 0.17528597711748956}}"
 68.22,physiological,0.0,0.0,{}
-69.46,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5854548631793492, ""gate_open"": true, ""time_since_impact"": 37.279999999999994}"
+69.46,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5854548631793492, ""gate_open"": true, ""time_since_impact"": 37.279999999999994, ""movement"": 0.026194347099324646, ""still_s"": 33.5, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 69.46,activity,0.05,0.7834482740191094,"{""state"": ""seated hand activity"", ""confidence"": 0.7834482740191094, ""probs"": {""ambulating"": 0.022422383150493518, ""lying/immobile"": 0.016844998386304124, ""seated hand activity"": 0.7834482740191094, ""stationary"": 0.17728434444409305}}"
 69.46,physiological,0.0,0.0,{}
-70.7,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852163446906066, ""gate_open"": true, ""time_since_impact"": 38.52}"
+70.7,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852163446906066, ""gate_open"": true, ""time_since_impact"": 38.52, ""movement"": 0.025914819476534436, ""still_s"": 34.74, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 70.7,activity,0.05,0.7598872541119677,"{""state"": ""seated hand activity"", ""confidence"": 0.7598872541119677, ""probs"": {""ambulating"": 0.012106718535821494, ""lying/immobile"": 0.0176183795237321, ""seated hand activity"": 0.7598872541119677, ""stationary"": 0.21038764782847866}}"
 70.7,physiological,0.0,0.0,{}
-71.94,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5849279825969365, ""gate_open"": true, ""time_since_impact"": 39.76}"
+71.94,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5849279825969365, ""gate_open"": true, ""time_since_impact"": 39.76, ""movement"": 0.02795944939428129, ""still_s"": 35.98, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 71.94,activity,0.05,0.7377089237473058,"{""state"": ""seated hand activity"", ""confidence"": 0.7377089237473058, ""probs"": {""ambulating"": 0.020330264565374304, ""lying/immobile"": 0.02985053626940717, ""seated hand activity"": 0.7377089237473058, ""stationary"": 0.21211027541791286}}"
 71.94,physiological,0.0,0.0,{}
-73.18,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5850800967770218, ""gate_open"": true, ""time_since_impact"": 41.00000000000001}"
+73.18,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5850800967770218, ""gate_open"": true, ""time_since_impact"": 41.00000000000001, ""movement"": 0.02844586480534832, ""still_s"": 37.22, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 73.18,activity,0.05,0.7690379779614683,"{""state"": ""seated hand activity"", ""confidence"": 0.7690379779614683, ""probs"": {""ambulating"": 0.015746150729596505, ""lying/immobile"": 0.024928437193476222, ""seated hand activity"": 0.7690379779614683, ""stationary"": 0.1902874341154591}}"
 73.18,physiological,0.0,0.0,{}
-74.42,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848714512355953, ""gate_open"": true, ""time_since_impact"": 42.24}"
+74.42,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848714512355953, ""gate_open"": true, ""time_since_impact"": 42.24, ""movement"": 0.026541095472460443, ""still_s"": 38.46, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 74.42,activity,0.05,0.7809532331581803,"{""state"": ""seated hand activity"", ""confidence"": 0.7809532331581803, ""probs"": {""ambulating"": 0.01764042205920562, ""lying/immobile"": 0.023279929552179304, ""seated hand activity"": 0.7809532331581803, ""stationary"": 0.17812641523043474}}"
 74.42,physiological,0.0,0.0,{}
-75.66,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5858001371641965, ""gate_open"": true, ""time_since_impact"": 43.48}"
-75.66,activity,0.05,0.7842135234772819,"{""state"": ""seated hand activity"", ""confidence"": 0.7842135234772819, ""probs"": {""ambulating"": 0.018857450639222794, ""lying/immobile"": 0.01969318781212705, ""seated hand activity"": 0.7842135234772819, ""stationary"": 0.17723583807136825}}"
+75.66,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5858001371641965, ""gate_open"": true, ""time_since_impact"": 43.48, ""movement"": 0.026254023715117463, ""still_s"": 39.7, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+75.66,activity,0.05,0.7842135234772818,"{""state"": ""seated hand activity"", ""confidence"": 0.7842135234772818, ""probs"": {""ambulating"": 0.01885745063922279, ""lying/immobile"": 0.019693187812127054, ""seated hand activity"": 0.7842135234772818, ""stationary"": 0.17723583807136828}}"
 75.66,physiological,0.0,0.0,{}
-76.9,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5856722894337744, ""gate_open"": true, ""time_since_impact"": 44.720000000000006}"
-76.9,activity,0.05,0.7969228277691162,"{""state"": ""seated hand activity"", ""confidence"": 0.7969228277691162, ""probs"": {""ambulating"": 0.0142821238823077, ""lying/immobile"": 0.028530201800819707, ""seated hand activity"": 0.7969228277691162, ""stationary"": 0.1602648465477565}}"
+76.9,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5856722894337744, ""gate_open"": true, ""time_since_impact"": 44.720000000000006, ""movement"": 0.02826659836202191, ""still_s"": 40.94, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+76.9,activity,0.05,0.7969228277691159,"{""state"": ""seated hand activity"", ""confidence"": 0.7969228277691159, ""probs"": {""ambulating"": 0.014282123882307696, ""lying/immobile"": 0.028530201800819714, ""seated hand activity"": 0.7969228277691159, ""stationary"": 0.16026484654775655}}"
 76.9,physiological,0.0,0.0,{}
-78.14,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852748460462326, ""gate_open"": true, ""time_since_impact"": 45.96}"
+78.14,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852748460462326, ""gate_open"": true, ""time_since_impact"": 45.96, ""movement"": 0.028550773448310498, ""still_s"": 42.18, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 78.14,activity,0.05,0.7964411130369183,"{""state"": ""seated hand activity"", ""confidence"": 0.7964411130369183, ""probs"": {""ambulating"": 0.016547357661679828, ""lying/immobile"": 0.019860949184324246, ""seated hand activity"": 0.7964411130369183, ""stationary"": 0.16715058011707756}}"
 78.14,physiological,0.0,0.0,{}
-79.38,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5857755313411894, ""gate_open"": true, ""time_since_impact"": 47.199999999999996}"
+79.38,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5857755313411894, ""gate_open"": true, ""time_since_impact"": 47.199999999999996, ""movement"": 0.02564396075913782, ""still_s"": 43.42, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 79.38,activity,0.05,0.7885281713930847,"{""state"": ""seated hand activity"", ""confidence"": 0.7885281713930847, ""probs"": {""ambulating"": 0.01759786764587002, ""lying/immobile"": 0.02218491778290861, ""seated hand activity"": 0.7885281713930847, ""stationary"": 0.1716890431781367}}"
 79.38,physiological,0.0,0.0,{}
-80.62,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5846940001190993, ""gate_open"": true, ""time_since_impact"": 48.440000000000005}"
-80.62,activity,0.05,0.7642591018803102,"{""state"": ""seated hand activity"", ""confidence"": 0.7642591018803102, ""probs"": {""ambulating"": 0.014535900984153903, ""lying/immobile"": 0.025325934582205306, ""seated hand activity"": 0.7642591018803102, ""stationary"": 0.1958790625533306}}"
+80.62,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5846940001190993, ""gate_open"": true, ""time_since_impact"": 48.440000000000005, ""movement"": 0.024997458814681496, ""still_s"": 44.66, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+80.62,activity,0.05,0.7642591018803102,"{""state"": ""seated hand activity"", ""confidence"": 0.7642591018803102, ""probs"": {""ambulating"": 0.014535900984153896, ""lying/immobile"": 0.025325934582205296, ""seated hand activity"": 0.7642591018803102, ""stationary"": 0.1958790625533306}}"
 80.62,physiological,0.0,0.0,{}
-81.86,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.585189025999704, ""gate_open"": true, ""time_since_impact"": 49.68}"
+81.86,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.585189025999704, ""gate_open"": true, ""time_since_impact"": 49.68, ""movement"": 0.027388475002704395, ""still_s"": 45.9, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 81.86,activity,0.05,0.783188903253292,"{""state"": ""seated hand activity"", ""confidence"": 0.783188903253292, ""probs"": {""ambulating"": 0.014300822041875196, ""lying/immobile"": 0.03459324703149687, ""seated hand activity"": 0.783188903253292, ""stationary"": 0.16791702767333594}}"
 81.86,physiological,0.0,0.0,{}
-83.1,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5847933564613389, ""gate_open"": true, ""time_since_impact"": 50.919999999999995}"
+83.1,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5847933564613389, ""gate_open"": true, ""time_since_impact"": 50.919999999999995, ""movement"": 0.025990467880306234, ""still_s"": 47.14, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 83.1,activity,0.05,0.7993627990629979,"{""state"": ""seated hand activity"", ""confidence"": 0.7993627990629979, ""probs"": {""ambulating"": 0.0123199267472631, ""lying/immobile"": 0.018887259455089605, ""seated hand activity"": 0.7993627990629979, ""stationary"": 0.16943001473464936}}"
 83.1,physiological,0.0,0.0,{}
-84.34,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5847500867307941, ""gate_open"": true, ""time_since_impact"": 52.160000000000004}"
+84.34,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5847500867307941, ""gate_open"": true, ""time_since_impact"": 52.160000000000004, ""movement"": 0.023340841170717042, ""still_s"": 48.38, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 84.34,activity,0.05,0.7780398648082066,"{""state"": ""seated hand activity"", ""confidence"": 0.7780398648082066, ""probs"": {""ambulating"": 0.01757198353817452, ""lying/immobile"": 0.016156988975372624, ""seated hand activity"": 0.7780398648082066, ""stationary"": 0.1882311626782461}}"
 84.34,physiological,0.0,0.0,{}
-85.58,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848277713694565, ""gate_open"": true, ""time_since_impact"": 53.4}"
+85.58,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848277713694565, ""gate_open"": true, ""time_since_impact"": 53.4, ""movement"": 0.026986028996691388, ""still_s"": 49.62, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 85.58,activity,0.05,0.780412735658492,"{""state"": ""seated hand activity"", ""confidence"": 0.780412735658492, ""probs"": {""ambulating"": 0.022414217430191098, ""lying/immobile"": 0.011960638504788623, ""seated hand activity"": 0.780412735658492, ""stationary"": 0.18521240840652817}}"
 85.58,physiological,0.0,0.0,{}
-86.82,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848748375996561, ""gate_open"": true, ""time_since_impact"": 54.63999999999999}"
+86.82,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848748375996561, ""gate_open"": true, ""time_since_impact"": 54.63999999999999, ""movement"": 0.02993944654775894, ""still_s"": 50.86, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 86.82,activity,0.05,0.7844893817411402,"{""state"": ""seated hand activity"", ""confidence"": 0.7844893817411402, ""probs"": {""ambulating"": 0.01287483263547897, ""lying/immobile"": 0.018715749530554198, ""seated hand activity"": 0.7844893817411402, ""stationary"": 0.18392003609282664}}"
 86.82,physiological,0.0,0.0,{}
-88.06,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5849022875255752, ""gate_open"": true, ""time_since_impact"": 55.88}"
-88.06,activity,0.05,0.7644148097264396,"{""state"": ""seated hand activity"", ""confidence"": 0.7644148097264396, ""probs"": {""ambulating"": 0.022304772486956597, ""lying/immobile"": 0.029964079132551513, ""seated hand activity"": 0.7644148097264396, ""stationary"": 0.1833163386540524}}"
+88.06,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5849022875255752, ""gate_open"": true, ""time_since_impact"": 55.88, ""movement"": 0.027699869774312852, ""still_s"": 52.1, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+88.06,activity,0.05,0.7644148097264394,"{""state"": ""seated hand activity"", ""confidence"": 0.7644148097264394, ""probs"": {""ambulating"": 0.022304772486956594, ""lying/immobile"": 0.029964079132551506, ""seated hand activity"": 0.7644148097264394, ""stationary"": 0.1833163386540524}}"
 88.06,physiological,0.0,0.0,{}
-89.3,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852773463900937, ""gate_open"": true, ""time_since_impact"": 57.12}"
-89.3,activity,0.05,0.7782286437166984,"{""state"": ""seated hand activity"", ""confidence"": 0.7782286437166984, ""probs"": {""ambulating"": 0.012266764356087902, ""lying/immobile"": 0.03049477685176392, ""seated hand activity"": 0.7782286437166984, ""stationary"": 0.17900981507544972}}"
+89.3,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5852773463900937, ""gate_open"": true, ""time_since_impact"": 57.12, ""movement"": 0.025450774529266522, ""still_s"": 53.34, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+89.3,activity,0.05,0.7782286437166983,"{""state"": ""seated hand activity"", ""confidence"": 0.7782286437166983, ""probs"": {""ambulating"": 0.012266764356087898, ""lying/immobile"": 0.030494776851763918, ""seated hand activity"": 0.7782286437166983, ""stationary"": 0.17900981507544975}}"
 89.3,physiological,0.0,0.0,{}
-90.54,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5850761304346908, ""gate_open"": true, ""time_since_impact"": 58.36000000000001}"
-90.54,activity,0.05,0.7985119427770002,"{""state"": ""seated hand activity"", ""confidence"": 0.7985119427770002, ""probs"": {""ambulating"": 0.01626874165733031, ""lying/immobile"": 0.018127461124216118, ""seated hand activity"": 0.7985119427770002, ""stationary"": 0.1670918544414533}}"
+90.54,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5850761304346908, ""gate_open"": true, ""time_since_impact"": 58.36000000000001, ""movement"": 0.025827193626054713, ""still_s"": 54.58, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+90.54,activity,0.05,0.7985119427770002,"{""state"": ""seated hand activity"", ""confidence"": 0.7985119427770002, ""probs"": {""ambulating"": 0.01626874165733031, ""lying/immobile"": 0.018127461124216118, ""seated hand activity"": 0.7985119427770002, ""stationary"": 0.16709185444145327}}"
 90.54,physiological,0.0,0.0,{}
-91.78,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5845577755038782, ""gate_open"": true, ""time_since_impact"": 59.6}"
+91.78,motion,0.5030521750450134,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5845577755038782, ""gate_open"": true, ""time_since_impact"": 59.6, ""movement"": 0.026730517366866793, ""still_s"": 55.82, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 91.78,activity,0.05,0.7699260273953535,"{""state"": ""seated hand activity"", ""confidence"": 0.7699260273953535, ""probs"": {""ambulating"": 0.016111871525891594, ""lying/immobile"": 0.028035659346129983, ""seated hand activity"": 0.7699260273953535, ""stationary"": 0.18592644173262488}}"
 91.78,physiological,0.0,0.0,{}
-93.02,motion,0.4891620874404907,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.584962103481167, ""gate_open"": true, ""time_since_impact"": 60.839999999999996}"
+93.02,motion,0.4891620874404907,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.584962103481167, ""gate_open"": true, ""time_since_impact"": 60.839999999999996, ""movement"": 0.026249783662937332, ""still_s"": 57.06, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
 93.02,activity,0.05,0.8077442747706804,"{""state"": ""seated hand activity"", ""confidence"": 0.8077442747706804, ""probs"": {""ambulating"": 0.01230604883356134, ""lying/immobile"": 0.01314529948688826, ""seated hand activity"": 0.8077442747706804, ""stationary"": 0.16680437690887007}}"
 93.02,physiological,0.0,0.0,{}
-94.26,motion,0.4693555533885956,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848350412677707, ""gate_open"": true, ""time_since_impact"": 62.080000000000005}"
-94.26,activity,0.05,0.7696043731998288,"{""state"": ""seated hand activity"", ""confidence"": 0.7696043731998288, ""probs"": {""ambulating"": 0.012598755971595134, ""lying/immobile"": 0.01668026624420464, ""seated hand activity"": 0.7696043731998288, ""stationary"": 0.20111660458437153}}"
+94.26,motion,0.4693555533885956,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5848350412677707, ""gate_open"": true, ""time_since_impact"": 62.080000000000005, ""movement"": 0.02497961455866492, ""still_s"": 58.3, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+94.26,activity,0.05,0.7696043731998289,"{""state"": ""seated hand activity"", ""confidence"": 0.7696043731998289, ""probs"": {""ambulating"": 0.012598755971595136, ""lying/immobile"": 0.016680266244204642, ""seated hand activity"": 0.7696043731998289, ""stationary"": 0.20111660458437147}}"
 94.26,physiological,0.0,0.0,{}
-95.5,motion,0.45035097002983093,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5857224204335281, ""gate_open"": true, ""time_since_impact"": 63.32}"
-95.5,activity,0.05,0.7872717016666919,"{""state"": ""seated hand activity"", ""confidence"": 0.7872717016666919, ""probs"": {""ambulating"": 0.015747680888040762, ""lying/immobile"": 0.0163389692846553, ""seated hand activity"": 0.7872717016666919, ""stationary"": 0.1806416481606119}}"
+95.5,motion,0.45035097002983093,1.0,"{""impact"": 0.5030521750450134, ""stillness"": 0.5857224204335281, ""gate_open"": true, ""time_since_impact"": 63.32, ""movement"": 0.02747882800389686, ""still_s"": 59.54, ""moved_after_impact_s"": 2.48, ""recovered"": false}"
+95.5,activity,0.05,0.7872717016666919,"{""state"": ""seated hand activity"", ""confidence"": 0.7872717016666919, ""probs"": {""ambulating"": 0.015747680888040773, ""lying/immobile"": 0.016338969284655308, ""seated hand activity"": 0.7872717016666919, ""stationary"": 0.1806416481606119}}"
 95.5,physiological,0.0,0.0,{}

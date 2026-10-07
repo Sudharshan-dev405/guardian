@@ -1,29 +1,34 @@
 """
-streams/motion.py -- Guardian motion stream: impact + post-impact stillness.
+streams/motion.py -- Guardian motion stream: impact + post-impact stillness
++ movement tracker.
 
-Two stages, per the design:
-  Stage 1  cheap gate: SVM peak > 2.5 g OR gyro resultant > 200 deg/s.
-  Stage 2  RandomForest over a segment spanning 2.0 s before to 1.5 s after
-           the gate trigger, temperature-scaled to a calibrated 0-1.
-  Post-impact stillness: forearm tilt from a low-passed gravity estimate plus
-           motion variance over the following 10 s.
+  Stage 1  cheap gate: |a| peak > 2.25 g (after the +/-8 g clip and 20 Hz path).
+           The gyro gate is disabled (see GATE_GYRO_DPS).
+  Stage 2  XGBoost over a segment from 2.0 s before to 3.0 s after the gate
+           trigger (trained on WEDA-FALL, Stages 3.5 and 4).
+  Post-impact stillness: forearm tilt plus motion variance over the 10 s
+           after the impact.
+  Movement tracker (Stage 5.8): every window, is the wrist really moving?
+           Gives seconds without real movement and whether the person moved
+           again after an impact. This is what tells a long lie from a
+           recovery; fusion reads it.
 
   score = impact probability (held for 60 s after the trigger, then decays).
-  Stillness is still computed and exposed as last_stillness for fusion; it is
-  no longer mixed into score (the old 0.6/0.4 mix lowered test results).
+  Stillness and the tracker values are exposed for fusion, not mixed into score.
 
 The wrist is a poor site for impact-based fall detection (Kangas 2008,
 Bagala 2012). This module is one weighted input among four, not a trigger.
 Nothing here is named "lying posture" -- the tilt measured is FOREARM tilt,
 which moves independently of the trunk.
 
-Because the scorer needs 1.5 s of future relative to the trigger, and windows
+Because the scorer needs 3 s of future relative to the trigger, and windows
 arrive every 1.24 s, this stream keeps its own sample ring buffer and latches
 an event once the post-trigger samples have arrived. score() is still pure
 per-window from the caller's point of view.
 
-Exposed for core/explain.py after every score():
-    last_quality, last_impact, last_stillness, gate_open, time_since_impact
+Exposed after every score() (core/pipeline.py stores all last_* values):
+    last_quality, last_impact, last_stillness, gate_open, time_since_impact,
+    last_movement, last_still_s, last_moved_after_impact_s, last_recovered
 
 CLI:
     py -m streams.motion --selftest
@@ -278,6 +283,65 @@ def fit_temperature(probs, y_idx):
 # The stream
 # --------------------------------------------------------------------------
 
+# Movement tracker (Stage 5.8). Thresholds are first guesses for a resting
+# wrist; they must be checked on the real band's own data.
+MOVE_STD_G = 0.03            # |a| spread within one 2.5 s window above this = moving
+MOVE_GYRO_DPS = 20.0         # or median rotation above this
+RECOVER_SEC = 8.0            # this much movement after an impact = moved again.
+                             # 4 s was too close: the faint scenario settled for
+                             # about 4 s after landing. Getting up took 15-30 s.
+
+
+class MovementTracker:
+    """Is the wrist really moving, window by window? Keeps a running count
+    of seconds without real movement, and how much the person has moved
+    since the latest impact (ignoring the first second, the impact itself)."""
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.still_since: float | None = None
+        self.last_end: float | None = None
+        self.impact_t: float | None = None
+        self.moved_after_impact = 0.0
+        self.movement = 0.0
+        self.still_s = 0.0
+
+    def update(self, window, impact_t):
+        acc = np.asarray(window["acc"], dtype=float)
+        fs = float(window.get("fs", 50))
+        t0 = float(window.get("t", 0.0))
+        t_end = t0 + len(acc) / fs
+        spread = float(np.linalg.norm(acc, axis=1).std())
+        g = window.get("gyro")
+        rot = float(np.median(np.linalg.norm(np.asarray(g, dtype=float), axis=1))) \
+            if g is not None and len(g) else 0.0
+        moving = spread > MOVE_STD_G or rot > MOVE_GYRO_DPS
+        dt = len(acc) / fs if self.last_end is None else max(t_end - self.last_end, 0.0)
+        self.last_end = t_end
+
+        self.movement = float(np.clip(spread / 0.3, 0.0, 1.0))
+        if moving:
+            self.still_since = None
+            self.still_s = 0.0
+        else:
+            if self.still_since is None:
+                self.still_since = t0
+            self.still_s = t_end - self.still_since
+
+        if impact_t != self.impact_t:                 # a new impact: start counting again
+            self.impact_t, self.moved_after_impact = impact_t, 0.0
+        if impact_t is not None and moving and t0 > impact_t + 1.0:
+            self.moved_after_impact += dt
+
+    @property
+    def recovered(self):
+        if self.impact_t is None:
+            return None
+        return self.moved_after_impact >= RECOVER_SEC
+
+
 class MotionStream(Stream):
     """Impact + post-impact stillness. Conforms to contract.Stream."""
 
@@ -302,6 +366,7 @@ class MotionStream(Stream):
         self._trig_t: float | None = None      # wall time of the current trigger
         self._impact: float = 0.0              # latched calibrated impact score
         self._impact_done = False
+        self._held: tuple | None = None        # (impact, t) of a stronger earlier event
 
         self.last_quality = 0.0
         self.last_impact = 0.0
@@ -309,15 +374,26 @@ class MotionStream(Stream):
         self.gate_open = False
         self.time_since_impact: float | None = None
 
-    def reset(self):
+        self._mv = MovementTracker()
+        self.last_movement = 0.0
+        self.last_still_s = 0.0
+        self.last_moved_after_impact_s = 0.0
+        self.last_recovered: bool | None = None
+
+    def reset(self, keep_movement=False):
         self._buf_acc.clear(); self._buf_gyro.clear(); self._buf_t.clear()
         self._last_t = None
         self._trig_t = None
         self._impact = 0.0
         self._impact_done = False
+        self._held = None
         self.last_impact = self.last_stillness = 0.0
         self.time_since_impact = None
         self.gate_open = False
+        if not keep_movement:
+            self._mv.reset()
+            self.last_movement = self.last_still_s = self.last_moved_after_impact_s = 0.0
+            self.last_recovered = None
 
     # -- buffering --------------------------------------------------------
 
@@ -437,6 +513,16 @@ class MotionStream(Stream):
     # -- contract ---------------------------------------------------------
 
     def score(self, window: dict) -> float:
+        out = self._score(window)
+        # Gaps are gaps (contract.py): missing samples lower quality.
+        acc_in = window.get("acc")
+        if acc_in is not None and len(acc_in):
+            bad = float(np.mean(~np.isfinite(np.asarray(acc_in, dtype=float))))
+            if bad > 0:
+                self.last_quality = float(self.last_quality * (1.0 - bad))
+        return out
+
+    def _score(self, window: dict) -> float:
         try:
             acc_in = window.get("acc")
             if acc_in is None or len(acc_in) == 0:
@@ -451,10 +537,25 @@ class MotionStream(Stream):
 
             i_trig = self._check_gate(acc, gyro, t)
             if i_trig is not None:
+                # A later, weaker knock (the arm bouncing after a fall, a hand
+                # on the floor) must not replace a stronger impact still in its
+                # hold period. Keep the stronger one aside (Stage 5 fix).
+                if (self._trig_t is not None and self._impact_done
+                        and now - self._trig_t <= EVENT_HOLD_SEC
+                        and (self._held is None or self._impact > self._held[0])):
+                    self._held = (self._impact, self._trig_t)
                 self._trig_t = float(t[i_trig])
                 self._impact = 0.0
                 self._impact_done = False
                 self.gate_open = True
+
+            if self._held is not None and now - self._held[1] > EVENT_HOLD_SEC:
+                self._held = None
+            self._mv.update(window, self._event()[1])
+            self.last_movement = self._mv.movement
+            self.last_still_s = round(self._mv.still_s, 2)
+            self.last_moved_after_impact_s = round(self._mv.moved_after_impact, 2)
+            self.last_recovered = self._mv.recovered
 
             calibrated = self.model is not None
             if self._trig_t is not None and not self._impact_done:
@@ -471,22 +572,23 @@ class MotionStream(Stream):
                 self.last_quality = self._quality(acc, calibrated, 1.0)
                 return 0.0
 
-            age = now - self._trig_t
+            ev_impact, ev_t = self._event()
+            age = now - ev_t
             self.time_since_impact = age
             if age > EVENT_HOLD_SEC:
                 decay = float(np.exp(-(age - EVENT_HOLD_SEC) / EVENT_DECAY_SEC))
                 if decay < 0.02:
-                    self.reset()
+                    self.reset(keep_movement=True)
                     self.last_quality = self._quality(acc, calibrated, 1.0)
                     return 0.0
             else:
                 decay = 1.0
 
             still, still_conf = self._stillness(acc, t)
-            self.last_impact = float(self._impact)
+            self.last_impact = float(ev_impact)
             self.last_stillness = float(still)
 
-            raw = W_IMPACT * self._impact + W_STILL * still
+            raw = W_IMPACT * ev_impact + W_STILL * still
             out = float(np.clip(raw * decay, 0.0, 1.0))
             self.last_quality = self._quality(acc, calibrated,
                                               0.5 + 0.5 * still_conf)
@@ -497,6 +599,13 @@ class MotionStream(Stream):
             self.last_quality = 0.0
             self.last_impact = self.last_stillness = 0.0
             return 0.0
+
+    def _event(self):
+        """(impact, trigger time) of the event that counts: the held stronger
+        one while the newest is still being scored or is weaker, else the newest."""
+        if self._held is not None and (not self._impact_done or self._held[0] >= self._impact):
+            return self._held
+        return self._impact, self._trig_t
 
     def _quality(self, acc, calibrated, completeness):
         """Quality falls for: an uncalibrated model, a missing gyroscope, a

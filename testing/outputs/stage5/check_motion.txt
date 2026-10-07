@@ -1,0 +1,19 @@
+=== motion: PASS ===
+[PASS] loads        streams.motion.MotionStream (model models/motion.joblib)
+[PASS] contract     subclass of contract.Stream
+[PASS] own module   imports no other stream
+[PASS] windows      all 10 cases within the rules
+    normal    score      0.0  quality      1.0
+    no_hr     score      0.0  quality      1.0
+    no_gyro   score      0.0  quality      0.7
+    empty     score      0.0  quality      0.0
+    short     score      0.0  quality      0.5
+    nan       score      0.0  quality     0.92
+    huge      score      0.0  quality     0.44
+    hr_high   score      0.0  quality      1.0
+    hr_low    score      0.0  quality      1.0
+    impact    score      0.0  quality    0.476
+[PASS] damaged in   quality drops for empty, short or NaN windows
+[PASS] long run     241 windows (5 min), 0 broke the rules
+[PASS] speed        5.90 ms per window on average, worst 25.6 ms (pass < 50 ms)
+[PASS] pipeline     extras stored: ['gate_open', 'impact', 'moved_after_impact_s', 'movement', 'recovered', 'still_s', 'stillness', 'time_since_impact']

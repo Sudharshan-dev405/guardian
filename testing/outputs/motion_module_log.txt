@@ -616,3 +616,99 @@ STEP 5.3 - Database (7 Oct 2026)
   limited by role). Backend framework still waits for Sudharshan.
 - simulator.run --db saves every run; core.store --check prints what each
   demo user can see.
+
+STEP 5.7 - Module acceptance check (7 Oct 2026)
+- testing/check_stream.py: one command checks any stream module against
+  contract.py with made-up windows (no dataset needed):
+    loads, is a contract.Stream, imports no other stream, survives 10
+    awkward windows (no heart rate, no gyro, empty, too short, NaN, 16 g,
+    HR 220 / 25, an impact), lower quality for damaged input, 5 minutes of
+    windows in a row, speed (pass < 50 ms per window), plugs into the
+    pipeline with JSON-safe extras.
+- py -m testing.check_stream all  ->  testing/outputs/stage5/check_<name>.txt
+- First run found one real issue: motion gave full quality on windows with
+  missing samples (NaN). Fixed: quality now drops with the share of missing
+  samples.
+- Current activity module: about 55 ms per window here (WARN). It is being
+  replaced in Stage 6 anyway.
+- Stage 6 routine: run the check on Mithuna's and Sudharshan's files, fix
+  anything that FAILs, then add one line to STREAMS in core/pipeline.py.
+
+STEP 5.8 - Movement tracker (7 Oct 2026)
+- Gap found in Stage 5 simulation: stillness only looks at the 10 s after
+  an impact, so a person who got up still read 0.59.
+- Added to streams/motion.py (new values, score unchanged):
+    last_movement              how much the wrist moves now (0 to 1)
+    last_still_s               seconds without real movement, running
+    last_moved_after_impact_s  seconds of movement since the latest impact
+    last_recovered             True once that reaches 4 s, None if no impact
+- "Real movement" = |a| spread in a 2.5 s window > 0.03 g, or median
+  rotation > 20 deg/s. First guesses for a resting wrist; must be checked
+  on the band's own data.
+- The pipeline stores these automatically (extras). simulator.run now
+  prints them and draws "seconds without real movement" on the figure.
+- Fusion (Stage 7) will use them for long lie vs recovery.
+
+STEP 5.8 CHECK ON REAL DATA (7 Oct 2026)
+    hard_fall_long_lie  no movement 60 s at the end, moved again: no (2 s)
+    fall_then_get_up    moved again: yes (30 s of movement)
+    faint_collapse      no movement 60 s at the end, moved again: no (4 s)
+    false_alarm         moved again: yes (15 s)
+- The faint settled for about 4 s after landing, right at the 4 s limit.
+  Raised "moved again" to 8 s of movement (getting up took 15-30 s).
+  Chosen from these demo scenarios; to be checked on real band data.
+- hr_spike_no_fall: 60 s without movement while sitting quietly, with no
+  impact. Stillness alone is not an emergency (sleep, resting); fusion
+  must combine it with heart rate and context.
+- Acceptance check on this laptop: motion 5.8 ms per window (PASS),
+  activity 79 ms (WARN, being replaced).
+
+STEP 5.9 - Live replay (7 Oct 2026)
+- simulator/live.py plays a scenario in real time (or faster with
+  --speed), scores each window as it "arrives" and saves it straight away.
+  The run is marked live while playing, done or stopped at the end.
+- Each saved window sends a 'guardian_live' notification (ids only), so a
+  backend can push updates to the browser later.
+- core/watch.py follows live runs from the database AS a chosen user and
+  only shows what that user may see. Terminal stand-in for the caregiver
+  screen until Stage 8.
+- Database add-on: backend/db/init/04_live.sql (runs.status, runs.ended_at).
+
+STEP 5.6 - Module report (7 Oct 2026)
+- testing/module_report.py builds one report from saved results only:
+  motion (current model, Stage 3.5 test numbers for the 1.5 s version,
+  Stage 4 outcome, limits), activity (UMAFall F1 0.71, FallAllD 0.22,
+  being replaced), physiological (placeholder), acceptance check verdicts,
+  and the scenario table (fall time, flag time, delay, peak, stillness,
+  moved again).
+- Output: testing/outputs/stage5/module_report.txt and
+  figures/stage5_scenarios_overview.png (one row per scenario).
+
+STEP 5.9 + 5.6 RESULTS (7 Oct 2026)
+- Live replay works end to end: Caregiver 1 watched Wearer 1's run update
+  every ~1.2 s from the database, including the FALL-LIKE IMPACT lines.
+- Module report (real data): hard fall flagged 3.9 s after impact, fall
+  then get up 4.2 s, faint 7.1 s; normal day and knocks never flagged;
+  "moved again" yes only for the get-up and knocks scenarios.
+
+BUG FOUND IN THE LIVE RUN, FIXED (7 Oct 2026)
+- In hard_fall_long_lie the score went 0.91 -> 0.00 -> 0.50 a few seconds
+  after the fall. A weaker knock right after the fall (arm bouncing, hand
+  on the floor) opened the gate again and replaced the strong impact.
+- Fix in streams/motion.py: a weaker re-trigger no longer replaces a
+  stronger impact that is still inside its 60 s hold. The movement tracker
+  also keeps counting from the stronger impact.
+- Checked on a made-up fall with a weaker knock 5 s later:
+  before 0.91 -> 0.00 -> 0.13, after 0.91 held throughout.
+- Note: the walking part of the same scenario opened the gate at 2.5 s
+  (score 0.52, below the threshold). Fine for motion; fusion must not
+  treat a low impact as a fall.
+
+STEP 5.11 - Fusion design (7 Oct 2026)
+- core/FUSION_DESIGN.md: what fusion reads per window, rules for every
+  emergency type, the eight emergency types with raising and lowering
+  evidence and timing, the emergency score and alert levels, the alert
+  lifecycle, expected results on the scenarios, and open questions.
+- All numbers there are starting values, not clinical thresholds.
+- Stage 5 is complete except 5.4 (backend API), which waits for
+  Sudharshan's choice of framework.

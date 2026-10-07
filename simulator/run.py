@@ -95,6 +95,13 @@ def _summary(sc, D, thr):
                          + (f"first at {hit.t.values[0]:.1f} s" if len(hit) else "never"))
         _, still = _ex(D, "motion", "stillness")
         lines.append(f"motion: stillness at the end {float(still[-1] or 0):.2f}")
+        _, st_s = _ex(D, "motion", "still_s")
+        _, rec = _ex(D, "motion", "recovered")
+        _, mv = _ex(D, "motion", "moved_after_impact_s")
+        if len(st_s) and st_s[-1] is not None:
+            moved = {True: "yes", False: "no", None: "no impact"}[rec[-1]]
+            lines.append(f"movement: no real movement for the last {float(st_s[-1]):.0f} s; "
+                         f"moved again after the impact: {moved} ({float(mv[-1] or 0):.0f} s of movement)")
     a = D[D.stream == "activity"]
     if len(a):
         t, st = _ex(D, "activity", "state")
@@ -146,6 +153,12 @@ def _plot(sc, D, thr):
                           label=f"evaluation threshold {thr:.2f}")
         ax[1].set_ylim(-0.05, 1.05)
         ax[1].legend(fontsize=7, loc="upper left")
+        _, st_s = _ex(D, "motion", "still_s")
+        if len(st_s) and st_s[0] is not None:
+            tw = ax[1].twinx()
+            tw.step(m.t, np.asarray(st_s, float), where="post", color="#e67e22", lw=1, ls=":")
+            tw.set_ylabel("seconds without\nreal movement", color="#e67e22", fontsize=8)
+            tw.tick_params(axis="y", colors="#e67e22", labelsize=7)
     ax[1].set_ylabel("motion")
 
     a = D[D.stream == "activity"]

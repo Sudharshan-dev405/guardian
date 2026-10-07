@@ -36,16 +36,17 @@ class Store:
     def __init__(self, url=None):
         self.conn = connect(url)
 
-    def start_run(self, wearer_id, scenario, truth=None, simulated=True, notes=None) -> int:
+    def start_run(self, wearer_id, scenario, truth=None, simulated=True, notes=None,
+                  status="done") -> int:
         from psycopg.types.json import Jsonb
         with self.conn.cursor() as cur:
             cur.execute("SELECT id FROM devices WHERE wearer_id = %s ORDER BY id LIMIT 1",
                         (wearer_id,))
             dev = cur.fetchone()
-            cur.execute("INSERT INTO runs (wearer_id, device_id, scenario, simulated, truth, notes) "
-                        "VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
+            cur.execute("INSERT INTO runs (wearer_id, device_id, scenario, simulated, truth, "
+                        "notes, status) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
                         (wearer_id, dev[0] if dev else None, scenario, simulated,
-                         Jsonb(truth) if truth is not None else None, notes))
+                         Jsonb(truth) if truth is not None else None, notes, status))
             run_id = cur.fetchone()[0]
         self.conn.commit()
         return run_id
@@ -59,6 +60,18 @@ class Store:
                 "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 [(run_id, wearer_id, r["t"], r["stream"], r["score"], r["quality"],
                   Jsonb(r["extras"])) for r in rows])
+        self.conn.commit()
+
+    def notify(self, run_id, wearer_id, t):
+        """Tell listeners (the future backend) that a live run has new rows.
+        Only ids go in the message; the data itself stays behind the access rules."""
+        self.conn.execute("SELECT pg_notify('guardian_live', %s)",
+                          (f'{{"run_id": {run_id}, "wearer_id": {wearer_id}, "t": {t}}}',))
+        self.conn.commit()
+
+    def end_run(self, run_id, status="done"):
+        self.conn.execute("UPDATE runs SET status = %s, ended_at = now() WHERE id = %s",
+                          (status, run_id))
         self.conn.commit()
 
     def close(self):
