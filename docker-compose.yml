@@ -1,0 +1,23 @@
+# Guardian database (Stage 5.3). Start:  docker compose up -d
+# The SQL files in backend/db/init run once, the first time the volume is created.
+# To start again from empty:  docker compose down -v  then  docker compose up -d
+services:
+  db:
+    image: postgres:16
+    container_name: guardian-db
+    environment:
+      POSTGRES_DB: guardian
+      POSTGRES_USER: ${POSTGRES_USER:-guardian}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-guardian_dev}
+    ports:
+      - "5433:5432"          # 5433 on your laptop, in case 5432 is already taken
+    volumes:
+      - guardian_pgdata:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-guardian} -d guardian"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  guardian_pgdata:

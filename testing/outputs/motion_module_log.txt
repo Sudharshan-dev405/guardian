@@ -1,0 +1,730 @@
+GUARDIAN - MOTION MODULE LOG
+Running record of what was done, why, and the key numbers.
+Newest entries at the bottom. Keep in eval/outputs/ (do not delete in cleanup).
+
+==============================================================================
+STAGE 1 - RESEARCH (6 Oct 2026)
+==============================================================================
+- Studied Apple, Pixel and Samsung watch fall detection, Apple's patent, and
+  published wrist models (UMAFall, FallAllD, WEDA-FALL).
+- Main takeaways: use the same sampling rate across datasets, split by subject,
+  expect a large drop on real or unseen data, report false alarms per hour.
+
+==============================================================================
+STAGE 2 - CHOOSING THE MODEL (6 Oct 2026)
+==============================================================================
+What we did
+- Compared 6 models on UMAFall (leave-one-subject-out, 15 dev subjects).
+  Test subjects S02, S06, S11 held out.
+- Took the top 3 to FallAllD and picked on its selection half.
+
+Results (gated AUC)
+                    UMAFall    FallAllD selection half
+  XGBoost           0.991      0.607
+  Random Forest     0.988      0.593
+  SVM               0.996      0.530
+  Gate only         0.650      0.686
+
+Decision
+- XGBoost. Best on FallAllD, fastest (about 1 ms per segment).
+- CNN and CNN-LSTM dropped: more false alarms, slower.
+- Full tables: Motion_Model_Selection.xlsx, reasoning: xgboost.txt
+
+==============================================================================
+STAGE 3 - TUNING XGBOOST
+==============================================================================
+
+STEP 0 - Same signal path for all data (6 Oct 2026)
+What we did
+- Every signal now goes through the same path before the model sees it:
+  accelerometer clipped to +/-8 g, then passed through 20 Hz (UMAFall's own rate).
+- The 20 Hz filter softened impact peaks, so the gate was lowered from 2.5 g
+  to 2.25 g to keep the same share of falls passing it.
+
+Results (gate 2.25 g, with the 20 Hz step)
+                              UMAFall    FallAllD selection half
+  Falls passing the gate      87.4%      92.5%
+  ADLs passing the gate       13.5%      30.5%
+  Gated AUC                   0.986      0.651
+
+What it means
+- UMAFall gate coverage is back to 87.4%, same as 2.5 g before the filter.
+- FallAllD gated AUC went from 0.668 to 0.651. Not a real loss: the lower gate
+  lets more borderline cases through, which are harder to sort.
+- Stage 3 numbers can be compared with each other, not directly with Stage 2.
+
+STEP 1 - Underfit to overfit sweep (6 Oct 2026)
+What we did
+- Tried 36 XGBoost settings: tree depth 1, 2, 3, 4, 6, 8 x 25 to 800 trees.
+- Scored each on training data, UMAFall unseen subjects, FallAllD select half.
+- Figure: figures/stage3_step1_fitting_curve.png
+
+Results (gated AUC)
+                              Train    UMAFall    FallAllD select
+  Underfit (depth 1, 25)      0.925    0.864      0.541
+  Best (depth 3, 200)         1.000    0.987      0.656
+  Overfit (depth 8, 800)      1.000    0.988      0.638
+
+What it means
+- Very small models underfit: low everywhere.
+- Training hits 1.0 by depth 2, so training AUC can't separate settings.
+- UMAFall stays at about 0.99 for almost everything above depth 1.
+- FallAllD peaks at depth 2-3 with about 200 trees, then slips as trees get
+  deeper or more numerous. That slip is the overfitting.
+- Differences at the top are small (0.656 vs 0.650), so step 2 checks the
+  area around it.
+
+STEP 2 - Fine sweep around depth 2-3, ~200 trees (6 Oct 2026)
+What we did
+- 72 settings: depth 2-3, 100-300 trees, learning rate 0.03-0.1,
+  min leaf size 1 or 5, L2 regularisation 1 or 10.
+- Applied the agreed rule: best FallAllD-select score with UMAFall >= 0.98;
+  within 0.005 counts as a tie, then take the simplest.
+
+Results (gated AUC)
+                                         UMAFall    FallAllD select
+  Best score (depth 2, 200 trees)        0.986      0.662
+  Picked (depth 2, 100 trees)            0.985      0.661
+  Step 0 default (depth 3, 300 trees)    0.986      0.651
+
+Picked setting: depth 2, 100 trees, learning rate 0.1, min leaf size 1,
+L2 regularisation 10.
+
+What it means
+- Min leaf size 5 was worse every time (about 0.63) and often pushed
+  UMAFall below 0.98.
+- L2 regularisation 10 helped slightly in most pairs.
+- Tuning gained about 0.01 over the default. Most sensible settings land
+  between 0.64 and 0.66, so the setting matters less than the data.
+- The select half was used to choose, so 0.661 is a little optimistic.
+  The report half (step 7) gives the honest number.
+
+STEP 3 - Feature sets (6 Oct 2026)
+What we did
+- Same XGBoost setting, five feature sets from motion.py.
+- Figure: figures/stage3_step3_feature_sets.png
+
+Results (gated AUC)
+                                  UMAFall    FallAllD select
+  All 18 features                 0.985      0.661
+  No forearm angle (17)           0.984      0.654
+  No gyroscope (13)               0.988      0.641
+  No jerk (16)                    0.983      0.641
+  Core only (10)                  0.987      0.639
+
+What it means
+- Every feature group helps on FallAllD. Removing gyro or jerk costs about
+  0.02, the forearm angle about 0.007.
+- UMAFall barely changes either way, so only the cross-dataset check could
+  show this.
+- Gyro does not work as a gate (daily activities rotate the wrist faster
+  than falls), but as features it carries over well.
+
+STEP 4 - Final configuration (6 Oct 2026)
+- XGBoost: depth 2, 100 trees, learning rate 0.1, min leaf size 1,
+  L2 regularisation 10
+- All 18 features
+- Signal path: clip +/-8 g, 20 Hz; gate 2.25 g
+- Saved in eval/outputs/stage3/final_config.json (written by step 5)
+
+STEP 5 - Calibration and alert threshold (6 Oct 2026)
+What we did
+- Checked whether XGBoost's fall probabilities can be trusted, using
+  UMAFall dev leave-one-subject-out predictions only.
+- Set the alert threshold at 95% specificity on segments that pass the gate.
+
+Results
+- Calibration error was already low (ECE 0.036) and Platt scaling did not
+  improve it (0.037). Decision: use the raw probabilities.
+- Threshold for 95% specificity: about 0.92.
+
+                          Falls caught    False alarms / hour
+  UMAFall, at 0.5         85.2%           3.5
+  UMAFall, at ~0.92       77.8%           1.4
+  FallAllD*, at 0.5       74.2%           39.0
+  FallAllD*, at ~0.92     34.9%           8.0
+  (* select half, info only, nothing set from it)
+
+What it means
+- On UMAFall the high threshold trades a few falls for fewer false alarms.
+- On FallAllD the same threshold halves the falls caught. A fixed cut-off on
+  impact alone does not carry over to new data.
+- So the motion stream passes its probability to fusion and does not raise
+  alarms by itself. The threshold is kept for evaluation only.
+- Figure: figures/stage3_step5_calibration.png
+
+STEP 6 - Final model built and saved (6 Oct 2026)
+What we did
+- Trained the final XGBoost on all 15 UMAFall dev subjects
+  (482 segments, 135 falls) and saved it as models/motion.joblib.
+- Old Random Forest kept as models/motion_rf_before_stage3.joblib.
+- motion.py now loads XGBoost; the old --train (which used every subject,
+  including the test ones) is switched off.
+
+Results
+- Raw probabilities kept (Platt did not help: ECE 0.036 vs 0.037).
+- Threshold 0.926 (95% specificity on gated ADLs, UMAFall dev).
+- Reload check passed; 0.57 ms per impact score on the laptop.
+- Selftest on synthetic data: fall 0.95 overall; desk slam impact 0.88
+  but stillness 0.36 pulled the stream score down to 0.67.
+
+What it means
+- Synthetic check only (made-up signals). Step 7 tested this on real data
+  and found the opposite; see step 7.
+
+STEP 7 - One-time test (6 Oct 2026)
+What we did
+- Ran the final model once on data never used before: UMAFall S02, S06, S11
+  and the FallAllD report half (S01 S02 S03 S09 S12 S13).
+- Scored impact segments, and replayed every recording through the live
+  stream (impact + stillness). Test is now locked (step7_DONE.txt).
+- Figure: figures/stage3_step7_roc.png
+
+Results, impact segments (gated AUC; falls caught / false alarms per hour
+at threshold 0.926)
+                          XGBoost    Gate only    Caught    FA/hour
+  UMAFall test            1.000      0.355        90.7%     0.0
+  FallAllD report half    0.695      0.580        49.8%     8.5
+UMAFall test falls caught by direction: backward 83%, forward 94%, lateral 94%
+
+Results, full stream per recording (AUC; falls caught at 95% specificity)
+                          Impact only        Impact + stillness
+  UMAFall test            0.976 / 96.3%      0.972 / 94.4%
+  FallAllD report half    0.898 / 56.8%      0.886 / 36.5%
+
+What it means
+- UMAFall test is near perfect, but it is only 3 people and staged mattress
+  falls. Not a claim about real falls.
+- FallAllD report half (0.695) is the honest cross-dataset number. It is
+  slightly above the select half (0.661), so tuning did not overfit it.
+- With the 20 Hz path the model now beats the gate alone on FallAllD
+  (0.695 vs 0.580). In Stage 2, at FallAllD's native rate, it did not.
+- Peak acceleration alone ranks wrongly on UMAFall test (0.355): hopping and
+  clapping hit harder at the wrist than mattress falls.
+- Adding stillness with the fixed 0.6/0.4 weights made results worse on both
+  sets, most on FallAllD (56.8% -> 36.5% at 95% specificity). The stillness
+  rule was never tuned, and FallAllD recordings give only about 8 s after
+  the impact for a 10 s check.
+- Recording-level AUC is higher than segment AUC because it also counts the
+  many quiet ADLs the gate never opens on. Do not compare the two directly.
+- The test set is spent. Any change from here is judged on dev/select data
+  only, and no new test number can be claimed for it.
+
+DECISION AFTER STEP 7 - What the motion stream sends to fusion (6 Oct 2026)
+- Before: score = 0.6 x impact + 0.4 x stillness (weights set by hand, never
+  tested).
+- Now: score = impact probability only. Stillness is still calculated and
+  passed on separately (last_stillness), so fusion can learn its weight.
+- Why: the hand-set mix lowered results on both test sets.
+- The impact-only test numbers (UMAFall test 0.976 / 96.3%, FallAllD report
+  half 0.898 / 56.8%) match exactly what the stream now outputs. Note for the
+  report: this choice was made after seeing the test.
+
+MOTION MODULE STATUS: DONE (Stage 3 complete)
+Final model: models/motion.joblib, XGBoost, 18 features, gate 2.25 g,
+20 Hz signal path, threshold 0.926 (for evaluation only).
+
+==============================================================================
+STAGE 3.5 - THREE DATASETS (planned 6 Oct 2026)
+==============================================================================
+Plan
+- Add WEDA-FALL (wrist, Fitbit) as a third dataset.
+- Train on each dataset, test on the other two. Also train on two together
+  and test on the third.
+- Same XGBoost and 18 features; same signal path and 2.25 g gate.
+
+Rules fixed before any results
+- Every dataset has a locked test part, opened once at the end:
+    UMAFall: S02 S06 S11 | FallAllD: report half | WEDA-FALL: decided in step 1
+- Choosing uses development parts only.
+- Winner = highest average gated AUC on the other datasets, with at least
+  0.95 on its own dataset.
+- Note: UMAFall test and FallAllD report half were opened once before
+  (stage 3 step 7) for the UMAFall-only model.
+
+STEP 0 - WEDA-FALL loader (6 Oct 2026)
+- New data/loader_weda.py, same format as the other loaders. Reads the
+  50 Hz folder only (the other rates are made from it).
+- 969 recordings: 350 falls, 619 ADLs. U01-U14 (young) did 25 falls each,
+  10 of them faint-type (F06-F08). U21-U31 (aged 77-95) did ADLs only.
+- Units confirmed: accel m/s^2 -> g (median 1.003 g at rest), gyro
+  rad/s -> deg/s (falls median 359 deg/s). Highest reading 6.91 g, no clipping.
+- Timestamps come in bursts (68% of gaps under 5 ms, though files average
+  49.6 samples per second). Trusting them flattened fall peaks
+  (4.97 g vs 5.69 g). Fix: spread samples evenly over each file's span.
+
+STEP 1 - Splits locked (6 Oct 2026)
+- Saved in eval/outputs/stage35/splits.json (seed 0).
+    UMAFall    dev 15 people | test S02 S06 S11
+    FallAllD   dev 7 people (select half) | test S01 S02 S03 S09 S12 S13
+    WEDA-FALL  dev 18 people | test U04 U07 U08 U10 (young) + U21 U22 U29 (elderly)
+- WEDA test keeps both groups, so elderly daily activities are tested too.
+
+STEP 2 - Segments for all three datasets (6 Oct 2026)
+- Same path for all: +/-8 g clip, 20 Hz, 2.25 g gate. One segment per recording.
+                 people  segments  falls  ADLs   falls past gate  ADLs past gate
+    UMAFall dev     15      482     135    347       87.4%            13.5%
+    FallAllD dev     7     1278     252   1026       92.5%            30.5%
+    WEDA dev        18      697     250    447       99.2%            36.5%
+- UMAFall and FallAllD match Stage 3 exactly, so the shared path changed nothing.
+- WEDA faint-type falls: 99% pass the gate. These are acted faints by young
+  volunteers and still land hard, so they are not true soft collapses.
+- WEDA elderly ADLs: only 11% pass the gate (young WEDA ADLs about 46%).
+- 4 WEDA recordings shorter than 3.5 s were skipped (965 of 969 used).
+- Test parts saved separately and not read: 135 / 1237 / 268 segments.
+
+STEP 3 - One dataset at a time (6 Oct 2026)
+- 18 XGBoost settings: depth 2/3/4, trees 50/100/300, lambda 1/10 (lr 0.1).
+    Trained on    own people (LOSO)   other two datasets   pick (own / others)
+    UMAFall          0.98-0.99           0.63-0.68          d2, 50, l10   (0.983 / 0.678)
+    FallAllD         0.67-0.76           0.65-0.74          d2, 100, l1   (0.720 / 0.739)
+    WEDA-FALL        0.85-0.91           0.76-0.82          d4, 100, l1   (0.903 / 0.820)
+- UMAFall is the easiest dataset: best on itself, worst on the others.
+- FallAllD is the hardest: even trained on its own people it reaches only 0.76.
+- WEDA-trained travels best to other datasets.
+
+STEP 4 - Two datasets together, scored on the third (6 Oct 2026)
+    uma+fa   -> WEDA      0.63-0.75   (own 0.76-0.82)
+    uma+weda -> FallAllD  0.62-0.66   (own 0.90-0.95)
+    fa+weda  -> UMAFall   0.79-0.97   (own 0.76-0.83)
+
+RULE CHANGE (made after steps 3-4, before step 5; test parts still unread)
+- Problem: only the UMAFall-only model reaches the 0.95 own-data floor. That
+  floor came from UMAFall's own numbers, and FallAllD cannot reach it even on
+  itself. Kept as is, the rule picks the model that travels worst.
+- New rule: drop the floor. For each unseen dataset, compare the pair against
+  each single dataset (each with its best setting for that dataset).
+  If pooling wins on at least 2 of 3, the final model trains on all three dev
+  parts, with the setting that has the best mean score on the unseen dataset
+  across the three pairs (ties within 0.005 -> simplest).
+  Otherwise, the single dataset with the best mean on the other two.
+- Step 5 prints the winner under both the old and the new rule.
+
+STEP 5 - Results matrix (dev parts, 6 Oct 2026)
+    Trained on    UMAFall   FallAllD   WEDA     mean unseen   WEDA faint-type
+    UMAFall       (0.983)    0.654     0.703      0.678          0.748
+    FallAllD       0.847    (0.720)    0.630      0.739          0.588
+    WEDA-FALL      0.956     0.684    (0.903)     0.820            -
+    uma+fa        (0.981)   (0.673)    0.751      0.751          0.761
+    uma+weda      (0.989)    0.657    (0.913)     0.657            -
+    fa+weda        0.966    (0.709)   (0.847)     0.966            -
+    (brackets = trained on that dataset, scored on new people)
+- Pooling beat both singles on only 1 of 3 unseen datasets (WEDA), and by
+  small margins. Adding a dataset does not reliably help.
+- Old rule winner: UMAFall-only. New rule winner: WEDA-trained
+  (depth 4, 100 trees, lambda 1), mean 0.820 on unseen datasets vs 0.678.
+- FallAllD stays the hardest target for every model (0.63-0.71).
+- Figure: figures/stage35_step5_matrix.png
+
+STEP 6 - One-time test on the locked parts (6 Oct 2026, run once)
+- Thresholds set on each model's own dev data (95% of daily activities below):
+  WEDA-trained 0.8861, UMAFall-trained 0.9256 (same as Stage 3, check passed).
+                         gated AUC   falls caught   false alarms/h
+  WEDA-trained (winner)
+    UMAFall  (unseen)      0.876         37%            3.0
+    FallAllD (unseen)      0.707         27%            1.5
+    WEDA     (new people)  0.965         71%            0.0
+  UMAFall-trained (current)
+    UMAFall  (new people)  1.000         91%            0.0
+    FallAllD (unseen)      0.695         50%            8.5
+    WEDA     (unseen)      0.795         62%           17.3
+- Mean on unseen datasets: winner 0.792, current 0.745. Direction holds, but
+  the gap is smaller than on dev (0.820 vs 0.678). On FallAllD, the only test
+  set both models never saw, they are level (0.707 vs 0.695).
+- Thresholds do not travel: on other datasets the winner turns cautious
+  (few alarms, misses falls) and the current model turns jumpy (many alarms).
+  The real band will need its own threshold from its own recordings.
+- WEDA faint-type falls caught: winner 62.5%, current 65%.
+  Elderly daily activities: 0 of 38 false alarms (winner), 1 of 38 (current).
+- Winner kept as decided before the test. The test reports; it does not re-pick.
+- Figure: figures/stage35_step6_roc.png
+
+STEP 7 - Final model saved (6 Oct 2026)
+- models/motion.joblib = WEDA-trained XGBoost (depth 4, 100 trees, lambda 1),
+  exactly the model tested in step 6. 697 segments, 250 falls, all 18 features.
+- Threshold 0.8861 (evaluation only; fusion uses the probability).
+- Old model kept as models/motion_umafall_stage3.joblib.
+- Selftest passed: fall 0.82, hand movement 0.41, quiet 0.00.
+- Excel: new sheet "Three datasets" in Motion_Model_Selection.xlsx.
+
+MOTION MODULE STATUS: DONE (Stage 3.5 complete). Next: Stage 4.
+
+STAGE 3.5b - FULL TUNING OF THE WEDA MODEL (planned 6 Oct 2026)
+- Stage 3.5 only tried 18 settings. Now a full search, dev parts only
+  (the test parts are spent).
+- Step 1 sweep: depth 1-8 x trees 25-800 (42 settings), fitting-curve figure.
+- Step 2 fine: 216 settings around the sweep pick (depth, trees, learning
+  rate, min_child_weight, lambda, subsampling).
+- Rule, fixed before running:
+    WEDA new people (LOSO) must stay >= 0.893 (current 0.903 minus 0.01);
+    best mean on UMAFall dev + FallAllD dev; ties within 0.005 -> simplest;
+    switch only if that mean beats the current setting by >= 0.01.
+- If it switches, the new model has dev numbers only, no fresh test score.
+
+RESULT (6 Oct 2026)
+- Current setting rerun here: WEDA 0.909, UMAFall 0.947, FallAllD 0.671,
+  unseen mean 0.809. (Stage 3.5 gave 0.820 for the same setting; the only
+  change is CPU threads, so about 0.01 is just noise. That is why the switch
+  bar is 0.01.)
+- Sweep (42): too simple hurts (depth 1, 25 trees: 0.653). Depth 2-5 with
+  100-400 trees all sit at 0.80-0.815. Very large models drift down slightly.
+- Fine (216): best 0.810 (depth 2, 200 trees, lr 0.2). Gain +0.002 -> KEEP.
+- min_child_weight 5 and lambda 10 were slightly worse almost everywhere.
+- FallAllD stays at 0.60-0.67 whatever the setting.
+- Conclusion: the model is on a plateau. Hyperparameters are not the
+  bottleneck; better features, threshold handling or data have to come next.
+- Figure: figures/stage35b_fitting_curve.png
+
+==============================================================================
+STAGE 4 - LEARNING FROM EXISTING WORK (6 Oct 2026)
+==============================================================================
+Our algorithm (motion module)
+  1. Clip to +/-8 g, pass through 20 Hz.
+  2. Gate: wait for |a| > 2.25 g.
+  3. Cut 3.5 s around it (2 s before, 1.5 s after).
+  4. Compute 18 features (impact, free-fall dip, jerk, rotation, tilt change).
+  5. XGBoost (depth 2, 100 trees) gives P(fall). Sent to fusion.
+  6. Stillness over the next 10 s is computed and passed on separately.
+
+Existing approaches studied
+  - Time-series (Aderinola et al., FARSEEING real falls): acceleration
+    magnitude only, low 1.4 g filter, long windows that include the post-fall
+    phase, QUANT / MiniRocket classifiers, threshold set by cost
+    (missed fall = 2 false alarms). F1 0.91 on real falls (waist sensor).
+  - ESP32 TinyML (GitHub): 2 s raw windows, 7,947-parameter CNN, per-window
+    normalisation, pre-impact alerts. Cross-dataset F1 on unseen FallAllD
+    only 0.34; about 293 false alarms per hour for pre-impact alerts.
+  - Gated-CNN (preprint): acc + gyro streams with magnitude channels, 4 s
+    windows, 31K parameters. LOSO macro-F1 0.90 on FallAllD (within-dataset).
+  - MicroFallNet: tiny CNN for wristbands; protocol not verifiable.
+  - Apple patent: impact + jerk, wrist motion before impact, movement after.
+
+Comparability
+  - Their within-dataset scores (0.90+) are not comparable to our
+    cross-dataset FallAllD result (trained on UMAFall only). The ESP32 project's
+    cross-dataset FallAllD F1 of 0.34 is the comparable kind.
+
+==============================================================================
+CARRY FORWARD TO FUSION
+==============================================================================
+Guardian detects emergencies, not only falls. Fusion must cover every
+emergency a wrist band can reasonably see, and each alert must say which
+pattern triggered it.
+
+  Emergency                       What it looks like at the wrist        Streams
+  Hard fall                       impact, then little movement           motion, activity
+  Long lie (can't get up)         no recovery movement for a long time   activity, stillness
+  Faint / soft collapse           slump or slide, little or no impact    activity, stillness, HR
+  Unresponsive, no fall           unusually long immobility, odd time    activity, context, HR
+  Heart rate emergency            HR far too high/low, or very irregular physiological
+  Seizure (convulsive)            rhythmic shaking for tens of seconds   motion/activity (new detector needed)
+  Overheating / cold              skin temperature trend, not core temp  temperature (weak, trend only)
+  Person asks for help            button pressed                         SOS
+
+Rules for fusion
+- No emergency path may depend on the motion gate alone. Several have no impact.
+- Stillness (last_stillness) is passed separately for the no-impact paths.
+- Sleep vs unresponsive is the hardest case; context (time of day, recent
+  activity) is needed.
+- No blood oxygen claims. Physiological thresholds still need sources.
+- Not covered by any built module yet: seizure detector, HR rules,
+  temperature rules. Note these as future work if not built.
+- Test data: WEDA-FALL F06-F08 for faint-type falls (simulated). No public
+  wrist data has real faints, seizures or cardiac events.
+
+==============================================================================
+STAGE 4 - LEARN FROM EXISTING WORK, THEN IMPROVE (planned 7 Oct 2026)
+==============================================================================
+Part A (done): how existing detectors work and our algorithm in simple
+steps -> stage4_existing_methods.txt
+
+Part B: four experiments, each aimed at a lesson from Part A.
+  E1 Device threshold: set the threshold from the new device's own daily
+     activity (on the real band: the first days of normal wear).
+  E2 Device scaling: scale each feature by the device's own daily-activity
+     average and spread, so a different sensor looks like the training one.
+  E3 Longer look after impact: 3 s and 5 s after instead of 1.5 s.
+  E4 Lower gate: 1.8 and 2.0 g instead of 2.25 g, for softer falls.
+
+Rules, fixed before any results (dev parts only; test parts are spent):
+- Model changes (E2, E3): mean gated AUC on UMAFall dev + FallAllD dev,
+  WEDA LOSO >= 0.893, adopt only if the mean rises by >= 0.01.
+- Operating changes (E1, E4): falls caught on UMAFall dev + FallAllD dev
+  with false alarms held at 95% specificity on their daily activities;
+  adopt only if the mean rises by >= 5 points.
+- Whatever is adopted has dev numbers only. The real test will be
+  Guardian's own band.
+
+E1 - Device threshold (7 Oct 2026)
+- Fixed WEDA threshold 0.857 on new devices: UMAFall 30% caught (0 FA/h),
+  FallAllD 20% caught (4.9 FA/h).
+- Device threshold (set on half the people, scored on the other half):
+  UMAFall 62% caught but specificity fell to 81% (6.3 FA/h);
+  FallAllD 11% caught (3.5 FA/h), worse than fixed.
+- The script first said ADOPT (+11 points). That ignored the "held at 95%
+  specificity" part of the rule. On UMAFall it was not held (81%), so the
+  gain was bought with false alarms. Corrected verdict: REJECT.
+- Why: the calibration halves had too few daily activities past the gate
+  (UMAFall about 20 per half) to set a 95% point reliably.
+- Lesson for the band: per-device calibration needs a lot of normal-wear
+  data (many gate events, i.e. days of wear), not a few scripted clips.
+
+E2 - Device scaling (7 Oct 2026)
+    none    WEDA 0.909  UMAFall 0.947  FallAllD 0.671  unseen 0.809
+    robust  WEDA 0.909  UMAFall 0.947  FallAllD 0.682  unseen 0.814
+    zscore  WEDA 0.909  UMAFall 0.902  FallAllD 0.690  unseen 0.796
+- Best +0.006, below the 0.01 noise bar. REJECT. Mean/std scaling hurt UMAFall.
+
+E3 - Longer look after impact (7 Oct 2026)
+- Same 1822 recordings for all three (shorter ones cannot fit 5 s).
+    1.5 s   WEDA 0.909  UMAFall 0.955  FallAllD 0.650  unseen 0.802
+    3.0 s   WEDA 0.928  UMAFall 0.938  FallAllD 0.698  unseen 0.818
+    5.0 s   WEDA 0.945  UMAFall 0.719  FallAllD 0.684  unseen 0.701
+- 3 s: +0.016, passes the 0.01 bar -> ADOPT. Gain comes from FallAllD
+  (+0.048); UMAFall dropped a little (-0.017).
+- 5 s: best on WEDA itself but UMAFall collapsed. It learns how WEDA
+  volunteers behaved after falling, which other datasets do not share.
+  Classic overfitting to one dataset's protocol.
+- Cost: the stream scores 3 s after the impact instead of 1.5 s. Fine for
+  an emergency alert (Apple waits about a minute).
+
+E4 - Lower gate (7 Oct 2026)
+- Falls caught at 95% specificity (gate + model together):
+    2.25 g  WEDA 0.816  UMAFall 0.852  FallAllD 0.337  unseen 0.595
+    2.0 g   WEDA 0.732  UMAFall 0.919  FallAllD 0.349  unseen 0.634
+    1.8 g   WEDA 0.704  UMAFall 0.941  FallAllD 0.329  unseen 0.635
+- Best +0.040, below the +0.05 bar -> REJECT. Lower gates let more falls
+  through (UMAFall 87% -> 97%) but also many more daily activities, and
+  WEDA got worse. Gate stays at 2.25 g.
+
+BUILD CHECK AND A BUG (7 Oct 2026)
+- The build check (1.5 s vs 3 s on all 1823 recordings long enough for 3 s)
+  showed no gain: unseen 0.809 vs 0.809 (UMAFall -0.029, FallAllD +0.030).
+- Cause found: WEDA files share names across activity folders
+  (F01/U01_R01_accel.csv and D01/U01_R01_accel.csv), so "same recordings"
+  matching was wrong for WEDA. The 1.5 s side kept some short WEDA
+  recordings the 3 s and 5 s sides did not. UMAFall and FallAllD were fine.
+- Fix: recordings are now keyed by folder + name, with a check that keys
+  are unique. E3 must be re-run before the 3 s change is kept.
+
+E3 RE-RUN with the fix (7 Oct 2026)
+- Same 2378 recordings for all three, now matched correctly.
+    1.5 s   WEDA 0.894  UMAFall 0.926  FallAllD 0.622  unseen 0.774
+    3.0 s   WEDA 0.922  UMAFall 0.953  FallAllD 0.701  unseen 0.827
+    5.0 s   WEDA 0.945  UMAFall 0.719  FallAllD 0.684  unseen 0.701
+- 3 s: +0.053, and this time both unseen datasets improve. ADOPT stands.
+- 5 s still overfits to WEDA (UMAFall 0.719).
+- Note: changing which WEDA recordings go into training moved the 1.5 s
+  scores by up to 0.05 (0.809 on all recordings, 0.774 here). Small
+  training sets make these numbers jumpy; only clear gains count.
+
+BUILD CHECK, CORRECT MATCHING (7 Oct 2026)
+- All 2432 recordings long enough for 3 s:
+    1.5 s   WEDA 0.907  UMAFall 0.943  FallAllD 0.679  unseen 0.811
+    3.0 s   WEDA 0.935  UMAFall 0.918  FallAllD 0.701  unseen 0.809
+- So the +0.053 from E3 only shows on the 2378 longer recordings. With the
+  54 extra recordings in, it is a tie.
+- Where 3 s stands in every comparison: FallAllD better (+0.08, +0.02),
+  WEDA better (+0.03, +0.03), UMAFall mixed (+0.03, -0.03).
+- Decision: keep 3 s (the rule adopted it, and it is never worse on
+  average), but claim NO improvement in reports. Say "no worse, helps the
+  hardest dataset".
+- Bigger lesson: with 18 WEDA training people, scores swing by up to 0.05
+  just from which recordings are in. The 0.01 bar was too small; treat
+  anything under about 0.05 as noise from now on.
+
+STAGE 4 SUMMARY
+- E1 device threshold: REJECT (needs days of real wear to work).
+- E2 device scaling: REJECT (+0.006).
+- E3 3 s after impact: kept, but a tie on full data.
+- E4 lower gate: REJECT (+0.04, WEDA worse).
+- The motion model is at the limit of what this data can show. Real gains
+  now need real data from the band, and fusion with the other streams.
+- Model now: models/motion.joblib = WEDA-trained, 3 s after impact,
+  672 segments, 250 falls, threshold 0.8107 (evaluation only).
+
+==============================================================================
+REPO CLEANUP (7 Oct 2026)
+==============================================================================
+- eval/ is now testing/. Commands in this log that say "py -m eval.X" are
+  now "py -m testing.X"; paths "eval/outputs/..." are "testing/outputs/...".
+- tools/ moved to testing/tools/. Old September notes, scratch scripts and
+  the weda_*.txt notes moved to testing/old/. Assignment 7 files moved to
+  coursework/a7/. Three old motion models moved to models/archive/.
+- Rooms for the other modules: streams/physiological.py (Mithuna),
+  core/fusion.py (fusion, later), frontend/ (Sudharshan). Placeholders only.
+- Deleted: empty file "0.7", listing.txt, 4 identical loader skip logs,
+  __pycache__. Cached .pkl files are no longer tracked by git.
+- README.md added with the layout and run commands.
+
+==============================================================================
+STAGE 5 - BACKBONE, SIMULATOR AND DATABASE (7 Oct 2026)
+==============================================================================
+Updated plan (agreed): build what the other modules plug into, so Stage 6
+is drop-in. No Kafka for now; Postgres in Docker; backend framework waits
+for Sudharshan. Activity module will be replaced by Sudharshan's version,
+physiological by Mithuna's, both in Stage 6.
+  5.1 plug-in pipeline       core/pipeline.py
+  5.2 simulator              simulator/
+  5.3 database               Postgres in Docker, framework-free schema
+  5.4 backend API            waits for Sudharshan's choice
+  5.5 run and record         scenarios -> database
+  5.6 show it                stats per module + timeline figures
+
+STEP 5.1 + 5.2 (7 Oct 2026)
+- core/pipeline.py: one line per stream in STREAMS. Every last_* value a
+  stream exposes is stored under "extras", so new modules need no schema
+  change. A crashing stream gives score 0, quality 0 for that window.
+- simulator/: six SIMULATED scenarios. Motion is real WEDA-FALL data from
+  the test people (never trained on); long lies and quiet sitting are
+  synthetic; heart rate and temperature are synthetic, illustrative values.
+    normal_day, hard_fall_long_lie, fall_then_get_up, faint_collapse,
+    false_alarm, hr_spike_no_fall
+- py -m simulator.run all -> testing/outputs/stage5/ (csv + truth) and
+  figures/stage5_<name>.png. No fusion or alerts yet (Stage 7).
+
+STEP 5.1 + 5.2 RESULTS (7 Oct 2026, SIMULATED scenarios, real data)
+    scenario            truth impact   motion flagged      notes
+    normal_day          -              never               gate never opened
+    hard_fall_long_lie  24.6 s         28.5 s (score 0.91) stillness 0.59
+    fall_then_get_up    20.7 s         24.8 s (score 0.98) stillness 0.59
+    faint_collapse      16.5 s         23.6 s (score 0.95) stillness 0.99
+    false_alarm         -              never               gate opened, score 0.19
+    hr_spike_no_fall    -              never               nothing catches it yet
+- Falls flagged 4-7 s after impact (3 s look after impact + window timing).
+- The hand slam and stumble opened the gate but the model kept the score
+  low, which is the gate + model design working as intended.
+- Stillness is measured only over the 10 s after impact, so it read 0.59
+  even when the person got up. Fusion (Stage 7) needs its own "time since
+  real movement" to tell a long lie from a recovery.
+- The heart-rate spike shows why fusion needs the physiological stream:
+  motion alone sees nothing.
+- The current activity module flips state every 1-3 s on WEDA-FALL data
+  (trained on UMAFall). It is being replaced in Stage 6; fusion should
+  smooth whatever activity module it gets.
+- Six simulated scenarios are a demonstration, not an evaluation.
+
+STEP 5.3 - Database (7 Oct 2026)
+- Postgres 16 in Docker (docker-compose.yml), port 5433 on the laptop.
+- Tables: users (role), caregiver_links, devices, runs, stream_outputs
+  (extras as JSON), alerts (empty until Stage 7), audit_log.
+- Role-based access enforced by the database (row-level security):
+  admin sees all, wearer sees self, caregiver sees linked wearers and can
+  acknowledge their alerts. No user set -> sees nothing.
+- Demo users are simulated: 1 admin, 3 wearers, 2 caregivers.
+- Two logins: guardian (pipeline writes) and guardian_app (the website,
+  limited by role). Backend framework still waits for Sudharshan.
+- simulator.run --db saves every run; core.store --check prints what each
+  demo user can see.
+
+STEP 5.7 - Module acceptance check (7 Oct 2026)
+- testing/check_stream.py: one command checks any stream module against
+  contract.py with made-up windows (no dataset needed):
+    loads, is a contract.Stream, imports no other stream, survives 10
+    awkward windows (no heart rate, no gyro, empty, too short, NaN, 16 g,
+    HR 220 / 25, an impact), lower quality for damaged input, 5 minutes of
+    windows in a row, speed (pass < 50 ms per window), plugs into the
+    pipeline with JSON-safe extras.
+- py -m testing.check_stream all  ->  testing/outputs/stage5/check_<name>.txt
+- First run found one real issue: motion gave full quality on windows with
+  missing samples (NaN). Fixed: quality now drops with the share of missing
+  samples.
+- Current activity module: about 55 ms per window here (WARN). It is being
+  replaced in Stage 6 anyway.
+- Stage 6 routine: run the check on Mithuna's and Sudharshan's files, fix
+  anything that FAILs, then add one line to STREAMS in core/pipeline.py.
+
+STEP 5.8 - Movement tracker (7 Oct 2026)
+- Gap found in Stage 5 simulation: stillness only looks at the 10 s after
+  an impact, so a person who got up still read 0.59.
+- Added to streams/motion.py (new values, score unchanged):
+    last_movement              how much the wrist moves now (0 to 1)
+    last_still_s               seconds without real movement, running
+    last_moved_after_impact_s  seconds of movement since the latest impact
+    last_recovered             True once that reaches 4 s, None if no impact
+- "Real movement" = |a| spread in a 2.5 s window > 0.03 g, or median
+  rotation > 20 deg/s. First guesses for a resting wrist; must be checked
+  on the band's own data.
+- The pipeline stores these automatically (extras). simulator.run now
+  prints them and draws "seconds without real movement" on the figure.
+- Fusion (Stage 7) will use them for long lie vs recovery.
+
+STEP 5.8 CHECK ON REAL DATA (7 Oct 2026)
+    hard_fall_long_lie  no movement 60 s at the end, moved again: no (2 s)
+    fall_then_get_up    moved again: yes (30 s of movement)
+    faint_collapse      no movement 60 s at the end, moved again: no (4 s)
+    false_alarm         moved again: yes (15 s)
+- The faint settled for about 4 s after landing, right at the 4 s limit.
+  Raised "moved again" to 8 s of movement (getting up took 15-30 s).
+  Chosen from these demo scenarios; to be checked on real band data.
+- hr_spike_no_fall: 60 s without movement while sitting quietly, with no
+  impact. Stillness alone is not an emergency (sleep, resting); fusion
+  must combine it with heart rate and context.
+- Acceptance check on this laptop: motion 5.8 ms per window (PASS),
+  activity 79 ms (WARN, being replaced).
+
+STEP 5.9 - Live replay (7 Oct 2026)
+- simulator/live.py plays a scenario in real time (or faster with
+  --speed), scores each window as it "arrives" and saves it straight away.
+  The run is marked live while playing, done or stopped at the end.
+- Each saved window sends a 'guardian_live' notification (ids only), so a
+  backend can push updates to the browser later.
+- core/watch.py follows live runs from the database AS a chosen user and
+  only shows what that user may see. Terminal stand-in for the caregiver
+  screen until Stage 8.
+- Database add-on: backend/db/init/04_live.sql (runs.status, runs.ended_at).
+
+STEP 5.6 - Module report (7 Oct 2026)
+- testing/module_report.py builds one report from saved results only:
+  motion (current model, Stage 3.5 test numbers for the 1.5 s version,
+  Stage 4 outcome, limits), activity (UMAFall F1 0.71, FallAllD 0.22,
+  being replaced), physiological (placeholder), acceptance check verdicts,
+  and the scenario table (fall time, flag time, delay, peak, stillness,
+  moved again).
+- Output: testing/outputs/stage5/module_report.txt and
+  figures/stage5_scenarios_overview.png (one row per scenario).
+
+STEP 5.9 + 5.6 RESULTS (7 Oct 2026)
+- Live replay works end to end: Caregiver 1 watched Wearer 1's run update
+  every ~1.2 s from the database, including the FALL-LIKE IMPACT lines.
+- Module report (real data): hard fall flagged 3.9 s after impact, fall
+  then get up 4.2 s, faint 7.1 s; normal day and knocks never flagged;
+  "moved again" yes only for the get-up and knocks scenarios.
+
+BUG FOUND IN THE LIVE RUN, FIXED (7 Oct 2026)
+- In hard_fall_long_lie the score went 0.91 -> 0.00 -> 0.50 a few seconds
+  after the fall. A weaker knock right after the fall (arm bouncing, hand
+  on the floor) opened the gate again and replaced the strong impact.
+- Fix in streams/motion.py: a weaker re-trigger no longer replaces a
+  stronger impact that is still inside its 60 s hold. The movement tracker
+  also keeps counting from the stronger impact.
+- Checked on a made-up fall with a weaker knock 5 s later:
+  before 0.91 -> 0.00 -> 0.13, after 0.91 held throughout.
+- Note: the walking part of the same scenario opened the gate at 2.5 s
+  (score 0.52, below the threshold). Fine for motion; fusion must not
+  treat a low impact as a fall.
+
+STEP 5.11 - Fusion design (7 Oct 2026)
+- core/FUSION_DESIGN.md: what fusion reads per window, rules for every
+  emergency type, the eight emergency types with raising and lowering
+  evidence and timing, the emergency score and alert levels, the alert
+  lifecycle, expected results on the scenarios, and open questions.
+- All numbers there are starting values, not clinical thresholds.
+- Stage 5 is complete except 5.4 (backend API), which waits for
+  Sudharshan's choice of framework.
+
+TWO MORE FIXES FROM THE SECOND LIVE RUN (7 Oct 2026)
+- With the re-trigger fix in, hard_fall_long_lie showed "moved again: yes"
+  from 37 s to 84 s while the person lay still. The WEDA fall recording has
+  about 10 s of movement after landing, which reached the 8 s limit.
+  Fix: "moved again" now means moving NOW. 10 s without real movement
+  cancels it. Shifting after a fall and then lying still is not recovery.
+- After the 60 s hold the score dropped from 0.91 to 0.50 (the weaker knock
+  took over). Fix: knocks inside a strong event's hold belong to the same
+  incident, so the strong event is the one that decays.
+- Checked on a made-up fall with 10 s of shifting on the floor:
+  moved again yes during the shifting, back to no after 10 s still;
+  score 0.92 held for 60 s, then decayed smoothly (0.88, 0.69, 0.54 ...).
+
+STAGE 5 STATUS: DONE, except 5.4 backend API (waits for Sudharshan's
+framework). Activity module will be replaced entirely in Stage 6.

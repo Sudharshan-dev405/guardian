@@ -1,0 +1,33 @@
+{
+  "name": "faint_collapse",
+  "title": "Faint-type collapse from sitting",
+  "description": "Sitting, then a backward fall from the chair as in a faint (acted in WEDA-FALL), then 60 s still. Heart rate dips before the fall in this synthetic trace.",
+  "simulated": true,
+  "seconds": 90.1,
+  "truth": [
+    {
+      "start": 0.0,
+      "end": 15.94,
+      "label": "D04 sitting on a chair, wait, get up (U08)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 15.94,
+      "end": 30.08,
+      "label": "F07 backward fall while sitting (faint or asleep) (U08)",
+      "kind": "fall"
+    },
+    {
+      "start": 30.08,
+      "end": 90.08,
+      "label": "lying still (synthetic)",
+      "kind": "synthetic"
+    }
+  ],
+  "events": [
+    {
+      "t": 16.5,
+      "what": "fall impact (F07)"
+    }
+  ]
+}

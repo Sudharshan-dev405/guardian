@@ -1,0 +1,34 @@
+{
+  "name": "false_alarm",
+  "title": "Hard knocks that are not falls",
+  "description": "Walking, hitting a table with the hand, a stumble, walking. The gate may open; the motion score should stay low.",
+  "simulated": true,
+  "seconds": 46.9,
+  "truth": [
+    {
+      "start": 0.0,
+      "end": 16.64,
+      "label": "D01 walking (U10)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 16.64,
+      "end": 23.46,
+      "label": "D09 hit table with hand (U10)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 23.46,
+      "end": 30.8,
+      "label": "D07 stumble while walking (U10)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 30.8,
+      "end": 46.94,
+      "label": "D01 walking (U10)",
+      "kind": "daily activity"
+    }
+  ],
+  "events": []
+}

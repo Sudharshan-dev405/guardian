@@ -1,0 +1,14 @@
+{
+  "max_depth": 4,
+  "n_estimators": 100,
+  "learning_rate": 0.1,
+  "min_child_weight": 1.0,
+  "reg_lambda": 1.0,
+  "subsample": 0.8,
+  "colsample_bytree": 0.8,
+  "train": 1.0,
+  "weda": 0.9093360379972295,
+  "uma": 0.9468085106382979,
+  "fa": 0.6707619739746877,
+  "unseen": 0.8087852423064927
+}

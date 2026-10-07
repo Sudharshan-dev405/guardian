@@ -1,4 +1,7 @@
 __pycache__/
 *.pyc
 data/raw/
-listing.txt
+.env
+
+# cached segments (rebuilt by the prep steps, large)
+*.pkl

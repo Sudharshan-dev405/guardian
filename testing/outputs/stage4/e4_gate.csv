@@ -1,0 +1,4 @@
+variant,gate_g,wedafall_gate_falls,wedafall_gate_adls,wedafall_caught,umafall_gate_falls,umafall_gate_adls,umafall_caught,fallalld_gate_falls,fallalld_gate_adls,fallalld_caught,unseen_caught
+g2.25_p1.5,2.25,0.992,0.3647,0.816,0.8741,0.1354,0.8519,0.9246,0.3051,0.3373,0.5946
+g2.0_p1.5,2.0,1.0,0.4407,0.732,0.9481,0.1441,0.9185,0.9683,0.383,0.3492,0.6339
+g1.8_p1.5,1.8,1.0,0.5705,0.704,0.9704,0.1816,0.9407,0.996,0.4776,0.3294,0.6351

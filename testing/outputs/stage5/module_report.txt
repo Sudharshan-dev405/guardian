@@ -1,0 +1,58 @@
+GUARDIAN - MODULE REPORT (Stage 5)
+==============================================================================
+
+MOTION MODULE (Pranavah)
+------------------------------------------------------------------------------
+What it does: gate (|a| > 2.25 g), then XGBoost scores the 2 s before and
+3 s after the impact (0 to 1). Also reports stillness and a movement tracker
+(seconds without real movement, moved again after the impact).
+Model now: trained on WEDA-FALL dev subjects, 3 s after impact (stage 4, E3)
+  depth 4, 100 trees, lambda 1.0, 672 segments, 250 falls, evaluation threshold 0.811
+
+One-time test (Stage 3.5, locked test people; this was the 1.5 s version):
+  test set     seen?                         AUC  falls caught  false alarms/h
+  UMAFall      unseen dataset              0.876           37%             3.0
+  FallAllD     unseen dataset              0.707           27%             1.5
+  WEDA-FALL    same dataset, new people    0.965           71%             0.0
+Stage 4: looking 3 s after the impact instead of 1.5 s was kept; on all
+  recordings it is a tie (0.809 vs 0.811), so no gain is claimed. The 3 s
+  version has dev numbers only: the test parts were already used.
+Limits: thresholds tuned on one device do not carry over to another; the
+  real band needs its own. Scores swing up to 0.05 with 18 training people.
+
+ACTIVITY MODULE (current version)
+------------------------------------------------------------------------------
+Four states + 'unknown' (open-set reject), 15 features, random forest,
+temperature-scaled confidence.
+UMAFall, people not seen in training: macro F1 0.71, accuracy 0.73
+  per state: ambulating 0.90, seated hand activity 0.75, lying/immobile 0.70,
+  stationary 0.51 (sitting vs standing is mostly forearm tilt at the wrist)
+FallAllD, unchanged model: macro F1 0.22, calibration error 0.377 (confidently wrong)
+Stage 5 simulation: flips state every 1-3 s on WEDA-FALL data.
+STATUS: being replaced by Sudharshan's activity module in Stage 6.
+
+PHYSIOLOGICAL MODULE (Mithuna)
+------------------------------------------------------------------------------
+Placeholder: returns 0 with quality 0 until Stage 6. Heart rate in the
+scenarios is synthetic.
+
+ACCEPTANCE CHECK (testing/check_stream.py)
+------------------------------------------------------------------------------
+  activity: WARN
+    [WARN] speed        79.39 ms per window on average, worst 148.5 ms (pass < 50 ms)
+  motion: PASS
+  physiological: PASS
+
+SIMULATED SCENARIOS (real WEDA-FALL motion from unseen people,
+synthetic still periods and heart rate; a demonstration, not an evaluation)
+------------------------------------------------------------------------------
+  scenario              fall at  flagged  delay  peak still at end  moved again
+  normal_day                  -        -      -  0.00          0 s    no impact
+  hard_fall_long_lie       24.6     28.5    3.9  0.91         60 s           no
+  fall_then_get_up         20.7     24.8    4.2  0.98          0 s          yes
+  faint_collapse           16.5     23.6    7.1  0.95         60 s           no
+  false_alarm                 -        -      -  0.19          0 s          yes
+  hr_spike_no_fall            -        -      -  0.00         60 s    no impact
+  (times in seconds; 'flagged' = motion score above the evaluation threshold;
+   alerts come from fusion in Stage 7, not from this)
+

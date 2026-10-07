@@ -1,0 +1,11 @@
+metric,value
+chi2_statistic,np.float64(78.51448535753327)
+p_value,8.928862e-18
+p_value_repr,np.float64(8.928862392590324e-18)
+degrees_of_freedom,2
+n_records,189
+yates_correction,False
+expected_cells_below_5,0
+suppress_state,seated hand activity
+suppress_conf_threshold,0.7
+post_impact_definition,window t >= argmax(SVM)/50

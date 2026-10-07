@@ -1,0 +1,33 @@
+{
+  "name": "hard_fall_long_lie",
+  "title": "Hard fall, then a long lie",
+  "description": "Walking, a forward slip fall, then 60 s without moving. The motion stream should flag the impact; stillness should stay high.",
+  "simulated": true,
+  "seconds": 96.0,
+  "truth": [
+    {
+      "start": 0.0,
+      "end": 19.82,
+      "label": "D01 walking (U04)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 19.82,
+      "end": 36.04,
+      "label": "F01 forward fall while walking (slip) (U04)",
+      "kind": "fall"
+    },
+    {
+      "start": 36.04,
+      "end": 96.04,
+      "label": "lying still (synthetic)",
+      "kind": "synthetic"
+    }
+  ],
+  "events": [
+    {
+      "t": 24.64,
+      "what": "fall impact (F01)"
+    }
+  ]
+}

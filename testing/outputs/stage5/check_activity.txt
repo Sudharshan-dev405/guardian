@@ -1,0 +1,19 @@
+=== activity: WARN ===
+[PASS] loads        streams.context.ContextStream (model models/context.joblib)
+[PASS] contract     subclass of contract.Stream
+[PASS] own module   imports no other stream
+[PASS] windows      all 10 cases within the rules
+    normal    score      0.0  quality      0.0
+    no_hr     score      0.0  quality      0.0
+    no_gyro   score      0.0  quality      0.0
+    empty     score      0.0  quality      0.0
+    short     score      0.0  quality      0.0
+    nan       score      0.0  quality      0.0
+    huge      score      0.0  quality      0.0
+    hr_high   score      0.0  quality      0.0
+    hr_low    score      0.0  quality      0.0
+    impact    score     0.15  quality 0.453302
+[PASS] damaged in   quality drops for empty, short or NaN windows
+[PASS] long run     241 windows (5 min), 0 broke the rules
+[WARN] speed        79.39 ms per window on average, worst 148.5 ms (pass < 50 ms)
+[PASS] pipeline     extras stored: ['confidence', 'probs', 'state']

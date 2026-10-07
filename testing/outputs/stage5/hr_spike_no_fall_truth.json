@@ -1,0 +1,28 @@
+{
+  "name": "hr_spike_no_fall",
+  "title": "Heart-rate spike while sitting, no fall",
+  "description": "Sitting, opening a door, then sitting quietly while heart rate climbs to 150 bpm. Motion should stay quiet; this is for the physiological stream and fusion.",
+  "simulated": true,
+  "seconds": 94.6,
+  "truth": [
+    {
+      "start": 0.0,
+      "end": 17.86,
+      "label": "D04 sitting on a chair, wait, get up (U22)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 17.86,
+      "end": 34.62,
+      "label": "D11 opening and closing door (U22)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 34.62,
+      "end": 94.62,
+      "label": "sitting quietly (synthetic)",
+      "kind": "synthetic"
+    }
+  ],
+  "events": []
+}

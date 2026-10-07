@@ -1,0 +1,5 @@
+,,threshold,gated_sensitivity,gated_specificity,system_sensitivity,system_false_alarms,false_alarms_per_hour
+umafall_dev_loso,at 0.5,0.5,0.9746,0.8936,0.8519,5,3.5043
+umafall_dev_loso,at 95% spec,0.9146,0.8898,0.9574,0.7778,2,1.4017
+fallalld_select_info,at 0.5,0.5,0.8026,0.361,0.7421,200,39.0297
+fallalld_select_info,at 95% spec,0.9146,0.3777,0.869,0.3492,41,8.0011

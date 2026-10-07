@@ -1,0 +1,23 @@
+Why XGBoost
+
+We picked the model that held up best on data it had never seen. All three top models scored about 0.99 on UMAFall, too close to separate. So we tested them on FallAllD, a dataset recorded by a different lab, with different people and a different sensor. XGBoost came first on the selection half (gated AUC 0.607, against RF 0.593 and SVM 0.530). It also came first when FallAllD was put through UMAFall's 20 Hz path (0.693 vs 0.677 vs 0.626). On top of that it's the fastest of the three, at about 1 ms per segment.
+
+How it works
+
+When the gate fires (a spike above 2.5 g), we take a 3.5 s segment around it and compute 18 features. Examples: how hard the impact was, the free-fall dip before it, the jerk, how fast the wrist rotated, how much the forearm tilt changed, and how still the wrist was afterwards.
+XGBoost builds many small decision trees, one after another. Each new tree concentrates on the segments the earlier trees got wrong. In UMAFall those are mostly hopping, clapping and sitting down hard, which look like falls at the wrist.
+The final score is the sum of all the trees, turned into a probability of fall from 0 to 1.
+Falls are rarer than daily activities, so the model weights them more heavily during training. That stops it from simply learning to say "no fall".
+
+Why it did better than the others
+
+Random Forest builds its trees independently and averages them. That's solid, but it doesn't focus on the hard cases. It came out a close second, slightly behind XGBoost.
+SVM draws one smooth boundary between falls and non-falls. It fitted UMAFall best (0.996) but did worst on FallAllD (0.530): when the feature values shifted on new data, many falls landed on the wrong side of the line.
+CNN and CNN-LSTM had too little data to learn from, since there are only about 600 segments. They caught far fewer falls at a low false-alarm rate, raised 28–40 false alarms per hour, and were the slowest.
+The gate alone catches most falls but also fires on a large share of daily activities: 36 false alarms per hour on UMAFall.
+
+The honest limits
+
+XGBoost's lead over Random Forest is small, 0.014 AUC.
+Every model drops a lot on FallAllD, to around 0.68–0.75.
+At FallAllD's native sampling rate, no model beats the gate alone on gated AUC. That's why Stage 3 adds the 20 Hz step: the models only improve on the gate when the sampling path matches.

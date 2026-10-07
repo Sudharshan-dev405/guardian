@@ -1,27 +1,34 @@
 """
-streams/motion.py -- Guardian motion stream: impact + post-impact stillness.
+streams/motion.py -- Guardian motion stream: impact + post-impact stillness
++ movement tracker.
 
-Two stages, per the design:
-  Stage 1  cheap gate: SVM peak > 2.5 g OR gyro resultant > 200 deg/s.
-  Stage 2  RandomForest over a segment spanning 2.0 s before to 1.5 s after
-           the gate trigger, temperature-scaled to a calibrated 0-1.
-  Post-impact stillness: forearm tilt from a low-passed gravity estimate plus
-           motion variance over the following 10 s.
+  Stage 1  cheap gate: |a| peak > 2.25 g (after the +/-8 g clip and 20 Hz path).
+           The gyro gate is disabled (see GATE_GYRO_DPS).
+  Stage 2  XGBoost over a segment from 2.0 s before to 3.0 s after the gate
+           trigger (trained on WEDA-FALL, Stages 3.5 and 4).
+  Post-impact stillness: forearm tilt plus motion variance over the 10 s
+           after the impact.
+  Movement tracker (Stage 5.8): every window, is the wrist really moving?
+           Gives seconds without real movement and whether the person moved
+           again after an impact. This is what tells a long lie from a
+           recovery; fusion reads it.
 
-  score = 0.6 * impact + 0.4 * stillness
+  score = impact probability (held for 60 s after the trigger, then decays).
+  Stillness and the tracker values are exposed for fusion, not mixed into score.
 
 The wrist is a poor site for impact-based fall detection (Kangas 2008,
 Bagala 2012). This module is one weighted input among four, not a trigger.
 Nothing here is named "lying posture" -- the tilt measured is FOREARM tilt,
 which moves independently of the trunk.
 
-Because the scorer needs 1.5 s of future relative to the trigger, and windows
+Because the scorer needs 3 s of future relative to the trigger, and windows
 arrive every 1.24 s, this stream keeps its own sample ring buffer and latches
 an event once the post-trigger samples have arrived. score() is still pure
 per-window from the caller's point of view.
 
-Exposed for core/explain.py after every score():
-    last_quality, last_impact, last_stillness, gate_open, time_since_impact
+Exposed after every score() (core/pipeline.py stores all last_* values):
+    last_quality, last_impact, last_stillness, gate_open, time_since_impact,
+    last_movement, last_still_s, last_moved_after_impact_s, last_recovered
 
 CLI:
     py -m streams.motion --selftest
@@ -50,14 +57,15 @@ from contract import Stream  # noqa: E402
 # Tunables -- all in one place, all expected to move once real data lands
 # --------------------------------------------------------------------------
 
-GATE_SVM_G = 2.5             # g, wrist literature; retune with --tune
+GATE_SVM_G = 2.25            # g; 2.5 g re-set for the 20 Hz path (stage 3, step 0b)
 GATE_GYRO_DPS = 1e9          # DISABLED after --tune on UMAFall: at the wrist,
                              # ADL angular rates exceed fall rates (ADL p90 443
                              # deg/s vs fall median 282), so no threshold
                              # separates. Gyro still feeds Stage 2 as features.
 
 PRE_SEC = 2.0                # segment start, before the trigger
-POST_SEC = 1.5               # segment end, after the trigger
+POST_SEC = 3.0               # segment end, after the trigger. 1.5 -> 3.0 in Stage 4
+                             # (E3: unseen AUC 0.802 -> 0.818; 5 s overfit to WEDA)
 STILL_SEC = 10.0             # stillness observation span after impact
 MIN_STILL_SEC = 2.0          # before this much has elapsed, stillness is untrusted
 
@@ -65,11 +73,23 @@ EVENT_HOLD_SEC = 60.0        # how long an impact keeps contributing
 EVENT_DECAY_SEC = 30.0       # exponential decay applied after the hold
 REFRACTORY_SEC = 3.0         # ignore re-triggers inside one impact
 
-W_IMPACT, W_STILL = 0.6, 0.4
+# Stream output = impact probability only (decided after the stage 3 test).
+# The hand-set 0.6 impact / 0.4 stillness mix lowered results on both test sets
+# (FallAllD: 56.8% -> 36.5% of falls caught at 95% specificity). Stillness is
+# still computed and exposed as last_stillness, for fusion to weigh.
+W_IMPACT, W_STILL = 1.0, 0.0
 
 STILL_VAR_G2 = 0.01          # SVM variance at or below this reads as still
 HORIZONTAL_DEG = 60.0        # forearm within this of horizontal counts as "at rest low"
-CLIP_G = 15.9                # sensor full scale; fraction clipped drives quality
+# Signal harmonisation (Stage 3, step 0). Every input -- UMAFall, FallAllD and
+# the live band -- is clipped to +/-8 g and pushed through a 20 Hz bottleneck
+# before the gate and the features see it, so training and deployment share
+# one signal path. 20 Hz is UMAFall's native wrist rate; +/-8 g is FallAllD's
+# rail. Measured reason: on FallAllD, the same model scored gated AUC 0.68 on
+# the native 238->50 Hz path and 0.75 on the 238->20->50 Hz path.
+RATE_HZ = 20.0               # set to None to switch the bottleneck off
+ACC_CLIP_G = 8.0
+CLIP_G = ACC_CLIP_G - 0.05   # at or above this counts as clipped (quality)
 BUFFER_SEC = 30.0
 GRAVITY_LP_HZ = 0.5
 
@@ -81,10 +101,68 @@ FEATURE_NAMES = (
     "tilt_change_deg", "tilt_post_mean", "has_gyro",
 )
 
+# Feature sets used for cross-dataset robustness experiments.
+FEATURE_SETS = {
+    "all_18": list(range(18)),
+
+    # Remove absolute forearm orientation.
+    "no_abs_tilt": [
+        0, 1, 2, 3, 4, 5, 6, 7,
+        8, 9, 10, 11, 12, 13, 14, 15, 17
+    ],
+
+    # Remove gyro-dependent features.
+    "no_gyro": [
+        0, 1, 2, 3, 4, 5, 6, 7,
+        12, 13, 14, 15, 16
+    ],
+
+    # Remove jerk features.
+    "no_jerk": [
+        0, 1, 2, 3, 4, 5,
+        8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+    ],
+
+    # Conservative impact/event-shape feature set.
+    "robust_core": [
+        0, 1, 2, 3, 4, 5,
+        12, 13, 14, 15
+    ],
+}
+
 
 # --------------------------------------------------------------------------
 # Segment features
 # --------------------------------------------------------------------------
+
+def _to_rate(x: np.ndarray, fs: float, rate: float) -> np.ndarray:
+    """fs -> rate with an anti-aliased polyphase filter, then linear
+    interpolation back to fs. Same length out as in, so window and segment
+    geometry (and the 50 Hz contract) are untouched."""
+    from fractions import Fraction
+    n = len(x)
+    if n < 16 or rate >= fs:
+        return x
+    fr = Fraction(rate / fs).limit_denominator(100)
+    low = signal.resample_poly(x, fr.numerator, fr.denominator, axis=0)
+    t_low = np.arange(len(low)) / rate
+    t_hi = np.arange(n) / fs
+    return np.column_stack([np.interp(t_hi, t_low, low[:, k])
+                            for k in range(x.shape[1])])
+
+
+def harmonise(acc, gyro, fs: float = 50.0):
+    """Clip the accelerometer to +/-ACC_CLIP_G, then pass both channels
+    through the RATE_HZ bottleneck. Returns (acc, gyro); gyro may be None."""
+    acc = np.clip(np.asarray(acc, dtype=float), -ACC_CLIP_G, ACC_CLIP_G)
+    if RATE_HZ:
+        acc = _to_rate(acc, fs, RATE_HZ)
+    if gyro is not None:
+        gyro = np.asarray(gyro, dtype=float)
+        if RATE_HZ:
+            gyro = _to_rate(gyro, fs, RATE_HZ)
+    return acc, gyro
+
 
 def segment_features(acc: np.ndarray, gyro, fs: float, trig_i: int) -> np.ndarray:
     """Features over one -PRE_SEC..+POST_SEC segment. trig_i is the index of
@@ -147,6 +225,14 @@ def segment_features(acc: np.ndarray, gyro, fs: float, trig_i: int) -> np.ndarra
     ], dtype=np.float64)
     return np.nan_to_num(f, nan=0.0, posinf=0.0, neginf=0.0)
 
+def select_features(X, feature_set="all_18"):
+    """Select a named subset of motion features."""
+    if feature_set not in FEATURE_SETS:
+        raise ValueError(
+            f"Unknown feature set '{feature_set}'. "
+            f"Available: {list(FEATURE_SETS)}"
+        )
+    return np.asarray(X)[:, FEATURE_SETS[feature_set]]
 
 def forearm_tilt(acc: np.ndarray, fs: float) -> np.ndarray:
     """Angle in degrees between the low-passed gravity estimate and the
@@ -197,6 +283,70 @@ def fit_temperature(probs, y_idx):
 # The stream
 # --------------------------------------------------------------------------
 
+# Movement tracker (Stage 5.8). Thresholds are first guesses for a resting
+# wrist; they must be checked on the real band's own data.
+MOVE_STD_G = 0.03            # |a| spread within one 2.5 s window above this = moving
+MOVE_GYRO_DPS = 20.0         # or median rotation above this
+RESET_STILL_SEC = 10.0       # this long without real movement cancels "moved again"
+RECOVER_SEC = 8.0            # this much movement after an impact = moved again.
+                             # 4 s was too close: the faint scenario settled for
+                             # about 4 s after landing. Getting up took 15-30 s.
+
+
+class MovementTracker:
+    """Is the wrist really moving, window by window? Keeps a running count
+    of seconds without real movement, and how much the person has moved
+    since the latest impact (ignoring the first second, the impact itself).
+    "Moved again" means moving now: 10 s of stillness cancels it, so a person
+    who shifts after a fall and then lies still is not counted as recovered."""
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.still_since: float | None = None
+        self.last_end: float | None = None
+        self.impact_t: float | None = None
+        self.moved_after_impact = 0.0
+        self.movement = 0.0
+        self.still_s = 0.0
+
+    def update(self, window, impact_t):
+        acc = np.asarray(window["acc"], dtype=float)
+        fs = float(window.get("fs", 50))
+        t0 = float(window.get("t", 0.0))
+        t_end = t0 + len(acc) / fs
+        spread = float(np.linalg.norm(acc, axis=1).std())
+        g = window.get("gyro")
+        rot = float(np.median(np.linalg.norm(np.asarray(g, dtype=float), axis=1))) \
+            if g is not None and len(g) else 0.0
+        moving = spread > MOVE_STD_G or rot > MOVE_GYRO_DPS
+        dt = len(acc) / fs if self.last_end is None else max(t_end - self.last_end, 0.0)
+        self.last_end = t_end
+
+        self.movement = float(np.clip(spread / 0.3, 0.0, 1.0))
+        if moving:
+            self.still_since = None
+            self.still_s = 0.0
+        else:
+            if self.still_since is None:
+                self.still_since = t0
+            self.still_s = t_end - self.still_since
+
+        if impact_t != self.impact_t:                 # a new impact: start counting again
+            self.impact_t, self.moved_after_impact = impact_t, 0.0
+        if impact_t is not None and moving and t0 > impact_t + 1.0:
+            self.moved_after_impact += dt
+        if not moving and self.still_s >= RESET_STILL_SEC:
+            self.moved_after_impact = 0.0      # moved, then went still again: not recovered
+
+    @property
+    def recovered(self):
+        if self.impact_t is None:
+            return None
+        return self.moved_after_impact >= RECOVER_SEC
+
+
 class MotionStream(Stream):
     """Impact + post-impact stillness. Conforms to contract.Stream."""
 
@@ -204,9 +354,12 @@ class MotionStream(Stream):
         super().__init__()
         self.gate_svm = gate_svm
         self.gate_gyro = gate_gyro
-        self.model: RandomForestClassifier | None = None
+        self.model = None                      # XGBClassifier (Stage 3) or legacy RF
         self.classes_: list = []
-        self.temperature: float = 1.0
+        self.temperature: float = 1.0          # legacy RF calibration; 1.0 = off
+        self.platt: tuple = (1.0, 0.0)         # (a, b); (1, 0) = no correction
+        self.threshold: float | None = None    # alert cut-off on the impact score
+        self.feature_index: list | None = None # subset of FEATURE_NAMES, None = all
 
         self._buf_acc = deque()
         self._buf_gyro = deque()
@@ -218,6 +371,7 @@ class MotionStream(Stream):
         self._trig_t: float | None = None      # wall time of the current trigger
         self._impact: float = 0.0              # latched calibrated impact score
         self._impact_done = False
+        self._held: tuple | None = None        # (impact, t) of a stronger earlier event
 
         self.last_quality = 0.0
         self.last_impact = 0.0
@@ -225,15 +379,26 @@ class MotionStream(Stream):
         self.gate_open = False
         self.time_since_impact: float | None = None
 
-    def reset(self):
+        self._mv = MovementTracker()
+        self.last_movement = 0.0
+        self.last_still_s = 0.0
+        self.last_moved_after_impact_s = 0.0
+        self.last_recovered: bool | None = None
+
+    def reset(self, keep_movement=False):
         self._buf_acc.clear(); self._buf_gyro.clear(); self._buf_t.clear()
         self._last_t = None
         self._trig_t = None
         self._impact = 0.0
         self._impact_done = False
+        self._held = None
         self.last_impact = self.last_stillness = 0.0
         self.time_since_impact = None
         self.gate_open = False
+        if not keep_movement:
+            self._mv.reset()
+            self.last_movement = self.last_still_s = self.last_moved_after_impact_s = 0.0
+            self.last_recovered = None
 
     # -- buffering --------------------------------------------------------
 
@@ -267,8 +432,8 @@ class MotionStream(Stream):
             self._buf_acc.popleft(); self._buf_gyro.popleft(); self._buf_t.popleft()
 
     def _arrays(self):
-        return (np.asarray(self._buf_acc), np.asarray(self._buf_gyro),
-                np.asarray(self._buf_t))
+        acc, gyro = harmonise(np.asarray(self._buf_acc), np.asarray(self._buf_gyro), self._fs)
+        return acc, gyro, np.asarray(self._buf_t)
 
     # -- stage 1 ----------------------------------------------------------
 
@@ -310,10 +475,25 @@ class MotionStream(Stream):
             # through last_quality.
             pk = float(np.linalg.norm(seg_a, axis=1).max())
             return float(np.clip((pk - self.gate_svm) / 4.0, 0.0, 1.0)), False
-        p = self.model.predict_proba(f)
-        p = _softmax(np.log(np.clip(p, 1e-8, 1.0)) / self.temperature)[0]
-        fall_i = list(self.classes_).index(1) if 1 in list(self.classes_) else -1
-        return float(p[fall_i]) if fall_i >= 0 else 0.0, True
+        return self.impact_probability(f)[0], True
+
+    def impact_probability(self, F) -> np.ndarray:
+        """Calibrated P(fall) for rows of segment features (all 18 columns)."""
+        F = np.atleast_2d(np.asarray(F, dtype=float))
+        if self.feature_index is not None:
+            F = F[:, self.feature_index]
+        p = self.model.predict_proba(F)
+        if self.temperature != 1.0:                     # legacy RF path
+            p = _softmax(np.log(np.clip(p, 1e-8, 1.0)) / self.temperature)
+        classes = list(self.classes_)
+        if 1 not in classes:
+            return np.zeros(len(F))
+        p = p[:, classes.index(1)]
+        a, b = self.platt
+        if (a, b) != (1.0, 0.0):
+            z = np.log(np.clip(p, 1e-6, 1 - 1e-6) / np.clip(1 - p, 1e-6, 1.0))
+            p = 1.0 / (1.0 + np.exp(-(a * z + b)))
+        return np.clip(p, 0.0, 1.0)
 
     # -- stillness --------------------------------------------------------
 
@@ -338,6 +518,16 @@ class MotionStream(Stream):
     # -- contract ---------------------------------------------------------
 
     def score(self, window: dict) -> float:
+        out = self._score(window)
+        # Gaps are gaps (contract.py): missing samples lower quality.
+        acc_in = window.get("acc")
+        if acc_in is not None and len(acc_in):
+            bad = float(np.mean(~np.isfinite(np.asarray(acc_in, dtype=float))))
+            if bad > 0:
+                self.last_quality = float(self.last_quality * (1.0 - bad))
+        return out
+
+    def _score(self, window: dict) -> float:
         try:
             acc_in = window.get("acc")
             if acc_in is None or len(acc_in) == 0:
@@ -352,10 +542,29 @@ class MotionStream(Stream):
 
             i_trig = self._check_gate(acc, gyro, t)
             if i_trig is not None:
+                # A later, weaker knock (the arm bouncing after a fall, a hand
+                # on the floor) must not replace a stronger impact still in its
+                # hold period. Keep the stronger one aside (Stage 5 fix).
+                if (self._trig_t is not None and self._impact_done
+                        and now - self._trig_t <= EVENT_HOLD_SEC
+                        and (self._held is None or self._impact > self._held[0])):
+                    self._held = (self._impact, self._trig_t)
                 self._trig_t = float(t[i_trig])
                 self._impact = 0.0
                 self._impact_done = False
                 self.gate_open = True
+
+            if self._held is not None and now - self._held[1] > EVENT_HOLD_SEC:
+                # Weaker knocks inside the strong event's hold were part of the
+                # same incident: let the strong event decay, not the knock.
+                if self._impact_done and self._held[0] >= self._impact:
+                    self._impact, self._trig_t = self._held
+                self._held = None
+            self._mv.update(window, self._event()[1])
+            self.last_movement = self._mv.movement
+            self.last_still_s = round(self._mv.still_s, 2)
+            self.last_moved_after_impact_s = round(self._mv.moved_after_impact, 2)
+            self.last_recovered = self._mv.recovered
 
             calibrated = self.model is not None
             if self._trig_t is not None and not self._impact_done:
@@ -372,22 +581,23 @@ class MotionStream(Stream):
                 self.last_quality = self._quality(acc, calibrated, 1.0)
                 return 0.0
 
-            age = now - self._trig_t
+            ev_impact, ev_t = self._event()
+            age = now - ev_t
             self.time_since_impact = age
             if age > EVENT_HOLD_SEC:
                 decay = float(np.exp(-(age - EVENT_HOLD_SEC) / EVENT_DECAY_SEC))
                 if decay < 0.02:
-                    self.reset()
+                    self.reset(keep_movement=True)
                     self.last_quality = self._quality(acc, calibrated, 1.0)
                     return 0.0
             else:
                 decay = 1.0
 
             still, still_conf = self._stillness(acc, t)
-            self.last_impact = float(self._impact)
+            self.last_impact = float(ev_impact)
             self.last_stillness = float(still)
 
-            raw = W_IMPACT * self._impact + W_STILL * still
+            raw = W_IMPACT * ev_impact + W_STILL * still
             out = float(np.clip(raw * decay, 0.0, 1.0))
             self.last_quality = self._quality(acc, calibrated,
                                               0.5 + 0.5 * still_conf)
@@ -398,6 +608,13 @@ class MotionStream(Stream):
             self.last_quality = 0.0
             self.last_impact = self.last_stillness = 0.0
             return 0.0
+
+    def _event(self):
+        """(impact, trigger time) of the event that counts: the held stronger
+        one while the newest is still being scored or is weaker, else the newest."""
+        if self._held is not None and (not self._impact_done or self._held[0] >= self._impact):
+            return self._held
+        return self._impact, self._trig_t
 
     def _quality(self, acc, calibrated, completeness):
         """Quality falls for: an uncalibrated model, a missing gyroscope, a
@@ -442,7 +659,10 @@ class MotionStream(Stream):
         path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
         joblib.dump({"model": self.model, "classes": self.classes_,
                      "temperature": self.temperature,
-                     "gate_svm": self.gate_svm, "gate_gyro": self.gate_gyro}, path)
+                     "gate_svm": self.gate_svm, "gate_gyro": self.gate_gyro,
+                     "platt": tuple(self.platt), "threshold": self.threshold,
+                     "feature_index": self.feature_index,
+                     "config": getattr(self, "config", None)}, path)
         return path
 
     @classmethod
@@ -450,7 +670,11 @@ class MotionStream(Stream):
         import joblib
         d = joblib.load(path)
         s = cls(gate_svm=d["gate_svm"], gate_gyro=d["gate_gyro"])
-        s.model = d["model"]; s.classes_ = d["classes"]; s.temperature = d["temperature"]
+        s.model = d["model"]; s.classes_ = d["classes"]; s.temperature = d.get("temperature", 1.0)
+        s.platt = tuple(d.get("platt", (1.0, 0.0)))
+        s.threshold = d.get("threshold")
+        s.feature_index = d.get("feature_index")
+        s.config = d.get("config")
         return s
 
 
@@ -464,8 +688,7 @@ def segments_from_record(rec, gate_svm=GATE_SVM_G, gate_gyro=GATE_GYRO_DPS):
     and keep it as a hard negative -- otherwise the classifier only ever sees
     the ADLs that already look violent."""
     fs = 50.0
-    acc = np.asarray(rec.acc, dtype=float)
-    gyro = np.asarray(rec.gyro, dtype=float) if rec.gyro is not None else None
+    acc, gyro = harmonise(rec.acc, rec.gyro, fs)
     n = len(acc)
     pre_n, post_n = int(PRE_SEC * fs), int(POST_SEC * fs)
     if n < pre_n + post_n + 2:
@@ -499,6 +722,65 @@ def _collect(root):
             X.append(f); y.append(lab); g.append(subj); gated.append(hit)
     return np.asarray(X), np.asarray(y), np.asarray(g), np.asarray(gated)
 
+def _ablation(root):
+    """Train UMAFall-only models with different feature subsets and
+    report LOSO AUC. This is an experiment only; it does not overwrite
+    the production model.
+    """
+    from sklearn.model_selection import LeaveOneGroupOut
+
+    X, y, g, gated = _collect(root)
+
+    if len(X) == 0:
+        print("No segments.")
+        return
+
+    print("\n" + "=" * 74)
+    print("MOTION FEATURE ABLATION -- UMAFall LOSO")
+    print("=" * 74)
+    print(f"{len(X)} segments  falls={int(y.sum())}  "
+          f"ADLs={int((1-y).sum())}")
+    print()
+
+    results = []
+
+    for name, indices in FEATURE_SETS.items():
+        XX = X[:, indices]
+        oof = np.full(len(y), np.nan)
+
+        for tr, te in LeaveOneGroupOut().split(XX, y, groups=g):
+            if len(np.unique(y[tr])) < 2:
+                continue
+
+            m = RandomForestClassifier(
+                n_estimators=400,
+                min_samples_leaf=2,
+                class_weight="balanced_subsample",
+                n_jobs=-1,
+                random_state=0,
+            )
+
+            m.fit(XX[tr], y[tr])
+            fall_i = list(m.classes_).index(1)
+            oof[te] = m.predict_proba(XX[te])[:, fall_i]
+
+        mask = ~np.isnan(oof) & gated
+
+        if mask.sum() >= 10 and len(np.unique(y[mask])) == 2:
+            auc = roc_auc_score(y[mask], oof[mask])
+        else:
+            auc = float("nan")
+
+        results.append((name, len(indices), auc))
+        print(f"{name:<16} features={len(indices):2d}  "
+              f"gate-conditional AUC={auc:.3f}")
+
+    print("\n--- ranking ---")
+    for name, n, auc in sorted(
+        results,
+        key=lambda x: -x[2] if not np.isnan(x[2]) else -999
+    ):
+        print(f"{name:<16} {auc:.3f}")
 
 def _train(root, out):
     from sklearn.model_selection import LeaveOneGroupOut
@@ -595,9 +877,10 @@ def _tune(root):
                   f"{np.mean(f>t)*100:.0f}% falls, {np.mean(a>t)*100:.0f}% ADLs")
 
 
-def _selftest():
+def _selftest(model_path=None):
     """Synthetic fall and ADL fixtures pushed through as a window stream.
-    Machinery test only; never used as project data."""
+    Machinery test only; never used as project data. With model_path, the
+    saved model is loaded and used for the impact score."""
     fs, rng = 50, np.random.default_rng(0)
 
     def stream(kind, secs=25.0):
@@ -624,8 +907,13 @@ def _selftest():
                    "gyro": gyro[s:s+125].astype(np.float32),
                    "hr": None, "temp": None, "fs": fs}
 
+    make = (lambda: MotionStream.load(model_path)) if model_path else MotionStream
+    if model_path:
+        m0 = make()
+        print(f"loaded {model_path}: {type(m0.model).__name__}, gate {m0.gate_svm} g, "
+              f"platt {m0.platt}, threshold {m0.threshold}")
     for kind in ("fall", "hand"):
-        ms = MotionStream()
+        ms = make()
         peak, at_t, fired = 0.0, 0.0, False
         for w in stream(kind):
             s = ms.score(w)
@@ -640,7 +928,7 @@ def _selftest():
               f"q={ms.last_quality:.2f}")
 
     # A quiet stream must never trigger.
-    ms = MotionStream()
+    ms = make()
     quiet = 0.0
     for w in stream("quiet"):
         quiet = max(quiet, ms.score(w))
@@ -665,13 +953,20 @@ def main(argv=None):
     ap.add_argument("--out", default="models/motion.joblib")
     ap.add_argument("--tune", metavar="DIR")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--ablation", metavar="DIR")
+    ap.add_argument("--model", metavar="FILE", help="with --selftest: use this saved model")
     a = ap.parse_args(argv)
     if a.train:
-        _train(a.train, a.out)
+        # The old --train fitted a RandomForest on EVERY subject, including the
+        # held-out test subjects. The production model is now built by
+        # testing/stage3.py from the UMAFall dev subjects only.
+        print("Use: py -m testing.stage3 build   (trains on UMAFall dev subjects only)")
+    elif a.ablation:
+        _ablation(a.ablation)
     elif a.tune:
         _tune(a.tune)
     elif a.selftest:
-        _selftest()
+        _selftest(a.model)
     else:
         ap.print_help()
 

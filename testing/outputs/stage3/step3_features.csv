@@ -1,0 +1,6 @@
+feature_set,n_features,train_auc_gated,train_logloss,uma_loso_auc_gated,uma_loso_auc_all,fa_select_auc_gated,fa_select_auc_all
+all_18,18,0.9998,0.0308,0.9854,0.9946,0.6609,0.8379
+no_abs_tilt,17,0.9995,0.0332,0.9836,0.9943,0.6543,0.832
+no_gyro,13,1.0,0.0396,0.9885,0.9909,0.641,0.82
+no_jerk,16,0.9998,0.033,0.9827,0.9929,0.6411,0.8208
+robust_core,10,1.0,0.0449,0.9868,0.9883,0.6395,0.8177

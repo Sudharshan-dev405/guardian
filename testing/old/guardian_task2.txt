@@ -1,0 +1,608 @@
+### UMAFALL MAPPING 
+| Dataset activity (match) | Guardian state | Rationale |
+|---|---|---|
+| `*walking*` | ambulating | level gait, 1.4-2.3 Hz cadence |
+| `*jogging*` | ambulating | gait, higher cadence; merged per HAR70+ practice |
+| `*godownstairs*` | ambulating | stairs share the walking cadence band; merging makes the known confusion intra-class |
+| `*goupstairs*` | ambulating | as above |
+| `*hopping*` | ambulating | whole-body periodic locomotion; not a fall, must not read as impact |
+| `*sitting*` | stationary | trunk static; sit/stand differ only by a tilt a free wrist destroys, so both are 'stationary' |
+| `*standing*` | stationary | as above |
+| `*bending*` | stationary | postural transition with a static base of support |
+| `*aplausing*` | seated hand activity | hand motion, body static -- the class exists to suppress hand impacts |
+| `*clapping*` | seated hand activity | as above |
+| `*makingacall*` | seated hand activity | hand raised to head, body static |
+| `*handsup*` | seated hand activity | large forearm excursion, body static |
+| `*openingdoor*` | seated hand activity | JUDGEMENT CALL: subject is standing, not seated. Class is operationally 'hand activity with a static body'; the name is kept for team consistency |
+| `*lying*` | lying/immobile | trunk horizontal and still |
+| `*fall*`, `*trip*`, `*slip*` | (excluded from context training) | falls are transitions, not activity states; they train the motion stream instead |
+### FALLALLD MAPPING 
+| FallAllD activity | ID | Guardian state | Rationale |
+|---|---|---|---|
+| walking slowly | A001 | ambulating | level gait, slow |
+| walking quickly | A002 | ambulating | level gait, fast |
+| jogging slowly | A003 | ambulating | jogging; merged into ambulating per HAR70+ practice |
+| jogging quickly | A004 | ambulating | as above |
+| climbing stairs up slowly | A005 | ambulating | stairs share the walking cadence band; merged so the known confusion is intra-class |
+| climbing stairs up quickly | A006 | ambulating | as above |
+| climbing stairs down slowly | A007 | ambulating | as above |
+| climbing stairs down quickly | A008 | ambulating | as above |
+| clapping hands | A009 | seated hand activity | hand motion, body static |
+| waving hands | A010 | seated hand activity | hand motion, body static |
+| hand shaking | A011 | seated hand activity | hand motion, body static |
+| lying down on a bed | A015 | lying/immobile | on a bed, trunk horizontal |
+| changing position while lying | A017 | lying/immobile | still lying, only repositioning |
+| jumping slightly | A019 | ambulating | whole-body periodic motion; must not read as impact |
+| jumping strongly | A020 | ambulating | as above |
+| clap hands one time | A022 | seated hand activity | single hand impact, body static |
+| raising hand up | A023 | seated hand activity | forearm excursion, body static |
+| moving hand down | A024 | seated hand activity | forearm excursion, body static |
+| moving hand up then down immediately | A025 | seated hand activity | forearm excursion, body static |
+| beating a table with your hand | A026 | seated hand activity | HARD hand impact with a static body -- the false-alarm-suppression case UMAFall lacks entirely |
+| standing in a moving bus/metro | A043 | stationary | standing, vehicle vibration only |
+| sitting in a moving bus/metro | A044 | stationary | seated, vehicle vibration only |
+| all fall types | A101-A135 | (excluded from context training) | falls are transitions, not activity states |
+
+Deliberately unmapped, with reasons:
+
+| FallAllD activity | ID | Why not mapped |
+|---|---|---|
+| sitting down (low/high chair) | A012 | sitting down -- a transition between two states, not a state |
+| standing up (low/high chair) | A013 | standing up -- transition |
+| fail to stand up after half standing | A014 | fail to stand up -- transition, and the paper notes it is arguably a fall |
+| rising up from a bed | A016 | rising from a bed -- transition |
+| stumbling while walking without falling | A018 | stumbling -- transition, and a known false-alarm source |
+| bending down | A021 | bending down -- transition |
+| start walking | A027 | start walking -- transient phase of a cyclic ADL |
+| stop walking | A028 | stop walking -- transient phase |
+| start jogging | A029 | start jogging -- transient phase |
+| stop jogging | A030 | stop jogging -- transient phase |
+| start clapping hands | A031 | start clapping -- transient phase |
+| stop clapping hands | A032 | stop clapping -- transient phase |
+| start waving hands | A033 | start waving -- transient phase |
+| stop waving hands | A034 | stop waving -- transient phase |
+| start climbing stairs up | A035 | start stairs up -- transient phase |
+| stop climbing stairs up | A036 | stop stairs up -- transient phase |
+| start climbing stairs down | A037 | start stairs down -- transient phase |
+| stop climbing stairs down | A038 | stop stairs down -- transient phase |
+| lift ascending start | A039 | lift ascending start -- transient, and vertical acceleration is lift motion |
+| lift ascending stop | A040 | lift ascending stop -- transient |
+| lift descending start | A041 | lift descending start -- transient |
+| lift descending stop | A042 | lift descending stop -- transient |
+### UMAFALL SCAN 
+[skip] UMAFall_Subject_09_ADL_Bending_1_2016-06-04_21-22-51.csv: UMAFall_Subject_09_ADL_Bending_1_2016-06-04_21-22-51.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Bending_2_2016-06-04_21-23-35.csv: UMAFall_Subject_09_ADL_Bending_2_2016-06-04_21-23-35.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Bending_3_2016-06-04_21-24-21.csv: UMAFall_Subject_09_ADL_Bending_3_2016-06-04_21-24-21.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_GoDownstairs_1_2016-06-04_21-37-43.csv: UMAFall_Subject_09_ADL_GoDownstairs_1_2016-06-04_21-37-43.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_GoDownstairs_2_2016-06-04_21-39-11.csv: UMAFall_Subject_09_ADL_GoDownstairs_2_2016-06-04_21-39-11.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_GoDownstairs_3_2016-06-04_21-40-44.csv: UMAFall_Subject_09_ADL_GoDownstairs_3_2016-06-04_21-40-44.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_GoUpstairs_1_2016-06-04_21-37-00.csv: UMAFall_Subject_09_ADL_GoUpstairs_1_2016-06-04_21-37-00.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_GoUpstairs_2_2016-06-04_21-38-28.csv: UMAFall_Subject_09_ADL_GoUpstairs_2_2016-06-04_21-38-28.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_GoUpstairs_3_2016-06-04_21-40-02.csv: UMAFall_Subject_09_ADL_GoUpstairs_3_2016-06-04_21-40-02.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Hopping_1_2016-06-04_21-27-40.csv: UMAFall_Subject_09_ADL_Hopping_1_2016-06-04_21-27-40.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Hopping_2_2016-06-04_21-28-22.csv: UMAFall_Subject_09_ADL_Hopping_2_2016-06-04_21-28-22.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Hopping_3_2016-06-04_21-29-05.csv: UMAFall_Subject_09_ADL_Hopping_3_2016-06-04_21-29-05.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_LyingDown_OnABed_1_2016-06-04_21-33-01.csv: UMAFall_Subject_09_ADL_LyingDown_OnABed_1_2016-06-04_21-33-01.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_LyingDown_OnABed_1_2016-06-04_21-33-51.csv: UMAFall_Subject_09_ADL_LyingDown_OnABed_1_2016-06-04_21-33-51.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_LyingDown_OnABed_2_2016-06-04_21-34-37.csv: UMAFall_Subject_09_ADL_LyingDown_OnABed_2_2016-06-04_21-34-37.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_LyingDown_OnABed_3_2016-06-04_21-35-19.csv: UMAFall_Subject_09_ADL_LyingDown_OnABed_3_2016-06-04_21-35-19.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Sitting_GettingUpOnAChair_1_2016-06-04_21-30-12.csv: UMAFall_Subject_09_ADL_Sitting_GettingUpOnAChair_1_2016-06-04_21-30-12.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Sitting_GettingUpOnAChair_2_2016-06-04_21-30-54.csv: UMAFall_Subject_09_ADL_Sitting_GettingUpOnAChair_2_2016-06-04_21-30-54.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Sitting_GettingUpOnAChair_3_2016-06-04_21-31-38.csv: UMAFall_Subject_09_ADL_Sitting_GettingUpOnAChair_3_2016-06-04_21-31-38.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Walking_1_2016-06-04_21-25-18.csv: UMAFall_Subject_09_ADL_Walking_1_2016-06-04_21-25-18.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Walking_2_2016-06-04_21-26-01.csv: UMAFall_Subject_09_ADL_Walking_2_2016-06-04_21-26-01.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_09_ADL_Walking_3_2016-06-04_21-26-43.csv: UMAFall_Subject_09_ADL_Walking_3_2016-06-04_21-26-43.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_GoDownstairs_2_2016-06-06_15-56-28.csv: UMAFall_Subject_10_ADL_GoDownstairs_2_2016-06-06_15-56-28.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_GoDownstairs_3_2016-06-06_15-55-32.csv: UMAFall_Subject_10_ADL_GoDownstairs_3_2016-06-06_15-55-32.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_GoUpstairs_1_2016-06-06_15-51-45.csv: UMAFall_Subject_10_ADL_GoUpstairs_1_2016-06-06_15-51-45.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_GoUpstairs_2_2016-06-06_15-54-38.csv: UMAFall_Subject_10_ADL_GoUpstairs_2_2016-06-06_15-54-38.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Hopping_1_2016-06-06_15-44-04.csv: UMAFall_Subject_10_ADL_Hopping_1_2016-06-06_15-44-04.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Hopping_2_2016-06-06_15-45-10.csv: UMAFall_Subject_10_ADL_Hopping_2_2016-06-06_15-45-10.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Hopping_3_2016-06-06_15-45-51.csv: UMAFall_Subject_10_ADL_Hopping_3_2016-06-06_15-45-51.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_LyingDown_OnABed_1_2016-06-06_15-49-27.csv: UMAFall_Subject_10_ADL_LyingDown_OnABed_1_2016-06-06_15-49-27.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_LyingDown_OnABed_2_2016-06-06_15-50-08.csv: UMAFall_Subject_10_ADL_LyingDown_OnABed_2_2016-06-06_15-50-08.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_LyingDown_OnABed_3_2016-06-06_15-50-57.csv: UMAFall_Subject_10_ADL_LyingDown_OnABed_3_2016-06-06_15-50-57.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Sitting_GettingUpOnAChair_1_2016-06-06_15-46-48.csv: UMAFall_Subject_10_ADL_Sitting_GettingUpOnAChair_1_2016-06-06_15-46-48.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Sitting_GettingUpOnAChair_2_2016-06-06_15-47-27.csv: UMAFall_Subject_10_ADL_Sitting_GettingUpOnAChair_2_2016-06-06_15-47-27.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Sitting_GettingUpOnAChair_3_2016-06-06_15-48-07.csv: UMAFall_Subject_10_ADL_Sitting_GettingUpOnAChair_3_2016-06-06_15-48-07.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Walking_1_2016-06-06_15-41-15.csv: UMAFall_Subject_10_ADL_Walking_1_2016-06-06_15-41-15.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Walking_2_2016-06-06_15-42-00.csv: UMAFall_Subject_10_ADL_Walking_2_2016-06-06_15-42-00.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_10_ADL_Walking_3_2016-06-06_15-42-40.csv: UMAFall_Subject_10_ADL_Walking_3_2016-06-06_15-42-40.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Bending_1_2016-06-04_21-46-33.csv: UMAFall_Subject_12_ADL_Bending_1_2016-06-04_21-46-33.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Bending_2_2016-06-04_21-47-14.csv: UMAFall_Subject_12_ADL_Bending_2_2016-06-04_21-47-14.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Bending_3_2016-06-04_21-47-59.csv: UMAFall_Subject_12_ADL_Bending_3_2016-06-04_21-47-59.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_GoDownstairs_1_2016-06-04_21-58-55.csv: UMAFall_Subject_12_ADL_GoDownstairs_1_2016-06-04_21-58-55.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_GoDownstairs_2_2016-06-04_22-00-26.csv: UMAFall_Subject_12_ADL_GoDownstairs_2_2016-06-04_22-00-26.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_GoDownstairs_3_2016-06-04_22-03-08.csv: UMAFall_Subject_12_ADL_GoDownstairs_3_2016-06-04_22-03-08.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_GoUpstairs_1_2016-06-04_21-58-03.csv: UMAFall_Subject_12_ADL_GoUpstairs_1_2016-06-04_21-58-03.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_GoUpstairs_2_2016-06-04_21-59-39.csv: UMAFall_Subject_12_ADL_GoUpstairs_2_2016-06-04_21-59-39.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_GoUpstairs_3_2016-06-04_22-01-10.csv: UMAFall_Subject_12_ADL_GoUpstairs_3_2016-06-04_22-01-10.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Hopping_1_2016-06-04_21-51-07.csv: UMAFall_Subject_12_ADL_Hopping_1_2016-06-04_21-51-07.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Hopping_2_2016-06-04_21-51-50.csv: UMAFall_Subject_12_ADL_Hopping_2_2016-06-04_21-51-50.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Hopping_3_2016-06-04_21-52-31.csv: UMAFall_Subject_12_ADL_Hopping_3_2016-06-04_21-52-31.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_LyingDown_OnABed_1_2016-06-04_21-55-40.csv: UMAFall_Subject_12_ADL_LyingDown_OnABed_1_2016-06-04_21-55-40.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_LyingDown_OnABed_2_2016-06-04_21-56-25.csv: UMAFall_Subject_12_ADL_LyingDown_OnABed_2_2016-06-04_21-56-25.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_LyingDown_OnABed_3_2016-06-04_21-57-06.csv: UMAFall_Subject_12_ADL_LyingDown_OnABed_3_2016-06-04_21-57-06.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Sitting_GettingUpOnAChair_1_2016-06-04_21-53-16.csv: UMAFall_Subject_12_ADL_Sitting_GettingUpOnAChair_1_2016-06-04_21-53-16.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Sitting_GettingUpOnAChair_2_2016-06-04_21-53-58.csv: UMAFall_Subject_12_ADL_Sitting_GettingUpOnAChair_2_2016-06-04_21-53-58.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Sitting_GettingUpOnAChair_3_2016-06-04_21-54-42.csv: UMAFall_Subject_12_ADL_Sitting_GettingUpOnAChair_3_2016-06-04_21-54-42.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Walking_1_2016-06-04_21-48-44.csv: UMAFall_Subject_12_ADL_Walking_1_2016-06-04_21-48-44.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Walking_2_2016-06-04_21-49-28.csv: UMAFall_Subject_12_ADL_Walking_2_2016-06-04_21-49-28.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_12_ADL_Walking_3_2016-06-04_21-50-10.csv: UMAFall_Subject_12_ADL_Walking_3_2016-06-04_21-50-10.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Bending_1_2016-06-06_16-37-56.csv: UMAFall_Subject_13_ADL_Bending_1_2016-06-06_16-37-56.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Bending_1_2016-06-06_16-39-22.csv: UMAFall_Subject_13_ADL_Bending_1_2016-06-06_16-39-22.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Bending_2_2016-06-06_16-40-04.csv: UMAFall_Subject_13_ADL_Bending_2_2016-06-06_16-40-04.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Bending_3_2016-06-06_16-40-45.csv: UMAFall_Subject_13_ADL_Bending_3_2016-06-06_16-40-45.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_GoDownstairs_1_2016-06-06_16-53-44.csv: UMAFall_Subject_13_ADL_GoDownstairs_1_2016-06-06_16-53-44.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_GoDownstairs_2_2016-06-06_16-54-33.csv: UMAFall_Subject_13_ADL_GoDownstairs_2_2016-06-06_16-54-33.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_GoUpstairs_1_2016-06-06_16-51-39.csv: UMAFall_Subject_13_ADL_GoUpstairs_1_2016-06-06_16-51-39.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_GoUpstairs_2_2016-06-06_16-52-19.csv: UMAFall_Subject_13_ADL_GoUpstairs_2_2016-06-06_16-52-19.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Hopping_1_2016-06-06_16-44-15.csv: UMAFall_Subject_13_ADL_Hopping_1_2016-06-06_16-44-15.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Hopping_3_2016-06-06_16-45-44.csv: UMAFall_Subject_13_ADL_Hopping_3_2016-06-06_16-45-44.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Hopping_5_2016-06-06_16-44-57.csv: UMAFall_Subject_13_ADL_Hopping_5_2016-06-06_16-44-57.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_LyingDown_OnABed_2_2016-06-06_16-50-01.csv: UMAFall_Subject_13_ADL_LyingDown_OnABed_2_2016-06-06_16-50-01.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_LyingDown_OnABed_3_2016-06-06_16-50-42.csv: UMAFall_Subject_13_ADL_LyingDown_OnABed_3_2016-06-06_16-50-42.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_LyingDown_OnABed_4_2016-06-06_16-49-04.csv: UMAFall_Subject_13_ADL_LyingDown_OnABed_4_2016-06-06_16-49-04.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Sitting_GettingUpOnAChair_1_2016-06-06_16-46-30.csv: UMAFall_Subject_13_ADL_Sitting_GettingUpOnAChair_1_2016-06-06_16-46-30.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Sitting_GettingUpOnAChair_2_2016-06-06_16-47-17.csv: UMAFall_Subject_13_ADL_Sitting_GettingUpOnAChair_2_2016-06-06_16-47-17.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Sitting_GettingUpOnAChair_3_2016-06-06_16-48-02.csv: UMAFall_Subject_13_ADL_Sitting_GettingUpOnAChair_3_2016-06-06_16-48-02.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Walking_1_2016-06-06_16-41-26.csv: UMAFall_Subject_13_ADL_Walking_1_2016-06-06_16-41-26.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Walking_2_2016-06-06_16-42-06.csv: UMAFall_Subject_13_ADL_Walking_2_2016-06-06_16-42-06.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_13_ADL_Walking_3_2016-06-06_16-43-29.csv: UMAFall_Subject_13_ADL_Walking_3_2016-06-06_16-43-29.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_17_Fall_lateralFall_1_2016-06-17_19-23-15.csv: UMAFall_Subject_17_Fall_lateralFall_1_2016-06-17_19-23-15.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoDownstairs_1_2016-06-06_15-29-24.csv: UMAFall_Subject_18_ADL_GoDownstairs_1_2016-06-06_15-29-24.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoDownstairs_2_2016-06-06_15-30-13.csv: UMAFall_Subject_18_ADL_GoDownstairs_2_2016-06-06_15-30-13.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoDownstairs_3_2016-06-06_15-33-22.csv: UMAFall_Subject_18_ADL_GoDownstairs_3_2016-06-06_15-33-22.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoDownstairs_4_2016-06-06_15-34-05.csv: UMAFall_Subject_18_ADL_GoDownstairs_4_2016-06-06_15-34-05.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoDownstairs_5_2016-06-06_15-37-43.csv: UMAFall_Subject_18_ADL_GoDownstairs_5_2016-06-06_15-37-43.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoDownstairs_6_2016-06-06_15-38-30.csv: UMAFall_Subject_18_ADL_GoDownstairs_6_2016-06-06_15-38-30.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoUpstairs_1_2016-06-06_15-31-14.csv: UMAFall_Subject_18_ADL_GoUpstairs_1_2016-06-06_15-31-14.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoUpstairs_2_2016-06-06_15-31-57.csv: UMAFall_Subject_18_ADL_GoUpstairs_2_2016-06-06_15-31-57.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoUpstairs_2_2016-06-06_15-32-40.csv: UMAFall_Subject_18_ADL_GoUpstairs_2_2016-06-06_15-32-40.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoUpstairs_3_2016-06-06_15-34-49.csv: UMAFall_Subject_18_ADL_GoUpstairs_3_2016-06-06_15-34-49.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoUpstairs_4_2016-06-06_15-35-31.csv: UMAFall_Subject_18_ADL_GoUpstairs_4_2016-06-06_15-35-31.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoUpstairs_5_2016-06-06_15-36-18.csv: UMAFall_Subject_18_ADL_GoUpstairs_5_2016-06-06_15-36-18.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_18_ADL_GoUpstairs_6_2016-06-06_15-36-59.csv: UMAFall_Subject_18_ADL_GoUpstairs_6_2016-06-06_15-36-59.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Bending_1_2016-06-07_21-03-36.csv: UMAFall_Subject_19_ADL_Bending_1_2016-06-07_21-03-36.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Bending_2_2016-06-07_21-04-19.csv: UMAFall_Subject_19_ADL_Bending_2_2016-06-07_21-04-19.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Bending_3_2016-06-07_21-05-02.csv: UMAFall_Subject_19_ADL_Bending_3_2016-06-07_21-05-02.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Hopping_1_2016-06-07_21-17-08.csv: UMAFall_Subject_19_ADL_Hopping_1_2016-06-07_21-17-08.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Hopping_2_2016-06-07_21-17-53.csv: UMAFall_Subject_19_ADL_Hopping_2_2016-06-07_21-17-53.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Hopping_3_2016-06-07_21-18-38.csv: UMAFall_Subject_19_ADL_Hopping_3_2016-06-07_21-18-38.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Jogging_1_2016-06-07_21-19-28.csv: UMAFall_Subject_19_ADL_Jogging_1_2016-06-07_21-19-28.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Jogging_2_2016-06-07_21-20-09.csv: UMAFall_Subject_19_ADL_Jogging_2_2016-06-07_21-20-09.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Jogging_3_2016-06-07_21-20-50.csv: UMAFall_Subject_19_ADL_Jogging_3_2016-06-07_21-20-50.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_LyingDown_OnABed_1_2016-06-07_21-12-56.csv: UMAFall_Subject_19_ADL_LyingDown_OnABed_1_2016-06-07_21-12-56.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_LyingDown_OnABed_2_2016-06-07_21-13-42.csv: UMAFall_Subject_19_ADL_LyingDown_OnABed_2_2016-06-07_21-13-42.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_LyingDown_OnABed_3_2016-06-07_21-14-24.csv: UMAFall_Subject_19_ADL_LyingDown_OnABed_3_2016-06-07_21-14-24.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Sitting_GettingUpOnAChair_1_2016-06-07_21-09-20.csv: UMAFall_Subject_19_ADL_Sitting_GettingUpOnAChair_1_2016-06-07_21-09-20.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Sitting_GettingUpOnAChair_2_2016-06-07_21-10-27.csv: UMAFall_Subject_19_ADL_Sitting_GettingUpOnAChair_2_2016-06-07_21-10-27.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Sitting_GettingUpOnAChair_3_2016-06-07_21-11-18.csv: UMAFall_Subject_19_ADL_Sitting_GettingUpOnAChair_3_2016-06-07_21-11-18.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Walking_1_2016-06-07_21-05-57.csv: UMAFall_Subject_19_ADL_Walking_1_2016-06-07_21-05-57.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Walking_2_2016-06-07_21-06-55.csv: UMAFall_Subject_19_ADL_Walking_2_2016-06-07_21-06-55.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_ADL_Walking_3_2016-06-07_21-07-41.csv: UMAFall_Subject_19_ADL_Walking_3_2016-06-07_21-07-41.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_backwardFall_1_2016-06-07_21-29-26.csv: UMAFall_Subject_19_Fall_backwardFall_1_2016-06-07_21-29-26.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_backwardFall_2_2016-06-07_21-30-07.csv: UMAFall_Subject_19_Fall_backwardFall_2_2016-06-07_21-30-07.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_backwardFall_3_2016-06-07_21-30-49.csv: UMAFall_Subject_19_Fall_backwardFall_3_2016-06-07_21-30-49.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_backwardFall_4_2016-06-07_21-38-34.csv: UMAFall_Subject_19_Fall_backwardFall_4_2016-06-07_21-38-34.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_backwardFall_5_2016-06-07_21-39-33.csv: UMAFall_Subject_19_Fall_backwardFall_5_2016-06-07_21-39-33.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_backwardFall_6_2016-06-07_21-40-20.csv: UMAFall_Subject_19_Fall_backwardFall_6_2016-06-07_21-40-20.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_forwardFall_1_2016-06-07_21-22-47.csv: UMAFall_Subject_19_Fall_forwardFall_1_2016-06-07_21-22-47.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_forwardFall_1_2016-06-07_21-31-53.csv: UMAFall_Subject_19_Fall_forwardFall_1_2016-06-07_21-31-53.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_forwardFall_2_2016-06-07_21-23-51.csv: UMAFall_Subject_19_Fall_forwardFall_2_2016-06-07_21-23-51.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_forwardFall_3_2016-06-07_21-24-37.csv: UMAFall_Subject_19_Fall_forwardFall_3_2016-06-07_21-24-37.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_forwardFall_5_2016-06-07_21-32-51.csv: UMAFall_Subject_19_Fall_forwardFall_5_2016-06-07_21-32-51.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_forwardFall_6_2016-06-07_21-33-31.csv: UMAFall_Subject_19_Fall_forwardFall_6_2016-06-07_21-33-31.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_lateralFall_1_2016-06-07_21-26-09.csv: UMAFall_Subject_19_Fall_lateralFall_1_2016-06-07_21-26-09.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_lateralFall_2_2016-06-07_21-27-41.csv: UMAFall_Subject_19_Fall_lateralFall_2_2016-06-07_21-27-41.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_lateralFall_3_2016-06-07_21-28-26.csv: UMAFall_Subject_19_Fall_lateralFall_3_2016-06-07_21-28-26.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_lateralFall_4_2016-06-07_21-34-26.csv: UMAFall_Subject_19_Fall_lateralFall_4_2016-06-07_21-34-26.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_lateralFall_5_2016-06-07_21-35-39.csv: UMAFall_Subject_19_Fall_lateralFall_5_2016-06-07_21-35-39.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+[skip] UMAFall_Subject_19_Fall_lateralFall_6_2016-06-07_21-37-14.csv: UMAFall_Subject_19_Fall_lateralFall_6_2016-06-07_21-37-14.csv: no rows with SensorID=2 (wrist). Present IDs: [0, 1, 3, 4]
+subjects: 18  ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07', 'S08', 'S09', 'S10', 'S11', 'S12', 'S14', 'S15', 'S16', 'S17', 'S18', 'S19']
+  FALL                     189 files
+  ambulating               118 files
+  lying/immobile           41 files
+  seated hand activity     174 files
+  stationary               95 files
+total windows: 6281
+### FALLALLD SCAN 
+device D2 (wrist)   2515 records   13 subjects: ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S09', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15']
+  FALL                       523 records
+  ambulating                 535 records
+  lying/immobile             105 records
+  seated hand activity       301 records
+  stationary                  62 records
+  (unmapped, by design)      989 records across 22 activity types
+total windows: 32695
+
+scenario-1 candidates (hard hand impact, static body):
+  A026 beating a table with your hand             46 records
+  A022 clap hands one time                        34 records
+  A009 clapping hands                             49 records
+  A025 moving hand up then down immediately       30 records
+### API - DEFS AND CLASSES 
+data\loader.py:86:def map_activity(activity: str):
+data\loader.py:98:def mapping_table_markdown() -> str:
+data\loader.py:113:class Record:
+data\loader.py:145:def _acc_to_g(a: np.ndarray, notes: list) -> np.ndarray:
+data\loader.py:158:def _gyro_to_dps(w: np.ndarray, notes: list) -> np.ndarray:
+data\loader.py:172:def _resample(t: np.ndarray, x: np.ndarray, fs: int = TARGET_FS):
+data\loader.py:185:def _est_fs(t: np.ndarray) -> float:
+data\loader.py:197:def read_umafall(path: Path, sensor_id: int = UMA_WRIST_ID) -> Record:
+data\loader.py:274:def _parse_umafall_name(name: str):
+data\loader.py:293:def read_generic_csv(path: Path, *, acc_cols, gyro_cols=None, time_col=None,
+data\loader.py:342:def _is_num(s):
+data\loader.py:350:def _row_ok(r):
+data\loader.py:358:class ScriptedTrace:
+data\loader.py:384:def iter_windows(record: Record, trace: "ScriptedTrace | None" = None,
+data\loader.py:419:def replay(record: Record, speed: float = 1.0,
+data\loader.py:440:def scan(root, pattern="*.csv", reader=read_umafall, limit=None):
+data\loader.py:454:def load_dataset(root, pattern="*.csv", reader=read_umafall, falls=None):
+data\loader.py:478:def _inspect(path):
+data\loader.py:496:def _scan_report(root):
+data\loader.py:514:def _selftest():
+data\loader.py:554:def main(argv=None):
+data\loader_fallalld.py:183:def map_activity(activity_id: int):
+data\loader_fallalld.py:191:def mapping_table_markdown() -> str:
+data\loader_fallalld.py:214:class Record:
+data\loader_fallalld.py:249:def downsample(x: np.ndarray, up=RESAMPLE_UP, down=RESAMPLE_DOWN) -> np.ndarray:
+data\loader_fallalld.py:260:def downsample_trimmed(x, trim=TRIM_N):
+data\loader_fallalld.py:272:def downsample_umafall_path(x, trim=TRIM_N):
+data\loader_fallalld.py:301:def parse_name(name):
+data\loader_fallalld.py:310:def read_record(acc_path, device=WRIST_DEVICE, match_umafall_path=False) -> Record:
+data\loader_fallalld.py:372:def iter_windows(record: Record, t0: float = 0.0):
+data\loader_fallalld.py:402:def scan(root=DEFAULT_ROOT, device=WRIST_DEVICE, activities=None, limit=None,
+data\loader_fallalld.py:425:def _inspect(path):
+data\loader_fallalld.py:444:def _scan_report(root, device):
+data\loader_fallalld.py:475:def _selftest():
+data\loader_fallalld.py:532:def main(argv=None):
+streams\context.py:85:def extract_features(window: dict, gait_band=GAIT_BAND) -> np.ndarray:
+streams\context.py:159:def _autocorr_cadence(x: np.ndarray, fs: float, lo_hz=0.5, hi_hz=3.0):
+streams\context.py:176:def _lowpass(x: np.ndarray, fs: float, corner: float):
+streams\context.py:190:def _probs_to_logits(p: np.ndarray) -> np.ndarray:
+streams\context.py:194:def _softmax(z: np.ndarray) -> np.ndarray:
+streams\context.py:200:def fit_temperature(probs: np.ndarray, y_idx: np.ndarray) -> float:
+streams\context.py:214:def expected_calibration_error(probs: np.ndarray, y_idx: np.ndarray, bins=15):
+streams\context.py:232:class ContextStream(Stream):
+streams\context.py:395:def _train(root, out, elderly=False):
+streams\context.py:426:def _selftest():
+streams\context.py:490:def _report(model_path):
+streams\context.py:499:def main(argv=None):
+streams\motion.py:118:def segment_features(acc: np.ndarray, gyro, fs: float, trig_i: int) -> np.ndarray:
+streams\motion.py:179:def select_features(X, feature_set="all_18"):
+streams\motion.py:188:def forearm_tilt(acc: np.ndarray, fs: float) -> np.ndarray:
+streams\motion.py:202:def _lowpass(x, fs, corner):
+streams\motion.py:210:def _softmax(z):
+streams\motion.py:216:def fit_temperature(probs, y_idx):
+streams\motion.py:237:class MotionStream(Stream):
+streams\motion.py:498:def segments_from_record(rec, gate_svm=GATE_SVM_G, gate_gyro=GATE_GYRO_DPS):
+streams\motion.py:531:def _collect(root):
+streams\motion.py:539:def _ablation(root):
+streams\motion.py:599:def _train(root, out):
+streams\motion.py:667:def _tune(root):
+streams\motion.py:694:def _selftest():
+streams\motion.py:758:def main(argv=None):
+### API - CONSTANTS 
+data\loader.py:2:data/loader.py -- Guardian dataset loader.
+data\loader.py:4:Reads raw dataset files, extracts the wrist accelerometer and gyroscope
+data\loader.py:5:channels, resamples to 50 Hz, windows at 2.5 s with 50% overlap, and yields
+data\loader.py:6:window dicts in the format fixed by contract.py.
+data\loader.py:8:Two consumption modes:
+data\loader.py:14:The window dict is exactly the contract, nothing extra:
+data\loader.py:18:Labels live in `meta`, never in `window`, so a stream module cannot
+data\loader.py:21:CLI (run from the repo root, C:\\Users\\mvpva\\guardian):
+data\loader.py:28:from __future__ import annotations
+data\loader.py:30:import argparse
+data\loader.py:31:import sys
+data\loader.py:32:import time
+data\loader.py:33:from dataclasses import dataclass, field
+data\loader.py:34:from pathlib import Path
+data\loader.py:36:import numpy as np
+data\loader.py:42:TARGET_FS = 50               # Hz
+data\loader.py:43:WINDOW_SEC = 2.5
+data\loader.py:44:WINDOW_N = int(round(WINDOW_SEC * TARGET_FS))   # 125 samples
+data\loader.py:45:HOP_N = WINDOW_N // 2                            # 62 samples -> 1.24 s
+data\loader.py:46:G_MS2 = 9.80665
+data\loader.py:47:DEG_PER_RAD = 180.0 / np.pi
+data\loader.py:50:UMA_SENSOR_TYPE = {0: "acc", 1: "gyro", 2: "mag"}
+data\loader.py:51:UMA_WRIST_ID = 2             # 0 pocket, 1 chest, 2 wrist, 3 waist, 4 ankle
+data\loader.py:58:STATES = ("stationary", "ambulating", "seated hand activity", "lying/immobile")
+data\loader.py:62:ACTIVITY_MAP = [
+data\loader.py:83:FALL_KEYS = ("fall", "syncope", "trip", "slip")
+data\loader.py:86:def map_activity(activity: str):
+data\loader.py:98:def mapping_table_markdown() -> str:
+data\loader.py:113:class Record:
+data\loader.py:145:def _acc_to_g(a: np.ndarray, notes: list) -> np.ndarray:
+data\loader.py:158:def _gyro_to_dps(w: np.ndarray, notes: list) -> np.ndarray:
+data\loader.py:172:def _resample(t: np.ndarray, x: np.ndarray, fs: int = TARGET_FS):
+data\loader.py:185:def _est_fs(t: np.ndarray) -> float:
+data\loader.py:197:def read_umafall(path: Path, sensor_id: int = UMA_WRIST_ID) -> Record:
+data\loader.py:274:def _parse_umafall_name(name: str):
+data\loader.py:293:def read_generic_csv(path: Path, *, acc_cols, gyro_cols=None, time_col=None,
+data\loader.py:342:def _is_num(s):
+data\loader.py:350:def _row_ok(r):
+data\loader.py:358:class ScriptedTrace:
+data\loader.py:384:def iter_windows(record: Record, trace: "ScriptedTrace | None" = None,
+data\loader.py:419:def replay(record: Record, speed: float = 1.0,
+data\loader.py:440:def scan(root, pattern="*.csv", reader=read_umafall, limit=None):
+data\loader.py:454:def load_dataset(root, pattern="*.csv", reader=read_umafall, falls=None):
+data\loader.py:478:def _inspect(path):
+data\loader.py:496:def _scan_report(root):
+data\loader.py:514:def _selftest():
+data\loader.py:554:def main(argv=None):
+data\loader.py:573:if __name__ == "__main__":
+data\loader_fallalld.py:2:data/loader_fallalld.py -- FallAllD loader, same output contract as
+data\loader_fallalld.py:3:data/loader.py.
+data\loader_fallalld.py:5:Everything below was established empirically or from the source paper
+data\loader_fallalld.py:7:not assumed:
+data\loader_fallalld.py:22:DOWNSAMPLING, which is the step that can silently invent a result:
+data\loader_fallalld.py:24:not available and would alias regardless. We use scipy.signal.resample_poly
+data\loader_fallalld.py:25:with up=25, down=119 (25/119 = 0.21008, and 238 * 25/119 = 50.0 exactly).
+data\loader_fallalld.py:26:resample_poly applies a Kaiser-windowed FIR anti-alias filter before
+data\loader_fallalld.py:27:downsampling, so content above the new 25 Hz Nyquist is removed rather than
+data\loader_fallalld.py:28:folded back into the band. This matters: a fall impact has energy well above
+data\loader_fallalld.py:30:motion classifier would happily score.
+data\loader_fallalld.py:32:Contrast with data/loader.py, where UMAFall's ~20 Hz wrist data is UPSAMPLED
+data\loader_fallalld.py:33:to 50 Hz by linear interpolation. That recovers nothing; this removes
+data\loader_fallalld.py:34:something. Different signal paths, which is exactly why the cross-dataset
+data\loader_fallalld.py:35:comparison is worth running.
+data\loader_fallalld.py:37:CLI:
+data\loader_fallalld.py:44:from __future__ import annotations
+data\loader_fallalld.py:46:import argparse
+data\loader_fallalld.py:47:import re
+data\loader_fallalld.py:48:import sys
+data\loader_fallalld.py:49:from dataclasses import dataclass, field
+data\loader_fallalld.py:50:from pathlib import Path
+data\loader_fallalld.py:52:import numpy as np
+data\loader_fallalld.py:53:from scipy import signal
+data\loader_fallalld.py:59:TARGET_FS = 50
+data\loader_fallalld.py:60:WINDOW_SEC = 2.5
+data\loader_fallalld.py:61:WINDOW_N = int(round(WINDOW_SEC * TARGET_FS))       # 125
+data\loader_fallalld.py:62:HOP_N = WINDOW_N // 2                                # 62 -> 1.24 s
+data\loader_fallalld.py:64:RAW_FS = 238.0
+data\loader_fallalld.py:65:RESAMPLE_UP, RESAMPLE_DOWN = 25, 119                 # 238 * 25/119 = 50.0
+data\loader_fallalld.py:66:TRIM_N = 50                                          # 1 s trimmed each end
+data\loader_fallalld.py:72:UMAFALL_FS = 20.0
+data\loader_fallalld.py:73:MATCH_UP, MATCH_DOWN = 10, 119                       # 238 * 10/119 = 20.0
+data\loader_fallalld.py:75:WRIST_DEVICE = 2
+data\loader_fallalld.py:76:ACC_LSB_PER_G = 4096.0                               # +/-8 g, 16-bit signed
+data\loader_fallalld.py:77:GYR_DPS_PER_LSB = 0.07                               # +/-2000 dps
+data\loader_fallalld.py:78:CLIP_G = 8.0                                         # sensor rail
+data\loader_fallalld.py:80:ADL_RANGE = (1, 44)
+data\loader_fallalld.py:81:FALL_RANGE = (101, 135)
+data\loader_fallalld.py:83:NAME_RE = re.compile(
+data\loader_fallalld.py:86:DEFAULT_ROOT = Path("data/raw/FallAllD/FallAllD")
+data\loader_fallalld.py:92:ACTIVITY_NAMES = {
+data\loader_fallalld.py:123:STATES = ("stationary", "ambulating", "seated hand activity", "lying/immobile")
+data\loader_fallalld.py:125:CONTEXT_MAP = {
+data\loader_fallalld.py:154:UNMAPPED_REASONS = {
+data\loader_fallalld.py:180:SCENARIO1_ACTIVITIES = (26, 22, 9, 25)
+data\loader_fallalld.py:183:def map_activity(activity_id: int):
+data\loader_fallalld.py:191:def mapping_table_markdown() -> str:
+data\loader_fallalld.py:214:class Record:
+data\loader_fallalld.py:249:def downsample(x: np.ndarray, up=RESAMPLE_UP, down=RESAMPLE_DOWN) -> np.ndarray:
+data\loader_fallalld.py:260:def downsample_trimmed(x, trim=TRIM_N):
+data\loader_fallalld.py:272:def downsample_umafall_path(x, trim=TRIM_N):
+data\loader_fallalld.py:301:def parse_name(name):
+data\loader_fallalld.py:310:def read_record(acc_path, device=WRIST_DEVICE, match_umafall_path=False) -> Record:
+data\loader_fallalld.py:372:def iter_windows(record: Record, t0: float = 0.0):
+data\loader_fallalld.py:402:def scan(root=DEFAULT_ROOT, device=WRIST_DEVICE, activities=None, limit=None,
+data\loader_fallalld.py:425:def _inspect(path):
+data\loader_fallalld.py:444:def _scan_report(root, device):
+data\loader_fallalld.py:475:def _selftest():
+data\loader_fallalld.py:532:def main(argv=None):
+data\loader_fallalld.py:553:if __name__ == "__main__":
+streams\context.py:2:streams/context.py -- Guardian four-state activity context stream.
+streams\context.py:4:States: stationary, ambulating, seated hand activity, lying/immobile,
+streams\context.py:5:plus "unknown" from the open-set reject.
+streams\context.py:7:Pipeline: 15 cheap per-window features -> RandomForestClassifier ->
+streams\context.py:8:temperature scaling on a held-out split -> open-set reject on calibrated
+streams\context.py:9:max probability.
+streams\context.py:11:What fusion consumes:
+streams\context.py:17:The STATE LABEL matters more than the score: core/fusion.py uses
+streams\context.py:18:last_state == "seated hand activity" with last_confidence > 0.7 to halve
+streams\context.py:19:the motion contribution. Both attributes are set on every score() call.
+streams\context.py:21:CLI (run from the repo root):
+streams\context.py:27:from __future__ import annotations
+streams\context.py:29:import argparse
+streams\context.py:30:import sys
+streams\context.py:31:from pathlib import Path
+streams\context.py:33:import numpy as np
+streams\context.py:34:from scipy import signal
+streams\context.py:35:from scipy.optimize import minimize_scalar
+streams\context.py:36:from sklearn.ensemble import RandomForestClassifier
+streams\context.py:37:from sklearn.metrics import classification_report, confusion_matrix
+streams\context.py:38:from sklearn.model_selection import GroupShuffleSplit
+streams\context.py:40:sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+streams\context.py:41:from contract import Stream  # noqa: E402
+streams\context.py:47:STATES = ("stationary", "ambulating", "seated hand activity", "lying/immobile")
+streams\context.py:48:UNKNOWN = "unknown"
+streams\context.py:52:STATE_RISK = {
+streams\context.py:64:GAIT_BAND = (1.4, 2.3)
+streams\context.py:65:GAIT_BAND_ELDERLY = (0.8, 2.8)
+streams\context.py:67:GRAVITY_LP_HZ = 0.5      # low-pass corner isolating the gravity vector
+streams\context.py:68:DEFAULT_REJECT_Q = 0.05      # reject threshold = this quantile of held-out
+streams\context.py:70:REJECT_THRESHOLD_MAX = 0.85  # cap, so a degenerate fold cannot reject everything
+streams\context.py:72:FEATURE_NAMES = (
+streams\context.py:85:def extract_features(window: dict, gait_band=GAIT_BAND) -> np.ndarray:
+streams\context.py:159:def _autocorr_cadence(x: np.ndarray, fs: float, lo_hz=0.5, hi_hz=3.0):
+streams\context.py:176:def _lowpass(x: np.ndarray, fs: float, corner: float):
+streams\context.py:190:def _probs_to_logits(p: np.ndarray) -> np.ndarray:
+streams\context.py:194:def _softmax(z: np.ndarray) -> np.ndarray:
+streams\context.py:200:def fit_temperature(probs: np.ndarray, y_idx: np.ndarray) -> float:
+streams\context.py:214:def expected_calibration_error(probs: np.ndarray, y_idx: np.ndarray, bins=15):
+streams\context.py:232:class ContextStream(Stream):
+streams\context.py:395:def _train(root, out, elderly=False):
+streams\context.py:426:def _selftest():
+streams\context.py:490:def _report(model_path):
+streams\context.py:499:def main(argv=None):
+streams\context.py:518:if __name__ == "__main__":
+streams\motion.py:2:streams/motion.py -- Guardian motion stream: impact + post-impact stillness.
+streams\motion.py:4:Two stages, per the design:
+streams\motion.py:13:The wrist is a poor site for impact-based fall detection (Kangas 2008,
+streams\motion.py:14:Bagala 2012). This module is one weighted input among four, not a trigger.
+streams\motion.py:15:Nothing here is named "lying posture" -- the tilt measured is FOREARM tilt,
+streams\motion.py:16:which moves independently of the trunk.
+streams\motion.py:18:Because the scorer needs 1.5 s of future relative to the trigger, and windows
+streams\motion.py:21:per-window from the caller's point of view.
+streams\motion.py:23:Exposed for core/explain.py after every score():
+streams\motion.py:26:CLI:
+streams\motion.py:32:from __future__ import annotations
+streams\motion.py:34:import argparse
+streams\motion.py:35:import sys
+streams\motion.py:36:from collections import deque
+streams\motion.py:37:from pathlib import Path
+streams\motion.py:39:import numpy as np
+streams\motion.py:40:from scipy import signal
+streams\motion.py:41:from scipy.optimize import minimize_scalar
+streams\motion.py:42:from sklearn.ensemble import RandomForestClassifier
+streams\motion.py:43:from sklearn.metrics import roc_auc_score, roc_curve
+streams\motion.py:44:from sklearn.model_selection import GroupShuffleSplit
+streams\motion.py:46:sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+streams\motion.py:47:from contract import Stream  # noqa: E402
+streams\motion.py:53:GATE_SVM_G = 2.5             # g, wrist literature; retune with --tune
+streams\motion.py:54:GATE_GYRO_DPS = 1e9          # DISABLED after --tune on UMAFall: at the wrist,
+streams\motion.py:59:PRE_SEC = 2.0                # segment start, before the trigger
+streams\motion.py:60:POST_SEC = 1.5               # segment end, after the trigger
+streams\motion.py:61:STILL_SEC = 10.0             # stillness observation span after impact
+streams\motion.py:62:MIN_STILL_SEC = 2.0          # before this much has elapsed, stillness is untrusted
+streams\motion.py:64:EVENT_HOLD_SEC = 60.0        # how long an impact keeps contributing
+streams\motion.py:65:EVENT_DECAY_SEC = 30.0       # exponential decay applied after the hold
+streams\motion.py:66:REFRACTORY_SEC = 3.0         # ignore re-triggers inside one impact
+streams\motion.py:68:W_IMPACT, W_STILL = 0.6, 0.4
+streams\motion.py:70:STILL_VAR_G2 = 0.01          # SVM variance at or below this reads as still
+streams\motion.py:71:HORIZONTAL_DEG = 60.0        # forearm within this of horizontal counts as "at rest low"
+streams\motion.py:72:CLIP_G = 15.9                # sensor full scale; fraction clipped drives quality
+streams\motion.py:73:BUFFER_SEC = 30.0
+streams\motion.py:74:GRAVITY_LP_HZ = 0.5
+streams\motion.py:76:FEATURE_NAMES = (
+streams\motion.py:85:FEATURE_SETS = {
+streams\motion.py:118:def segment_features(acc: np.ndarray, gyro, fs: float, trig_i: int) -> np.ndarray:
+streams\motion.py:179:def select_features(X, feature_set="all_18"):
+streams\motion.py:188:def forearm_tilt(acc: np.ndarray, fs: float) -> np.ndarray:
+streams\motion.py:202:def _lowpass(x, fs, corner):
+streams\motion.py:210:def _softmax(z):
+streams\motion.py:216:def fit_temperature(probs, y_idx):
+streams\motion.py:237:class MotionStream(Stream):
+streams\motion.py:498:def segments_from_record(rec, gate_svm=GATE_SVM_G, gate_gyro=GATE_GYRO_DPS):
+streams\motion.py:531:def _collect(root):
+streams\motion.py:539:def _ablation(root):
+streams\motion.py:599:def _train(root, out):
+streams\motion.py:667:def _tune(root):
+streams\motion.py:694:def _selftest():
+streams\motion.py:758:def main(argv=None):
+streams\motion.py:778:if __name__ == "__main__":
+### DOCSTRING HEADERS 
+--- data\loader.py
+"""
+data/loader.py -- Guardian dataset loader.
+
+Reads raw dataset files, extracts the wrist accelerometer and gyroscope
+channels, resamples to 50 Hz, windows at 2.5 s with 50% overlap, and yields
+window dicts in the format fixed by contract.py.
+
+Two consumption modes:
+    iter_windows(record)          -> (window, meta) pairs, as fast as possible.
+                                     Use this for training and evaluation.
+    replay(record, speed=1.0)     -> window dicts only, paced in wall-clock
+                                     time. Use this for the dashboard demo.
+
+The window dict is exactly the contract, nothing extra:
+    {"t": float, "acc": (125,3) g, "gyro": (125,3) deg/s | None,
+     "hr": float|None, "temp": float|None, "fs": 50}
+
+Labels live in `meta`, never in `window`, so a stream module cannot
+accidentally see ground truth.
+
+CLI (run from the repo root, C:\\Users\\mvpva\\guardian):
+    py -m data.loader --inspect data\\raw\\UMAFall\\<some file>.csv
+    py -m data.loader --scan    data\\raw\\UMAFall
+    py -m data.loader --mapping
+    py -m data.loader --selftest
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+import time
+from dataclasses import dataclass, field
+from pathlib import Path
+
+import numpy as np
+
+# --------------------------------------------------------------------------
+# Constants -- the contract, in one place
+# --------------------------------------------------------------------------
+
+TARGET_FS = 50               # Hz
+WINDOW_SEC = 2.5
+WINDOW_N = int(round(WINDOW_SEC * TARGET_FS))   # 125 samples
+HOP_N = WINDOW_N // 2                            # 62 samples -> 1.24 s
+G_MS2 = 9.80665
+DEG_PER_RAD = 180.0 / np.pi
+
+# UMAFall column semantics (from the '%' header block in each file).
+UMA_SENSOR_TYPE = {0: "acc", 1: "gyro", 2: "mag"}
+UMA_WRIST_ID = 2             # 0 pocket, 1 chest, 2 wrist, 3 waist, 4 ankle
+
+
+# --------------------------------------------------------------------------
+# Context label mapping -- this table goes in the report
+--- data\loader_fallalld.py
+"""
+data/loader_fallalld.py -- FallAllD loader, same output contract as
+data/loader.py.
+
+Everything below was established empirically or from the source paper
+(Saleh, Abbas and Le Bouquin Jeannes, IEEE Sensors Journal 21(2), 2021),
+not assumed:
+
+- WRIST IS DEVICE 2. The paper states twelve hand-activity ADLs concern only
+  the wrist-worn device. A009 (clapping hands), A010 (waving hands) and A011
+  (hand shaking) have 49, 25 and 50 records on D2 and ZERO on D1 and D3.
+  Structural, not statistical.
+- ADL = A001..A044, FALL = A101..A135. Confirmed by exact file counts:
+  4883 ADL and 1722 fall accelerometer files, matching the published totals.
+- SCALING. LSM9DS1 at +/-8 g on a 16-bit signed axis is 4096 LSB per g;
+  at +/-2000 dps it is 0.07 dps per LSB. Verified: median resultant lands at
+  0.980 g and no samples sit at the rail.
+- One file per sensor: S<subj>_D<dev>_A<act>_T<trial>_{A,G,M,B}.dat, three
+  integer columns, no header. We read A and G, ignore M and B.
+- Records are 20 s with the fall impact / ADL transition centred at 10 s.
+
+DOWNSAMPLING, which is the step that can silently invent a result:
+238 Hz -> 50 Hz is a ratio of 4.76, not an integer, so plain decimation is
+not available and would alias regardless. We use scipy.signal.resample_poly
+with up=25, down=119 (25/119 = 0.21008, and 238 * 25/119 = 50.0 exactly).
+resample_poly applies a Kaiser-windowed FIR anti-alias filter before
+downsampling, so content above the new 25 Hz Nyquist is removed rather than
+folded back into the band. This matters: a fall impact has energy well above
+25 Hz, and aliasing it would fabricate low-frequency structure that the
+motion classifier would happily score.
+
+Contrast with data/loader.py, where UMAFall's ~20 Hz wrist data is UPSAMPLED
+to 50 Hz by linear interpolation. That recovers nothing; this removes
+something. Different signal paths, which is exactly why the cross-dataset
+comparison is worth running.
+
+CLI:
+    py -m data.loader_fallalld --inspect data\\raw\\FallAllD\\FallAllD\\S02_D2_A026_T01_A.dat
+    py -m data.loader_fallalld --scan
+    py -m data.loader_fallalld --mapping
+    py -m data.loader_fallalld --selftest
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+
+import numpy as np
+from scipy import signal
+
+# --------------------------------------------------------------------------

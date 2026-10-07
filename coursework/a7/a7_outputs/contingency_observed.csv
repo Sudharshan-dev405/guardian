@@ -1,0 +1,4 @@
+direction,affected,not_affected,total,pct_affected
+forward,31,34,65,47.69230769230769
+backward,1,66,67,1.4925373134328357
+lateral,45,12,57,78.94736842105263

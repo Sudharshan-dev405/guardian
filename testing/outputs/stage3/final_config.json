@@ -1,0 +1,44 @@
+{
+  "model": "xgboost",
+  "params": {
+    "max_depth": 2,
+    "n_estimators": 100,
+    "learning_rate": 0.1,
+    "min_child_weight": 1.0,
+    "reg_lambda": 10.0
+  },
+  "feature_set": "all_18",
+  "feature_index": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "rate_hz": 20.0,
+  "acc_clip_g": 8.0,
+  "gate_svm_g": 2.25,
+  "platt": {
+    "a": 1.0,
+    "b": 0.0
+  },
+  "threshold": 0.9256402254104615,
+  "threshold_rule": "95% specificity on gated ADL segments, UMAFall dev LOSO, calibrated scores",
+  "platt_used": false,
+  "trained_on": "UMAFall dev subjects",
+  "n_segments": 482,
+  "n_falls": 135
+}

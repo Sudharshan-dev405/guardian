@@ -1,0 +1,5 @@
+dataset,method,threshold,falls,falls_caught,specificity_gated,false_alarms_per_hour
+umafall,fixed (WEDA threshold),0.8573,135,0.3037,1.0,0.0
+umafall,device (own daily activity),0.4596,135,0.6222,0.8085,6.3077
+fallalld,fixed (WEDA threshold),0.8573,252,0.1984,0.9201,4.8787
+fallalld,device (own daily activity),0.9299,252,0.1071,0.9425,3.5127

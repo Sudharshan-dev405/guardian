@@ -1,0 +1,110 @@
+GUARDIAN MOTION MODULE - STAGE 4 PART A
+How existing fall detectors work, and what we take from them
+(7 Oct 2026)
+
+==============================================================================
+1. THE FOUR KINDS OF FALL DETECTOR
+==============================================================================
+
+A. Threshold rules (Kangas 2008, Bourke, Chen)
+- Compute |a| (the sum vector). If it crosses an impact threshold, maybe after
+  a free-fall dip, and the posture afterwards looks like lying, call it a fall.
+- Cheap and easy to explain. Kangas got 97-98% sensitivity at the waist and
+  head, but the wrist "was not applicable" with the same rules.
+- On real falls they break. Bagala 2012 tested 13 of them on 29 real falls:
+  mean sensitivity 57%, specificity 83%. Bourke3 had claimed 100/100 on
+  simulated falls and got 82.8/96.7 on real ones.
+- They miss low-impact falls (onto a bed, against a wall, onto the knees),
+  and every extra condition is one more thing that can fail.
+
+B. Hand-made features + classic ML (Aziz 2017, Marques & Moreno 2023)
+- Cut a window around the event, compute features, train SVM / kNN / trees.
+- Aziz: SVM 96% sensitivity and specificity at the waist, young people only.
+- Marques & Moreno built WEDA-FALL itself. Their final detector used only
+  accelerometer max, min, mean and variance per axis, a 9 s window, 50 Hz
+  and 3-NN. In a pilot of 238 hours over 5 users it caught 25 falls and
+  missed 3. The watch asked the user to confirm each alarm and added the
+  answers to its training set, which cut false alarms over time.
+
+C. Deep learning on the raw signal (XAI-Fall 2022 and others)
+- LSTM / CNN learn their own features. XAI-Fall: 92.54% on UMAFall.
+- In our Stage 2 the CNN and CNN-LSTM lost to the tree models: 60-70% of
+  falls caught at 95% specificity against 96-98%, and 28-40 false alarms
+  per hour. Not worth it on our data size.
+
+D. Commercial watches (Apple Watch)
+- After a hard fall it taps the wrist, sounds an alarm and shows an alert.
+  If the person stays still for about a minute, it counts down 30 s and
+  then calls emergency services. On by default for users 55 and over.
+- Apple says itself that it "cannot detect all falls" and that high-impact
+  activity can trigger it.
+- So even Apple uses two stages: an impact, then a check on what happens
+  after it, with the user able to cancel.
+
+==============================================================================
+2. WHAT THE CROSS-DATASET PAPERS SAY
+==============================================================================
+
+- Silva, Casilari & Garcia-Bermudez 2024: 13 algorithms over 17 datasets.
+  Every one got worse when tested on a dataset it was not built on. Waist
+  sensors only.
+- Fula & Moreno 2024 (wrist, closest to us): UP-Fall + WEDA-FALL + UMAFall,
+  all resampled to 18 Hz, 2 s windows, 78 features cut to 26-28, SVM and
+  ANN. Trained on all three combined: recall 90.6%, specificity 96.9%,
+  AUC 0.989. They also trained on one dataset and tested on the others:
+  WEDA-FALL was the best for learning what daily activity looks like.
+  Scaling the data per dataset gave mixed results.
+- Our Stage 3.5 agrees: the WEDA-trained model travelled best, and a
+  threshold tuned on one dataset did not carry over to the others.
+
+==============================================================================
+3. LESSONS FOR GUARDIAN
+==============================================================================
+
+1. A threshold set on one device does not suit another (Bagala; our
+   Stage 3.5 test). The real band will need its own.
+2. Low-impact falls beat impact-based detectors. Fusion needs other paths
+   (stillness, heart rate), which is already the plan.
+3. What happens after the impact matters. Apple waits about a minute. Our
+   model looks only 1.5 s past the impact; stillness comes later and only
+   feeds fusion.
+4. Longer windows are common: Marques used 9 s, ours is 3.5 s.
+5. Letting the user cancel an alarm (Apple's countdown, Marques' feedback)
+   is the usual way false alarms are kept down. That belongs in the
+   decision manager, not the model.
+6. Heart rate helps at the wrist (Nho 2020). Fusion again.
+
+==============================================================================
+4. OUR ALGORITHM IN SIMPLE STEPS (as it stands after Stage 3.5)
+==============================================================================
+
+1. Read the wrist accelerometer (g) and gyroscope (deg/s) at 50 Hz, in
+   2.5 s windows.
+2. Make every device look alike: clip at +/-8 g, squeeze the signal down to
+   20 Hz and back up to 50 Hz.
+3. Gate: if |a| goes above 2.25 g, something hit hard. If not, the score
+   is 0 and nothing else runs.
+4. Cut 3.5 s around the first crossing: 2 s before it, 1.5 s after.
+5. Compute 18 numbers from that piece: peak, lowest and range of |a|, the
+   free-fall dip and how long before the peak it came, samples above 2 g,
+   jerk (peak and average), gyroscope peak, total and before/after
+   averages, how jumpy |a| was before and after, the after/before energy
+   ratio, forearm tilt change and final tilt, and whether gyro exists.
+6. XGBoost (depth 4, 100 trees, trained on WEDA-FALL) turns them into an
+   impact probability from 0 to 1.
+7. The stream reports that probability and holds it for 60 s, fading.
+   Stillness over the next 10 s is reported separately for fusion.
+8. The 0.886 threshold is only for testing. Fusion makes the alert call.
+
+==============================================================================
+SOURCES
+==============================================================================
+Bagala et al. 2012, Kangas et al. 2008, Aziz et al. 2017, Silva et al. 2024,
+Nho et al. 2020, XAI-Fall 2022: see the 15-paper list.
+Marques & Moreno 2023, Online Fall Detection Using Wrist Devices
+  https://www.mdpi.com/1424-8220/23/3/1146
+Fula & Moreno 2024, Wrist-Based Fall Detection: Towards Generalization
+  across Datasets  https://www.mdpi.com/1424-8220/24/5/1679
+Apple, Use Fall Detection with Apple Watch
+  https://support.apple.com/en-us/108896
+WEDA-FALL dataset  https://github.com/joaojtmarques/WEDA-FALL
