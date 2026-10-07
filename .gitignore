@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
 data/raw/
-listing.txteval/outputs/*.pkl
-eval/outputs/stage3/*.pkl
-eval/outputs/stage35/*.pkl
+
+# cached segments (rebuilt by the prep steps, large)
+*.pkl

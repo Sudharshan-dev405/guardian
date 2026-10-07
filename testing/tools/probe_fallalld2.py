@@ -1,5 +1,5 @@
 """
-tools/probe_fallalld2.py -- decisive wrist-device identification for FallAllD.
+testing/tools/probe_fallalld2.py -- decisive wrist-device identification for FallAllD.
 
 The first probe was inconclusive: it ranked devices by angular rate and by
 within-record orientation spread, and the two rankings disagreed. The spread
@@ -24,8 +24,8 @@ and measure how much those per-record directions disagree WITH EACH OTHER.
 Run per subject and pooled, because a subject who wore a device loosely could
 skew a pooled number.
 
-    py -m tools.probe_fallalld2
-    py -m tools.probe_fallalld2 --subjects S01 S02 S03 --n 60
+    py -m testing.tools.probe_fallalld2
+    py -m testing.tools.probe_fallalld2 --subjects S01 S02 S03 --n 60
 """
 
 from __future__ import annotations

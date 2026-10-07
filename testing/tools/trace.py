@@ -1,12 +1,12 @@
 """
-tools/trace.py -- replay one dataset record through the trained context and
+testing/tools/trace.py -- replay one dataset record through the trained context and
 motion streams and print what each produces per window.
 
 This is a debugging and demo-selection tool, not part of the pipeline.
 
-    py -m tools.trace data\\raw\\UMAFall\\<file>.csv
-    py -m tools.trace --glob "*Fall_forwardFall*"
-    py -m tools.trace --glob "*ADL_Aplausing*" --root data\\raw\\UMAFall
+    py -m testing.tools.trace data\\raw\\UMAFall\\<file>.csv
+    py -m testing.tools.trace --glob "*Fall_forwardFall*"
+    py -m testing.tools.trace --glob "*ADL_Aplausing*" --root data\\raw\\UMAFall
 
 The SUPPRESS column is the important one. core/fusion.py halves the motion
 contribution when context reports "seated hand activity" with confidence
@@ -23,7 +23,7 @@ import glob as globmod
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from data.loader import read_umafall, iter_windows          # noqa: E402
 from streams.context import ContextStream                    # noqa: E402

@@ -10,13 +10,13 @@ from pathlib import Path
 import numpy as np
 from scipy.stats import skew
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))   # repo root
 
 from data.loader import scan, iter_windows
 from streams.context import extract_features, FEATURE_NAMES, GAIT_BAND, STATES
 
 FEATURES = ("tilt_mean", "tilt_std", "svm_var", "cadence_hz", "jerk_rms")
-OUT_DIR = Path("a7_outputs")
+OUT_DIR = Path(__file__).resolve().parent / "a7_outputs"
 
 
 def main():

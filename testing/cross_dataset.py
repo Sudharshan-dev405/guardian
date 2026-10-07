@@ -1,5 +1,5 @@
 """
-eval/cross_dataset.py -- run the ALREADY-TRAINED UMAFall models, unchanged,
+testing/cross_dataset.py -- run the ALREADY-TRAINED UMAFall models, unchanged,
 over FallAllD. Cross-dataset generalisation measurement.
 
 NO RETRAINING. NO FINE-TUNING. NO THRESHOLD ADJUSTMENT. The models are loaded
@@ -25,11 +25,11 @@ Additional experiment:
   - does NOT overwrite models/motion.joblib
 
 Commands:
-    py -m eval.cross_dataset
-    py -m eval.cross_dataset --matched
-    py -m eval.cross_dataset --limit 300
-    py -m eval.cross_dataset --ablation
-    py -m eval.cross_dataset --ablation --limit 300
+    py -m testing.cross_dataset
+    py -m testing.cross_dataset --matched
+    py -m testing.cross_dataset --limit 300
+    py -m testing.cross_dataset --ablation
+    py -m testing.cross_dataset --ablation --limit 300
 """
 
 from __future__ import annotations

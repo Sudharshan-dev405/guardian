@@ -1,11 +1,11 @@
 """
-eval/compare_motion.py -- Stage 2: pick the motion model.
+testing/compare_motion.py -- Stage 2: pick the motion model.
 
 Uses the SAME segments the production stream trains on (one per record,
 2.0 s before to 1.5 s after the first gate crossing, or the SVM peak for
 ungated records), so the winner can drop straight into streams/motion.py.
 
-  1. Locks 3 test subjects in eval/outputs/split.json (fall subjects only,
+  1. Locks 3 test subjects in testing/outputs/split.json (fall subjects only,
      never the largest one). They are NOT touched here -- that is Stage 3.
   2. Leave-one-subject-out over every other subject. Subjects with no falls
      stay in, as negatives; they just cannot give a fold AUC.
@@ -13,10 +13,10 @@ ungated records), so the winner can drop straight into streams/motion.py.
      XGBoost, SVM, 1D-CNN, CNN-LSTM.
 
 Commands (repo root):
-    py -m eval.compare_motion                       # all six
-    py -m eval.compare_motion --models threshold rf xgb svm
-    py -m eval.compare_motion --test S05 S11 S16    # pick test subjects yourself
-    py -m eval.compare_motion --resplit             # rebuild split.json
+    py -m testing.compare_motion                       # all six
+    py -m testing.compare_motion --models threshold rf xgb svm
+    py -m testing.compare_motion --test S05 S11 S16    # pick test subjects yourself
+    py -m testing.compare_motion --resplit             # rebuild split.json
 """
 
 from __future__ import annotations

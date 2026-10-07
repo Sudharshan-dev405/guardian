@@ -1,6 +1,6 @@
 """a7_chisquare.py -- read-only. 3x2 chi-square: UMAFall fall direction vs
 whether a fall record has >=1 post-impact window hitting the fusion
-suppression rule. Definitions copied from tools/context_on_falls.py.
+suppression rule. Definitions copied from testing/tools/context_on_falls.py.
 Modifies nothing, trains nothing.
 """
 import csv
@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 from scipy.stats import chi2_contingency
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))   # repo root
 
 from data.loader import scan, iter_windows, TARGET_FS
 from streams.context import ContextStream
@@ -20,7 +20,7 @@ SUPPRESS_STATE = "seated hand activity"   # context_on_falls.py
 SUPPRESS_CONF = 0.7                       # context_on_falls.py
 MODEL = "models/context.joblib"
 DIRECTIONS = ("forward", "backward", "lateral")
-OUT_DIR = Path("a7_outputs")
+OUT_DIR = Path(__file__).resolve().parent / "a7_outputs"
 
 
 def impact_time(rec):

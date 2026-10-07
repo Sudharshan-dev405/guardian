@@ -1,5 +1,5 @@
 """
-tools/probe_fallalld.py -- work out FallAllD's structure empirically before
+testing/tools/probe_fallalld.py -- work out FallAllD's structure empirically before
 writing a loader against it.
 
 Answers three questions:
@@ -21,8 +21,8 @@ Answers three questions:
    16-bit signed axis gives 4096 LSB per g; at +/-2000 dps, 0.07 dps per LSB.
    If median |acc| lands near 1.0 g after dividing by 4096, that is confirmed.
 
-    py -m tools.probe_fallalld
-    py -m tools.probe_fallalld --root data\\raw\\FallAllD\\FallAllD --n 60
+    py -m testing.tools.probe_fallalld
+    py -m testing.tools.probe_fallalld --root data\\raw\\FallAllD\\FallAllD --n 60
 """
 
 from __future__ import annotations

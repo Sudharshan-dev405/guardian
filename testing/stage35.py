@@ -1,5 +1,5 @@
 """
-eval/stage35.py -- Stage 3.5: three datasets (UMAFall, FallAllD, WEDA-FALL).
+testing/stage35.py -- Stage 3.5: three datasets (UMAFall, FallAllD, WEDA-FALL).
 
 Train on each dataset (and on pairs), test on the others. Same XGBoost, same
 18 features, same signal path (+/-8 g clip, 20 Hz) and 2.25 g gate.
@@ -11,16 +11,16 @@ Rules fixed before any results (also in motion_module_log.txt):
   with at least 0.95 on its own dataset (LOSO).
 
 Steps (repo root):
-    py -m eval.stage35 split      step 1  lock the WEDA test subjects; one splits file
-    py -m eval.stage35 prep       step 2  harmonised segments for all three datasets,
+    py -m testing.stage35 split      step 1  lock the WEDA test subjects; one splits file
+    py -m testing.stage35 prep       step 2  harmonised segments for all three datasets,
                                           dev and test (test files are LOCKED), sanity table
-    py -m eval.stage35 tune       step 3  one dataset at a time: small XGBoost grid, own
+    py -m testing.stage35 tune       step 3  one dataset at a time: small XGBoost grid, own
                                           LOSO + the other two dev parts
-    py -m eval.stage35 pooled     step 4  two datasets together, scored on the third
-    py -m eval.stage35 matrix     step 5  dev results matrix and the winner by the rule
-    py -m eval.stage35 test       step 6  ONE-TIME test on all three locked test parts:
+    py -m testing.stage35 pooled     step 4  two datasets together, scored on the third
+    py -m testing.stage35 matrix     step 5  dev results matrix and the winner by the rule
+    py -m testing.stage35 test       step 6  ONE-TIME test on all three locked test parts:
                                           the step 5 winner vs the current Stage 3 model
-    py -m eval.stage35 build      step 7  save the tested winner as models/motion.joblib
+    py -m testing.stage35 build      step 7  save the tested winner as models/motion.joblib
                                           (old model kept as motion_umafall_stage3.joblib)
 """
 
@@ -35,7 +35,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from eval.compare_motion import OUT  # noqa: E402
+from testing.compare_motion import OUT  # noqa: E402
 
 DATASETS = ("umafall", "fallalld", "wedafall")
 ROOTS = {"umafall": r"data\raw\UMAFall",
@@ -99,7 +99,7 @@ def load(name, part):
 
 
 def prep(roots=None):
-    from eval.compare_motion import collect
+    from testing.compare_motion import collect
     from streams.motion import harmonise, GATE_SVM_G
     roots = {**ROOTS, **(roots or {})}
     splits = json.loads((S35 / "splits.json").read_text())
@@ -166,7 +166,7 @@ def _pool(dev, names):
 def _loso(params, X, meta):
     """Leave-one-person-out. Uses 'group' (dataset:subject) because subject
     IDs repeat across datasets (S02 is in UMAFall and FallAllD)."""
-    from eval.stage3 import XGB
+    from testing.stage3 import XGB
     y, g = meta.label.values, meta.group.values
     p = np.full(len(y), np.nan)
     for s in np.unique(g):
@@ -176,7 +176,7 @@ def _loso(params, X, meta):
 
 
 def _score(params, names, dev):
-    from eval.stage3 import XGB, gated_auc
+    from testing.stage3 import XGB, gated_auc
     meta, X = _pool(dev, names)
     oof = _loso(params, X, meta)
     full = XGB(**params).fit(X, meta.label.values)
@@ -245,7 +245,7 @@ def pooled():
 def matrix():
     """Step 5: one row per training set (its picked setting), one column per
     dataset (dev part). Own-data cells are LOSO; others are trained-on-all."""
-    from eval.stage3 import XGB
+    from testing.stage3 import XGB
     from sklearn.metrics import roc_auc_score
     D = pd.concat([pd.read_csv(S35 / "step3_single.csv"),
                    pd.read_csv(S35 / "step4_pooled.csv")], ignore_index=True)
@@ -373,7 +373,7 @@ def _threshold(meta, p):
 
 
 def _test_metrics(m, p, thr):
-    from eval.stage3 import gated_auc
+    from testing.stage3 import gated_auc
     from sklearn.metrics import roc_auc_score
     y, g = m.label.values, m.gated.values
     alarm = g & (p >= thr)
@@ -393,7 +393,7 @@ def _test_metrics(m, p, thr):
 
 def final_test():
     import datetime
-    from eval.stage3 import XGB
+    from testing.stage3 import XGB
     flag = S35 / "step6_DONE.txt"
     if flag.exists():
         sys.exit(f"step 6 already ran ({flag.read_text().strip()}). Re-running would turn "
@@ -457,7 +457,7 @@ def _plot_test_roc(rocs):
 
 def build(out="models/motion.joblib"):
     import shutil
-    from eval.stage3 import XGB
+    from testing.stage3 import XGB
     from streams.motion import MotionStream, GATE_SVM_G, GATE_GYRO_DPS, RATE_HZ, ACC_CLIP_G
     if not (S35 / "step6_DONE.txt").exists():
         sys.exit("run step 6 first")

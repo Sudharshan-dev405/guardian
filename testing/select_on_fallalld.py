@@ -1,10 +1,10 @@
 """
-eval/select_on_fallalld.py -- Stage 2b: choose between the top UMAFall models
+testing/select_on_fallalld.py -- Stage 2b: choose between the top UMAFall models
 using FallAllD, without spending FallAllD's honesty.
 
   * Each candidate is trained ONCE on the UMAFall dev subjects
-    (eval/outputs/split.json). The UMAFall test subjects are never used.
-  * FallAllD subjects are split in two (eval/outputs/fallalld_split.json):
+    (testing/outputs/split.json). The UMAFall test subjects are never used.
+  * FallAllD subjects are split in two (testing/outputs/fallalld_split.json):
       select  -> the model is chosen on these
       report  -> untouched by the choice; this is the cross-dataset number
                  that goes in the report
@@ -25,9 +25,9 @@ Metrics, per model / path / half:
   gate_falls / gate_adls   share of falls / ADLs the gate passes
 
 Commands (repo root):
-    py -m eval.select_on_fallalld                  # rf xgb svm
-    py -m eval.select_on_fallalld --models rf xgb svm
-    py -m eval.select_on_fallalld --limit 300      # quick smoke test
+    py -m testing.select_on_fallalld                  # rf xgb svm
+    py -m testing.select_on_fallalld --models rf xgb svm
+    py -m testing.select_on_fallalld --limit 300      # quick smoke test
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ from sklearn.metrics import roc_auc_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data import loader_fallalld as fa  # noqa: E402
-from eval.compare_motion import MODELS, OUT, SEED, collect  # noqa: E402
+from testing.compare_motion import MODELS, OUT, SEED, collect  # noqa: E402
 
 TIE = 0.01
 

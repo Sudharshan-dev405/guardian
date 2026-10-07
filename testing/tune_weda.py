@@ -1,5 +1,5 @@
 """
-eval/tune_weda.py -- Stage 3.5b: full hyperparameter tuning of the WEDA-trained
+testing/tune_weda.py -- Stage 3.5b: full hyperparameter tuning of the WEDA-trained
 XGBoost (the Stage 3.5 winner). Dev parts only; the test parts are spent.
 
 Scored on every setting:
@@ -15,10 +15,10 @@ Rule (fixed before running, also in the log):
       otherwise keep the current model
 
 Steps (repo root):
-    py -m eval.tune_weda sweep    depth x trees, underfit -> overfit (42 settings) + figure
-    py -m eval.tune_weda fine     216 settings around the sweep pick (depth, trees,
+    py -m testing.tune_weda sweep    depth x trees, underfit -> overfit (42 settings) + figure
+    py -m testing.tune_weda fine     216 settings around the sweep pick (depth, trees,
                                   learning rate, min_child_weight, lambda, subsampling)
-    py -m eval.tune_weda build    only if 'fine' says SWITCH: save the new model
+    py -m testing.tune_weda build    only if 'fine' says SWITCH: save the new model
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from eval.stage35 import S35, FIG, _dev_all  # noqa: E402
+from testing.stage35 import S35, FIG, _dev_all  # noqa: E402
 
 CURRENT = dict(max_depth=4, n_estimators=100, learning_rate=0.1, min_child_weight=1.0,
                reg_lambda=1.0, subsample=0.8, colsample_bytree=0.8)
@@ -194,7 +194,7 @@ def fine():
     print(f"\ncurrent : WEDA {base['weda']:.3f}  unseen {base['unseen']:.3f}")
     print(f"pick    : {_desc(best)}  WEDA {best.weda:.3f}  unseen {best.unseen:.3f}  "
           f"(gain {gain:+.3f})")
-    print(f"\n{'SWITCH: run  py -m eval.tune_weda build' if switch else 'KEEP the current model'}"
+    print(f"\n{'SWITCH: run  py -m testing.tune_weda build' if switch else 'KEEP the current model'}"
           f"  (rule: switch only if gain >= {MIN_GAIN})")
     pick = {k: (float(best[k]) if k not in ("max_depth", "n_estimators") else int(best[k]))
             for k in CURRENT}
@@ -211,7 +211,7 @@ def fine():
 def build(out="models/motion.joblib"):
     import shutil
     from streams.motion import MotionStream, GATE_SVM_G, GATE_GYRO_DPS, RATE_HZ, ACC_CLIP_G
-    from eval.stage35 import _threshold
+    from testing.stage35 import _threshold
     P = json.loads((S35 / "tune_weda_pick.json").read_text())
     if not P["switch"]:
         sys.exit("the rule said KEEP; the current model stays")

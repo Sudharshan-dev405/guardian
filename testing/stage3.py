@@ -1,9 +1,9 @@
 """
-eval/stage3.py -- Stage 3: tune and finish the motion model (XGBoost).
+testing/stage3.py -- Stage 3: tune and finish the motion model (XGBoost).
 
 Data roles, fixed for the whole stage:
-    train / validate   UMAFall dev subjects        eval/outputs/split.json
-    cross-dataset val  FallAllD 'select' subjects  eval/outputs/fallalld_split.json
+    train / validate   UMAFall dev subjects        testing/outputs/split.json
+    cross-dataset val  FallAllD 'select' subjects  testing/outputs/fallalld_split.json
     final test         UMAFall test subjects + FallAllD 'report' subjects,
                        opened ONCE, in step 7, by `test`. Nothing before step 7
                        loads them: prep writes the report half to its own file
@@ -12,23 +12,23 @@ Data roles, fixed for the whole stage:
 Every signal goes through streams.motion.harmonise (+/-8 g clip, 20 Hz path).
 
 Steps (run from the repo root):
-    py -m eval.stage3 prep        step 0  build harmonised segments, sanity check
-    py -m eval.stage3 gate        step 0b re-set the 2.5 g gate for the 20 Hz path
+    py -m testing.stage3 prep        step 0  build harmonised segments, sanity check
+    py -m testing.stage3 gate        step 0b re-set the 2.5 g gate for the 20 Hz path
                                           (UMAFall dev subjects only)
-    py -m eval.stage3 sweep       step 1  underfit -> overfit sweep (depth x trees)
-    py -m eval.stage3 replot      redraw the step 1 figure from step1_sweep.csv
-    py -m eval.stage3 fine        step 2  fine sweep around depth 2-3, ~200 trees
-    py -m eval.stage3 features    step 3  apply the pick rule to step 2, then compare
+    py -m testing.stage3 sweep       step 1  underfit -> overfit sweep (depth x trees)
+    py -m testing.stage3 replot      redraw the step 1 figure from step1_sweep.csv
+    py -m testing.stage3 fine        step 2  fine sweep around depth 2-3, ~200 trees
+    py -m testing.stage3 features    step 3  apply the pick rule to step 2, then compare
                                           the five feature sets with that setting
-    py -m eval.stage3 calibrate   steps 4-5  write final_config.json, then calibrate
+    py -m testing.stage3 calibrate   steps 4-5  write final_config.json, then calibrate
                                           probabilities and set the alert threshold
                                           from UMAFall dev LOSO predictions only
-    py -m eval.stage3 build       step 6  train the final model on all dev subjects
+    py -m testing.stage3 build       step 6  train the final model on all dev subjects
                                           and save models/motion.joblib
-    py -m eval.stage3 test        step 7  ONE-TIME test: UMAFall test subjects and the
+    py -m testing.stage3 test        step 7  ONE-TIME test: UMAFall test subjects and the
                                           FallAllD report half (segments + full stream)
 
-Figures worth keeping go to eval/outputs/figures/.
+Figures worth keeping go to testing/outputs/figures/.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ from sklearn.metrics import roc_auc_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data import loader_fallalld as fa  # noqa: E402
-from eval.compare_motion import MODELS, OUT, collect  # noqa: E402
+from testing.compare_motion import MODELS, OUT, collect  # noqa: E402
 from streams.motion import harmonise  # noqa: E402
 
 S3 = OUT / "stage3"
@@ -743,7 +743,7 @@ def gate(uma_root, target=None):
     S3.mkdir(parents=True, exist_ok=True)
     T.round(4).to_csv(S3 / "step0b_gate.csv", index=False)
     (S3 / "step0b_gate_pick.txt").write_text(f"{pick:.2f}\n")
-    print(f"\nset GATE_SVM_G = {pick:.2f} in streams/motion.py, then rerun: py -m eval.stage3 prep")
+    print(f"\nset GATE_SVM_G = {pick:.2f} in streams/motion.py, then rerun: py -m testing.stage3 prep")
 
 
 def main(argv=None):

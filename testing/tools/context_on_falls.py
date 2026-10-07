@@ -1,5 +1,5 @@
 """
-tools/context_on_falls.py -- what does the context classifier output on fall
+testing/tools/context_on_falls.py -- what does the context classifier output on fall
 records, which it never saw in training?
 
 The context classifier is trained on ADL records only, because a fall is a
@@ -19,8 +19,8 @@ so the decision is made on a number instead of one trace.
 Impact time is located as the peak SVM, then windows are split into
 pre-impact and post-impact.
 
-    py -m tools.context_on_falls
-    py -m tools.context_on_falls --csv falls_context.csv
+    py -m testing.tools.context_on_falls
+    py -m testing.tools.context_on_falls --csv falls_context.csv
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from data.loader import scan, iter_windows, TARGET_FS      # noqa: E402
 from streams.context import ContextStream                   # noqa: E402

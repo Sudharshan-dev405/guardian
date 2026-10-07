@@ -841,8 +841,8 @@ def main(argv=None):
     if a.train:
         # The old --train fitted a RandomForest on EVERY subject, including the
         # held-out test subjects. The production model is now built by
-        # eval/stage3.py from the UMAFall dev subjects only.
-        print("Use: py -m eval.stage3 build   (trains on UMAFall dev subjects only)")
+        # testing/stage3.py from the UMAFall dev subjects only.
+        print("Use: py -m testing.stage3 build   (trains on UMAFall dev subjects only)")
     elif a.ablation:
         _ablation(a.ablation)
     elif a.tune:

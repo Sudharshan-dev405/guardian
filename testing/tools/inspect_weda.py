@@ -1,5 +1,5 @@
 """
-tools/inspect_weda.py -- print what the WEDA-FALL download looks like, so the
+testing/tools/inspect_weda.py -- print what the WEDA-FALL download looks like, so the
 loader can be written against the real files.
 
 Run from the repo root (works in cmd or PowerShell):

@@ -1,5 +1,5 @@
 """
-eval/stage4.py -- Stage 4 Part B: try improvements on the WEDA-trained motion
+testing/stage4.py -- Stage 4 Part B: try improvements on the WEDA-trained motion
 model. Dev parts only (the test parts are spent).
 
     WEDA-FALL dev   training data; 'weda' = leave-one-person-out (new people)
@@ -12,12 +12,12 @@ honest, each unseen dataset is split into two halves BY PERSON: the
 calibration comes from one half and is scored on the other, then swapped.
 
 Steps (repo root):
-    py -m eval.stage4 e1    device threshold   (operating rule: +5 points falls caught)
-    py -m eval.stage4 e2    device scaling     (model rule: +0.01 unseen AUC)
-    py -m eval.stage4 prep  re-cut segments for E3/E4 (dev people only, reads raw data once)
-    py -m eval.stage4 e3    longer look after impact: 1.5 vs 3 vs 5 s   (model rule)
-    py -m eval.stage4 e4    lower gate: 2.25 vs 2.0 vs 1.8 g            (operating rule)
-    py -m eval.stage4 build save the adopted model (3 s after impact) as models/motion.joblib
+    py -m testing.stage4 e1    device threshold   (operating rule: +5 points falls caught)
+    py -m testing.stage4 e2    device scaling     (model rule: +0.01 unseen AUC)
+    py -m testing.stage4 prep  re-cut segments for E3/E4 (dev people only, reads raw data once)
+    py -m testing.stage4 e3    longer look after impact: 1.5 vs 3 vs 5 s   (model rule)
+    py -m testing.stage4 e4    lower gate: 2.25 vs 2.0 vs 1.8 g            (operating rule)
+    py -m testing.stage4 build save the adopted model (3 s after impact) as models/motion.joblib
 """
 
 from __future__ import annotations
@@ -30,9 +30,9 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from eval.compare_motion import OUT  # noqa: E402
-from eval.stage35 import _dev_all, _threshold  # noqa: E402
-from eval.tune_weda import CURRENT, WEDA_FLOOR, _fit, _gauc  # noqa: E402
+from testing.compare_motion import OUT  # noqa: E402
+from testing.stage35 import _dev_all, _threshold  # noqa: E402
+from testing.tune_weda import CURRENT, WEDA_FLOOR, _fit, _gauc  # noqa: E402
 
 S4 = OUT / "stage4"
 UNSEEN = ("umafall", "fallalld")
@@ -195,7 +195,7 @@ FS = 50.0
 
 def prep():
     import json
-    from eval.stage35 import DATASETS, ROOTS, S35, _scanner
+    from testing.stage35 import DATASETS, ROOTS, S35, _scanner
     from data.loader import scan as uma_scan
     from streams.motion import GATE_GYRO_DPS, harmonise, segment_features
     S4.mkdir(parents=True, exist_ok=True)
@@ -250,7 +250,7 @@ def _load_variant(v, keep=None):
     m, X = pd.read_pickle(S4 / "variants_dev.pkl")[v]
     if not (m.dataset + "/" + m.file).is_unique:
         sys.exit("variants_dev.pkl is from the old prep (WEDA names repeat across "
-                 "activity folders). Run  py -m eval.stage4 prep  again.")
+                 "activity folders). Run  py -m testing.stage4 prep  again.")
     if keep is not None:
         k = (m.dataset + "/" + m.file).isin(keep).values
         m, X = m[k].reset_index(drop=True), X[k]

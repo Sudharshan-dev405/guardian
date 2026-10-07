@@ -542,3 +542,17 @@ STAGE 4 SUMMARY
   now need real data from the band, and fusion with the other streams.
 - Model now: models/motion.joblib = WEDA-trained, 3 s after impact,
   672 segments, 250 falls, threshold 0.8107 (evaluation only).
+
+==============================================================================
+REPO CLEANUP (7 Oct 2026)
+==============================================================================
+- eval/ is now testing/. Commands in this log that say "py -m eval.X" are
+  now "py -m testing.X"; paths "eval/outputs/..." are "testing/outputs/...".
+- tools/ moved to testing/tools/. Old September notes, scratch scripts and
+  the weda_*.txt notes moved to testing/old/. Assignment 7 files moved to
+  coursework/a7/. Three old motion models moved to models/archive/.
+- Rooms for the other modules: streams/physiological.py (Mithuna),
+  core/fusion.py (fusion, later), frontend/ (Sudharshan). Placeholders only.
+- Deleted: empty file "0.7", listing.txt, 4 identical loader skip logs,
+  __pycache__. Cached .pkl files are no longer tracked by git.
+- README.md added with the layout and run commands.
