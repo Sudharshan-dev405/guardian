@@ -712,3 +712,19 @@ STEP 5.11 - Fusion design (7 Oct 2026)
 - All numbers there are starting values, not clinical thresholds.
 - Stage 5 is complete except 5.4 (backend API), which waits for
   Sudharshan's choice of framework.
+
+TWO MORE FIXES FROM THE SECOND LIVE RUN (7 Oct 2026)
+- With the re-trigger fix in, hard_fall_long_lie showed "moved again: yes"
+  from 37 s to 84 s while the person lay still. The WEDA fall recording has
+  about 10 s of movement after landing, which reached the 8 s limit.
+  Fix: "moved again" now means moving NOW. 10 s without real movement
+  cancels it. Shifting after a fall and then lying still is not recovery.
+- After the 60 s hold the score dropped from 0.91 to 0.50 (the weaker knock
+  took over). Fix: knocks inside a strong event's hold belong to the same
+  incident, so the strong event is the one that decays.
+- Checked on a made-up fall with 10 s of shifting on the floor:
+  moved again yes during the shifting, back to no after 10 s still;
+  score 0.92 held for 60 s, then decayed smoothly (0.88, 0.69, 0.54 ...).
+
+STAGE 5 STATUS: DONE, except 5.4 backend API (waits for Sudharshan's
+framework). Activity module will be replaced entirely in Stage 6.

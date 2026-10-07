@@ -287,6 +287,7 @@ def fit_temperature(probs, y_idx):
 # wrist; they must be checked on the real band's own data.
 MOVE_STD_G = 0.03            # |a| spread within one 2.5 s window above this = moving
 MOVE_GYRO_DPS = 20.0         # or median rotation above this
+RESET_STILL_SEC = 10.0       # this long without real movement cancels "moved again"
 RECOVER_SEC = 8.0            # this much movement after an impact = moved again.
                              # 4 s was too close: the faint scenario settled for
                              # about 4 s after landing. Getting up took 15-30 s.
@@ -295,7 +296,9 @@ RECOVER_SEC = 8.0            # this much movement after an impact = moved again.
 class MovementTracker:
     """Is the wrist really moving, window by window? Keeps a running count
     of seconds without real movement, and how much the person has moved
-    since the latest impact (ignoring the first second, the impact itself)."""
+    since the latest impact (ignoring the first second, the impact itself).
+    "Moved again" means moving now: 10 s of stillness cancels it, so a person
+    who shifts after a fall and then lies still is not counted as recovered."""
 
     def __init__(self):
         self.reset()
@@ -334,6 +337,8 @@ class MovementTracker:
             self.impact_t, self.moved_after_impact = impact_t, 0.0
         if impact_t is not None and moving and t0 > impact_t + 1.0:
             self.moved_after_impact += dt
+        if not moving and self.still_s >= RESET_STILL_SEC:
+            self.moved_after_impact = 0.0      # moved, then went still again: not recovered
 
     @property
     def recovered(self):
@@ -550,6 +555,10 @@ class MotionStream(Stream):
                 self.gate_open = True
 
             if self._held is not None and now - self._held[1] > EVENT_HOLD_SEC:
+                # Weaker knocks inside the strong event's hold were part of the
+                # same incident: let the strong event decay, not the knock.
+                if self._impact_done and self._held[0] >= self._impact:
+                    self._impact, self._trig_t = self._held
                 self._held = None
             self._mv.update(window, self._event()[1])
             self.last_movement = self._mv.movement
