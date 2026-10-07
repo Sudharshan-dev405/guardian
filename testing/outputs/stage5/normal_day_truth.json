@@ -1,0 +1,40 @@
+{
+  "name": "normal_day",
+  "title": "Normal day (elderly)",
+  "description": "Walking, sitting down and getting up, a door, clapping, walking. Nothing should be flagged.",
+  "simulated": true,
+  "seconds": 82.1,
+  "truth": [
+    {
+      "start": 0.0,
+      "end": 22.42,
+      "label": "D01 walking (U21)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 22.42,
+      "end": 37.28,
+      "label": "D04 sitting on a chair, wait, get up (U21)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 37.28,
+      "end": 48.3,
+      "label": "D11 opening and closing door (U21)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 48.3,
+      "end": 60.2,
+      "label": "D10 clapping hands (U21)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 60.2,
+      "end": 82.12,
+      "label": "D01 walking (U21)",
+      "kind": "daily activity"
+    }
+  ],
+  "events": []
+}

@@ -1,0 +1,196 @@
+t,stream,score,quality,extras
+2.5,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+2.5,activity,0.05,0.7749476118234827,"{""state"": ""seated hand activity"", ""confidence"": 0.7749476118234827, ""probs"": {""ambulating"": 0.039128659557573546, ""lying/immobile"": 0.00525552844611012, ""seated hand activity"": 0.7749476118234827, ""stationary"": 0.18066820017283355}}"
+2.5,physiological,0.0,0.0,{}
+3.74,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+3.74,activity,0.05,0.7671016767885164,"{""state"": ""seated hand activity"", ""confidence"": 0.7671016767885164, ""probs"": {""ambulating"": 0.02938312611210264, ""lying/immobile"": 0.01901063202970817, ""seated hand activity"": 0.7671016767885164, ""stationary"": 0.18450456506967292}}"
+3.74,physiological,0.0,0.0,{}
+4.98,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+4.98,activity,0.05,0.4919523165491557,"{""state"": ""seated hand activity"", ""confidence"": 0.4919523165491557, ""probs"": {""ambulating"": 0.10973232112569417, ""lying/immobile"": 0.08965886182866124, ""seated hand activity"": 0.4919523165491557, ""stationary"": 0.3086565004964889}}"
+4.98,physiological,0.0,0.0,{}
+6.22,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+6.22,activity,0.05,0.5956650211537651,"{""state"": ""seated hand activity"", ""confidence"": 0.5956650211537651, ""probs"": {""ambulating"": 0.10867288181428007, ""lying/immobile"": 0.07077105921767211, ""seated hand activity"": 0.5956650211537651, ""stationary"": 0.2248910378142827}}"
+6.22,physiological,0.0,0.0,{}
+7.46,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+7.46,activity,0.05,0.524399663884009,"{""state"": ""seated hand activity"", ""confidence"": 0.524399663884009, ""probs"": {""ambulating"": 0.11302376478022248, ""lying/immobile"": 0.0655230438420139, ""seated hand activity"": 0.524399663884009, ""stationary"": 0.29705352749375463}}"
+7.46,physiological,0.0,0.0,{}
+8.7,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+8.7,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3852275312566414, ""probs"": {""ambulating"": 0.3294968007742998, ""lying/immobile"": 0.08467199112312702, ""seated hand activity"": 0.3852275312566414, ""stationary"": 0.20060367684593183}}"
+8.7,physiological,0.0,0.0,{}
+9.94,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+9.94,activity,0.15,0.5570776581834281,"{""state"": ""ambulating"", ""confidence"": 0.5570776581834281, ""probs"": {""ambulating"": 0.5570776581834281, ""lying/immobile"": 0.027688119084984593, ""seated hand activity"": 0.24814393454099945, ""stationary"": 0.16709028819058772}}"
+9.94,physiological,0.0,0.0,{}
+11.18,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+11.18,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3514054350448317, ""probs"": {""ambulating"": 0.34958938392883493, ""lying/immobile"": 0.06040347887229507, ""seated hand activity"": 0.3514054350448317, ""stationary"": 0.2386017021540384}}"
+11.18,physiological,0.0,0.0,{}
+12.42,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+12.42,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.34685765696739884, ""probs"": {""ambulating"": 0.3467511802169088, ""lying/immobile"": 0.10499131141766392, ""seated hand activity"": 0.34685765696739884, ""stationary"": 0.2013998513980284}}"
+12.42,physiological,0.0,0.0,{}
+13.66,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+13.66,activity,0.15,0.4937391966377283,"{""state"": ""ambulating"", ""confidence"": 0.4937391966377283, ""probs"": {""ambulating"": 0.4937391966377283, ""lying/immobile"": 0.12396920490342354, ""seated hand activity"": 0.2339561892988861, ""stationary"": 0.14833540915996193}}"
+13.66,physiological,0.0,0.0,{}
+14.9,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+14.9,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.40787432708502086, ""probs"": {""ambulating"": 0.3898096717680377, ""lying/immobile"": 0.0840465157991993, ""seated hand activity"": 0.40787432708502086, ""stationary"": 0.1182694853477421}}"
+14.9,physiological,0.0,0.0,{}
+16.14,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+16.14,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.30520375552859835, ""probs"": {""ambulating"": 0.30520375552859835, ""lying/immobile"": 0.14332836838193228, ""seated hand activity"": 0.2871762328442282, ""stationary"": 0.26429164324524107}}"
+16.14,physiological,0.0,0.0,{}
+17.38,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+17.38,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.4451814568935293, ""probs"": {""ambulating"": 0.4451814568935293, ""lying/immobile"": 0.06319957191961012, ""seated hand activity"": 0.34594669764692715, ""stationary"": 0.14567227353993342}}"
+17.38,physiological,0.0,0.0,{}
+18.62,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+18.62,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.42137651488618605, ""probs"": {""ambulating"": 0.42137651488618605, ""lying/immobile"": 0.11665941492874313, ""seated hand activity"": 0.24848702223052851, ""stationary"": 0.2134770479545423}}"
+18.62,physiological,0.0,0.0,{}
+19.86,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+19.86,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.32195389046974915, ""probs"": {""ambulating"": 0.27233430403091335, ""lying/immobile"": 0.11523071660478645, ""seated hand activity"": 0.32195389046974915, ""stationary"": 0.2904810888945511}}"
+19.86,physiological,0.0,0.0,{}
+21.1,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+21.1,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.4143673473616551, ""probs"": {""ambulating"": 0.10101799076384256, ""lying/immobile"": 0.130261140836625, ""seated hand activity"": 0.4143673473616551, ""stationary"": 0.3543535210378774}}"
+21.1,physiological,0.0,0.0,{}
+22.34,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+22.34,activity,0.4,0.5631484233048866,"{""state"": ""stationary"", ""confidence"": 0.5631484233048866, ""probs"": {""ambulating"": 0.05319990772926718, ""lying/immobile"": 0.17795592310159603, ""seated hand activity"": 0.20569574586425035, ""stationary"": 0.5631484233048866}}"
+22.34,physiological,0.0,0.0,{}
+23.58,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+23.58,activity,0.4,0.5952522752020427,"{""state"": ""stationary"", ""confidence"": 0.5952522752020427, ""probs"": {""ambulating"": 0.04259030109880892, ""lying/immobile"": 0.26198906183174586, ""seated hand activity"": 0.10016836186740243, ""stationary"": 0.5952522752020427}}"
+23.58,physiological,0.0,0.0,{}
+24.82,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+24.82,activity,0.05,0.46984146323405157,"{""state"": ""seated hand activity"", ""confidence"": 0.46984146323405157, ""probs"": {""ambulating"": 0.014192764101202522, ""lying/immobile"": 0.2698171789234122, ""seated hand activity"": 0.46984146323405157, ""stationary"": 0.24614859374133372}}"
+24.82,physiological,0.0,0.0,{}
+26.06,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+26.06,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.44849289566054773, ""probs"": {""ambulating"": 0.027391194257172218, ""lying/immobile"": 0.2898432966765127, ""seated hand activity"": 0.44849289566054773, ""stationary"": 0.2342726134057674}}"
+26.06,physiological,0.0,0.0,{}
+27.3,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+27.3,activity,0.05,0.45224512284007695,"{""state"": ""seated hand activity"", ""confidence"": 0.45224512284007695, ""probs"": {""ambulating"": 0.023920206420024657, ""lying/immobile"": 0.27294996840838753, ""seated hand activity"": 0.45224512284007695, ""stationary"": 0.25088470233151083}}"
+27.3,physiological,0.0,0.0,{}
+28.54,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+28.54,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.44558691825730545, ""probs"": {""ambulating"": 0.03990242896882192, ""lying/immobile"": 0.44558691825730545, ""seated hand activity"": 0.22821434594312076, ""stationary"": 0.28629630683075197}}"
+28.54,physiological,0.0,0.0,{}
+29.78,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+29.78,activity,0.4,0.5162544760786143,"{""state"": ""stationary"", ""confidence"": 0.5162544760786143, ""probs"": {""ambulating"": 0.03178817142998844, ""lying/immobile"": 0.28707751084540145, ""seated hand activity"": 0.16487984164599587, ""stationary"": 0.5162544760786143}}"
+29.78,physiological,0.0,0.0,{}
+31.02,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+31.02,activity,0.4,0.5178349540684305,"{""state"": ""stationary"", ""confidence"": 0.5178349540684305, ""probs"": {""ambulating"": 0.04257900428009136, ""lying/immobile"": 0.1978951955644748, ""seated hand activity"": 0.24169084608700334, ""stationary"": 0.5178349540684305}}"
+31.02,physiological,0.0,0.0,{}
+32.26,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+32.26,activity,0.05,0.4975624899863835,"{""state"": ""seated hand activity"", ""confidence"": 0.4975624899863835, ""probs"": {""ambulating"": 0.07700815776245802, ""lying/immobile"": 0.11989446014983765, ""seated hand activity"": 0.4975624899863835, ""stationary"": 0.3055348921013209}}"
+32.26,physiological,0.0,0.0,{}
+33.5,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+33.5,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3562261821207809, ""probs"": {""ambulating"": 0.1819741546513968, ""lying/immobile"": 0.11001800237945009, ""seated hand activity"": 0.35178166084837237, ""stationary"": 0.3562261821207809}}"
+33.5,physiological,0.0,0.0,{}
+34.74,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+34.74,activity,0.4,0.6218992517080668,"{""state"": ""stationary"", ""confidence"": 0.6218992517080668, ""probs"": {""ambulating"": 0.02578414842197293, ""lying/immobile"": 0.2238935403684977, ""seated hand activity"": 0.12842305950146252, ""stationary"": 0.6218992517080668}}"
+34.74,physiological,0.0,0.0,{}
+35.98,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+35.98,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.38427650846384975, ""probs"": {""ambulating"": 0.014420567080824278, ""lying/immobile"": 0.30286576535027526, ""seated hand activity"": 0.38427650846384975, ""stationary"": 0.29843715910505064}}"
+35.98,physiological,0.0,0.0,{}
+37.22,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+37.22,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.42061153561299586, ""probs"": {""ambulating"": 0.058269107755959, ""lying/immobile"": 0.3969238624151887, ""seated hand activity"": 0.42061153561299586, ""stationary"": 0.12419549421585652}}"
+37.22,physiological,0.0,0.0,{}
+38.46,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+38.46,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3314861422417498, ""probs"": {""ambulating"": 0.017609653932630503, ""lying/immobile"": 0.32174326961668104, ""seated hand activity"": 0.32916093420893855, ""stationary"": 0.3314861422417498}}"
+38.46,physiological,0.0,0.0,{}
+39.7,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+39.7,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.4253019731374021, ""probs"": {""ambulating"": 0.4253019731374021, ""lying/immobile"": 0.23469620874647668, ""seated hand activity"": 0.11540905253002783, ""stationary"": 0.22459276558609345}}"
+39.7,physiological,0.0,0.0,{}
+40.94,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+40.94,activity,0.15,0.45712062691696964,"{""state"": ""ambulating"", ""confidence"": 0.45712062691696964, ""probs"": {""ambulating"": 0.45712062691696964, ""lying/immobile"": 0.27722084146116843, ""seated hand activity"": 0.13080050825698375, ""stationary"": 0.13485802336487818}}"
+40.94,physiological,0.0,0.0,{}
+42.18,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+42.18,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3407422912303814, ""probs"": {""ambulating"": 0.22708120513116914, ""lying/immobile"": 0.26609894556693064, ""seated hand activity"": 0.3407422912303814, ""stationary"": 0.1660775580715188}}"
+42.18,physiological,0.0,0.0,{}
+43.42,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+43.42,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.35042415179360037, ""probs"": {""ambulating"": 0.35042415179360037, ""lying/immobile"": 0.29494031570717594, ""seated hand activity"": 0.2154560239578974, ""stationary"": 0.1391795085413264}}"
+43.42,physiological,0.0,0.0,{}
+44.66,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+44.66,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3211630187134115, ""probs"": {""ambulating"": 0.3211630187134115, ""lying/immobile"": 0.290424717887286, ""seated hand activity"": 0.21957321934582552, ""stationary"": 0.16883904405347694}}"
+44.66,physiological,0.0,0.0,{}
+45.9,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+45.9,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3414055422205953, ""probs"": {""ambulating"": 0.1305678404206439, ""lying/immobile"": 0.3414055422205953, ""seated hand activity"": 0.32847865442478774, ""stationary"": 0.19954796293397312}}"
+45.9,physiological,0.0,0.0,{}
+47.14,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+47.14,activity,0.4,0.5716067076011406,"{""state"": ""stationary"", ""confidence"": 0.5716067076011406, ""probs"": {""ambulating"": 0.04019007643644952, ""lying/immobile"": 0.3027973638504036, ""seated hand activity"": 0.08540585211200614, ""stationary"": 0.5716067076011406}}"
+47.14,physiological,0.0,0.0,{}
+48.38,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+48.38,activity,0.4,0.46088926014649956,"{""state"": ""stationary"", ""confidence"": 0.46088926014649956, ""probs"": {""ambulating"": 0.04576397165885009, ""lying/immobile"": 0.4429920924340779, ""seated hand activity"": 0.05035467576057235, ""stationary"": 0.46088926014649956}}"
+48.38,physiological,0.0,0.0,{}
+49.62,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+49.62,activity,0.4,0.6121164011007593,"{""state"": ""stationary"", ""confidence"": 0.6121164011007593, ""probs"": {""ambulating"": 0.04826088326028622, ""lying/immobile"": 0.22738505113272417, ""seated hand activity"": 0.11223766450623031, ""stationary"": 0.6121164011007593}}"
+49.62,physiological,0.0,0.0,{}
+50.86,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+50.86,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3633320412793694, ""probs"": {""ambulating"": 0.20962009842615117, ""lying/immobile"": 0.3633320412793694, ""seated hand activity"": 0.12757877729195363, ""stationary"": 0.29946908300252584}}"
+50.86,physiological,0.0,0.0,{}
+52.1,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+52.1,activity,0.15,0.5663137570084796,"{""state"": ""ambulating"", ""confidence"": 0.5663137570084796, ""probs"": {""ambulating"": 0.5663137570084796, ""lying/immobile"": 0.18475760559456675, ""seated hand activity"": 0.1813226569679605, ""stationary"": 0.06760598042899313}}"
+52.1,physiological,0.0,0.0,{}
+53.34,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+53.34,activity,0.15,0.6576132984288952,"{""state"": ""ambulating"", ""confidence"": 0.6576132984288952, ""probs"": {""ambulating"": 0.6576132984288952, ""lying/immobile"": 0.09986113246485659, ""seated hand activity"": 0.1736908682393873, ""stationary"": 0.06883470086686083}}"
+53.34,physiological,0.0,0.0,{}
+54.58,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+54.58,activity,0.15,0.6545601626396718,"{""state"": ""ambulating"", ""confidence"": 0.6545601626396718, ""probs"": {""ambulating"": 0.6545601626396718, ""lying/immobile"": 0.1147258358081937, ""seated hand activity"": 0.16346873834156872, ""stationary"": 0.06724526321056566}}"
+54.58,physiological,0.0,0.0,{}
+55.82,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+55.82,activity,0.15,0.6526400004383124,"{""state"": ""ambulating"", ""confidence"": 0.6526400004383124, ""probs"": {""ambulating"": 0.6526400004383124, ""lying/immobile"": 0.10609714703351886, ""seated hand activity"": 0.18245457872120766, ""stationary"": 0.058808273806961006}}"
+55.82,physiological,0.0,0.0,{}
+57.06,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+57.06,activity,0.15,0.6360313969690318,"{""state"": ""ambulating"", ""confidence"": 0.6360313969690318, ""probs"": {""ambulating"": 0.6360313969690318, ""lying/immobile"": 0.15042552088338887, ""seated hand activity"": 0.17237513984752387, ""stationary"": 0.04116794230005546}}"
+57.06,physiological,0.0,0.0,{}
+58.3,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+58.3,activity,0.15,0.621483290470503,"{""state"": ""ambulating"", ""confidence"": 0.621483290470503, ""probs"": {""ambulating"": 0.621483290470503, ""lying/immobile"": 0.08076157381731092, ""seated hand activity"": 0.23167094587931872, ""stationary"": 0.06608418983286737}}"
+58.3,physiological,0.0,0.0,{}
+59.54,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+59.54,activity,0.15,0.46859916254674205,"{""state"": ""ambulating"", ""confidence"": 0.46859916254674205, ""probs"": {""ambulating"": 0.46859916254674205, ""lying/immobile"": 0.40960398270515014, ""seated hand activity"": 0.036309608601768614, ""stationary"": 0.08548724614633929}}"
+59.54,physiological,0.0,0.0,{}
+60.78,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+60.78,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.37882829099502446, ""probs"": {""ambulating"": 0.37882829099502446, ""lying/immobile"": 0.30077933527613304, ""seated hand activity"": 0.041859067972710495, ""stationary"": 0.27853330575613194}}"
+60.78,physiological,0.0,0.0,{}
+62.02,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+62.02,activity,0.4,0.7185658780970821,"{""state"": ""stationary"", ""confidence"": 0.7185658780970821, ""probs"": {""ambulating"": 0.02182467141459589, ""lying/immobile"": 0.10926803008279766, ""seated hand activity"": 0.15034142040552442, ""stationary"": 0.7185658780970821}}"
+62.02,physiological,0.0,0.0,{}
+63.26,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+63.26,activity,0.05,0.8149746819177695,"{""state"": ""seated hand activity"", ""confidence"": 0.8149746819177695, ""probs"": {""ambulating"": 0.026758720956588836, ""lying/immobile"": 0.008960256654905966, ""seated hand activity"": 0.8149746819177695, ""stationary"": 0.14930634047073577}}"
+63.26,physiological,0.0,0.0,{}
+64.5,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+64.5,activity,0.05,0.49131511282329116,"{""state"": ""seated hand activity"", ""confidence"": 0.49131511282329116, ""probs"": {""ambulating"": 0.13215468815294235, ""lying/immobile"": 0.10407154949033315, ""seated hand activity"": 0.49131511282329116, ""stationary"": 0.27245864953343346}}"
+64.5,physiological,0.0,0.0,{}
+65.74,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+65.74,activity,0.05,0.5255694525798684,"{""state"": ""seated hand activity"", ""confidence"": 0.5255694525798684, ""probs"": {""ambulating"": 0.17979175903412045, ""lying/immobile"": 0.07410579176568875, ""seated hand activity"": 0.5255694525798684, ""stationary"": 0.22053299662032225}}"
+65.74,physiological,0.0,0.0,{}
+66.98,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+66.98,activity,0.05,0.5407282776785347,"{""state"": ""seated hand activity"", ""confidence"": 0.5407282776785347, ""probs"": {""ambulating"": 0.10402110886993356, ""lying/immobile"": 0.07731315625862145, ""seated hand activity"": 0.5407282776785347, ""stationary"": 0.2779374571929102}}"
+66.98,physiological,0.0,0.0,{}
+68.22,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+68.22,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3779891329911254, ""probs"": {""ambulating"": 0.3779891329911254, ""lying/immobile"": 0.05789559869035333, ""seated hand activity"": 0.3403658749530431, ""stationary"": 0.22374939336547814}}"
+68.22,physiological,0.0,0.0,{}
+69.46,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+69.46,activity,0.15,0.536235559911063,"{""state"": ""ambulating"", ""confidence"": 0.536235559911063, ""probs"": {""ambulating"": 0.536235559911063, ""lying/immobile"": 0.04027011068365072, ""seated hand activity"": 0.25286678646485816, ""stationary"": 0.1706275429404281}}"
+69.46,physiological,0.0,0.0,{}
+70.7,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+70.7,activity,0.15,0.4605266801731415,"{""state"": ""ambulating"", ""confidence"": 0.4605266801731415, ""probs"": {""ambulating"": 0.4605266801731415, ""lying/immobile"": 0.04311559088765514, ""seated hand activity"": 0.29295586466113466, ""stationary"": 0.20340186427806875}}"
+70.7,physiological,0.0,0.0,{}
+71.94,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+71.94,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.34872647680189994, ""probs"": {""ambulating"": 0.34872647680189994, ""lying/immobile"": 0.0904680142064847, ""seated hand activity"": 0.3439729025835114, ""stationary"": 0.21683260640810398}}"
+71.94,physiological,0.0,0.0,{}
+73.18,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+73.18,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.359433898333562, ""probs"": {""ambulating"": 0.359433898333562, ""lying/immobile"": 0.09935256111090521, ""seated hand activity"": 0.20756407032622326, ""stationary"": 0.3336494702293097}}"
+73.18,physiological,0.0,0.0,{}
+74.42,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+74.42,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.376638915582769, ""probs"": {""ambulating"": 0.2102612806155417, ""lying/immobile"": 0.1635915968456343, ""seated hand activity"": 0.376638915582769, ""stationary"": 0.24950820695605505}}"
+74.42,physiological,0.0,0.0,{}
+75.66,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+75.66,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.32456938421473447, ""probs"": {""ambulating"": 0.32456938421473447, ""lying/immobile"": 0.12003522238691157, ""seated hand activity"": 0.2675548278926185, ""stationary"": 0.2878405655057354}}"
+75.66,physiological,0.0,0.0,{}
+76.9,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+76.9,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.371126197126402, ""probs"": {""ambulating"": 0.371126197126402, ""lying/immobile"": 0.11101788531499601, ""seated hand activity"": 0.3475313746812223, ""stationary"": 0.17032454287737986}}"
+76.9,physiological,0.0,0.0,{}
+78.14,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+78.14,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.40259170152952295, ""probs"": {""ambulating"": 0.40259170152952295, ""lying/immobile"": 0.10848025728326559, ""seated hand activity"": 0.25167134487027115, ""stationary"": 0.2372566963169403}}"
+78.14,physiological,0.0,0.0,{}
+79.38,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+79.38,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.3305966348878034, ""probs"": {""ambulating"": 0.2866211722165346, ""lying/immobile"": 0.05377284641702284, ""seated hand activity"": 0.3290093464786391, ""stationary"": 0.3305966348878034}}"
+79.38,physiological,0.0,0.0,{}
+80.62,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+80.62,activity,0.0,0.0,"{""state"": ""unknown"", ""confidence"": 0.39181214769963585, ""probs"": {""ambulating"": 0.10914918990878002, ""lying/immobile"": 0.1352681521697853, ""seated hand activity"": 0.3637705102217988, ""stationary"": 0.39181214769963585}}"
+80.62,physiological,0.0,0.0,{}
+81.86,motion,0.0,1.0,"{""impact"": 0.0, ""stillness"": 0.0, ""gate_open"": false, ""time_since_impact"": null}"
+81.86,activity,0.05,0.4682779246615411,"{""state"": ""seated hand activity"", ""confidence"": 0.4682779246615411, ""probs"": {""ambulating"": 0.0479010287100177, ""lying/immobile"": 0.13435161571921883, ""seated hand activity"": 0.4682779246615411, ""stationary"": 0.3494694309092225}}"
+81.86,physiological,0.0,0.0,{}

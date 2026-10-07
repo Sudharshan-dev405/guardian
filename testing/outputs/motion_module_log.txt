@@ -556,3 +556,63 @@ REPO CLEANUP (7 Oct 2026)
 - Deleted: empty file "0.7", listing.txt, 4 identical loader skip logs,
   __pycache__. Cached .pkl files are no longer tracked by git.
 - README.md added with the layout and run commands.
+
+==============================================================================
+STAGE 5 - BACKBONE, SIMULATOR AND DATABASE (7 Oct 2026)
+==============================================================================
+Updated plan (agreed): build what the other modules plug into, so Stage 6
+is drop-in. No Kafka for now; Postgres in Docker; backend framework waits
+for Sudharshan. Activity module will be replaced by Sudharshan's version,
+physiological by Mithuna's, both in Stage 6.
+  5.1 plug-in pipeline       core/pipeline.py
+  5.2 simulator              simulator/
+  5.3 database               Postgres in Docker, framework-free schema
+  5.4 backend API            waits for Sudharshan's choice
+  5.5 run and record         scenarios -> database
+  5.6 show it                stats per module + timeline figures
+
+STEP 5.1 + 5.2 (7 Oct 2026)
+- core/pipeline.py: one line per stream in STREAMS. Every last_* value a
+  stream exposes is stored under "extras", so new modules need no schema
+  change. A crashing stream gives score 0, quality 0 for that window.
+- simulator/: six SIMULATED scenarios. Motion is real WEDA-FALL data from
+  the test people (never trained on); long lies and quiet sitting are
+  synthetic; heart rate and temperature are synthetic, illustrative values.
+    normal_day, hard_fall_long_lie, fall_then_get_up, faint_collapse,
+    false_alarm, hr_spike_no_fall
+- py -m simulator.run all -> testing/outputs/stage5/ (csv + truth) and
+  figures/stage5_<name>.png. No fusion or alerts yet (Stage 7).
+
+STEP 5.1 + 5.2 RESULTS (7 Oct 2026, SIMULATED scenarios, real data)
+    scenario            truth impact   motion flagged      notes
+    normal_day          -              never               gate never opened
+    hard_fall_long_lie  24.6 s         28.5 s (score 0.91) stillness 0.59
+    fall_then_get_up    20.7 s         24.8 s (score 0.98) stillness 0.59
+    faint_collapse      16.5 s         23.6 s (score 0.95) stillness 0.99
+    false_alarm         -              never               gate opened, score 0.19
+    hr_spike_no_fall    -              never               nothing catches it yet
+- Falls flagged 4-7 s after impact (3 s look after impact + window timing).
+- The hand slam and stumble opened the gate but the model kept the score
+  low, which is the gate + model design working as intended.
+- Stillness is measured only over the 10 s after impact, so it read 0.59
+  even when the person got up. Fusion (Stage 7) needs its own "time since
+  real movement" to tell a long lie from a recovery.
+- The heart-rate spike shows why fusion needs the physiological stream:
+  motion alone sees nothing.
+- The current activity module flips state every 1-3 s on WEDA-FALL data
+  (trained on UMAFall). It is being replaced in Stage 6; fusion should
+  smooth whatever activity module it gets.
+- Six simulated scenarios are a demonstration, not an evaluation.
+
+STEP 5.3 - Database (7 Oct 2026)
+- Postgres 16 in Docker (docker-compose.yml), port 5433 on the laptop.
+- Tables: users (role), caregiver_links, devices, runs, stream_outputs
+  (extras as JSON), alerts (empty until Stage 7), audit_log.
+- Role-based access enforced by the database (row-level security):
+  admin sees all, wearer sees self, caregiver sees linked wearers and can
+  acknowledge their alerts. No user set -> sees nothing.
+- Demo users are simulated: 1 admin, 3 wearers, 2 caregivers.
+- Two logins: guardian (pipeline writes) and guardian_app (the website,
+  limited by role). Backend framework still waits for Sudharshan.
+- simulator.run --db saves every run; core.store --check prints what each
+  demo user can see.

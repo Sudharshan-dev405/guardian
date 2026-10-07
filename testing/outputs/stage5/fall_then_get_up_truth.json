@@ -1,0 +1,45 @@
+{
+  "name": "fall_then_get_up",
+  "title": "Fall, then the person gets up",
+  "description": "Walking, a trip fall, 8 s on the floor, then sitting, getting up and walking. The impact is flagged but stillness should not stay high.",
+  "simulated": true,
+  "seconds": 66.0,
+  "truth": [
+    {
+      "start": 0.0,
+      "end": 17.16,
+      "label": "D01 walking (U07)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 17.16,
+      "end": 27.1,
+      "label": "F04 forward fall while walking (trip) (U07)",
+      "kind": "fall"
+    },
+    {
+      "start": 27.1,
+      "end": 35.1,
+      "label": "on the floor (synthetic)",
+      "kind": "synthetic"
+    },
+    {
+      "start": 35.1,
+      "end": 49.34,
+      "label": "D04 sitting on a chair, wait, get up (U07)",
+      "kind": "daily activity"
+    },
+    {
+      "start": 49.34,
+      "end": 66.0,
+      "label": "D01 walking (U07)",
+      "kind": "daily activity"
+    }
+  ],
+  "events": [
+    {
+      "t": 20.66,
+      "what": "fall impact (F04)"
+    }
+  ]
+}
