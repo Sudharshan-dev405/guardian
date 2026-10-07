@@ -1,0 +1,15 @@
+{
+  "params": {
+    "max_depth": 2,
+    "n_estimators": 200,
+    "learning_rate": 0.2,
+    "min_child_weight": 1.0,
+    "reg_lambda": 1.0,
+    "subsample": 1.0,
+    "colsample_bytree": 1.0
+  },
+  "switch": false,
+  "gain": 0.001516802842943088,
+  "weda": 0.9042400554126263,
+  "unseen": 0.8103020451494358
+}

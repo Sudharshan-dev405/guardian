@@ -349,6 +349,32 @@ STEP 7 - Final model saved (6 Oct 2026)
 
 MOTION MODULE STATUS: DONE (Stage 3.5 complete). Next: Stage 4.
 
+STAGE 3.5b - FULL TUNING OF THE WEDA MODEL (planned 6 Oct 2026)
+- Stage 3.5 only tried 18 settings. Now a full search, dev parts only
+  (the test parts are spent).
+- Step 1 sweep: depth 1-8 x trees 25-800 (42 settings), fitting-curve figure.
+- Step 2 fine: 216 settings around the sweep pick (depth, trees, learning
+  rate, min_child_weight, lambda, subsampling).
+- Rule, fixed before running:
+    WEDA new people (LOSO) must stay >= 0.893 (current 0.903 minus 0.01);
+    best mean on UMAFall dev + FallAllD dev; ties within 0.005 -> simplest;
+    switch only if that mean beats the current setting by >= 0.01.
+- If it switches, the new model has dev numbers only, no fresh test score.
+
+RESULT (6 Oct 2026)
+- Current setting rerun here: WEDA 0.909, UMAFall 0.947, FallAllD 0.671,
+  unseen mean 0.809. (Stage 3.5 gave 0.820 for the same setting; the only
+  change is CPU threads, so about 0.01 is just noise. That is why the switch
+  bar is 0.01.)
+- Sweep (42): too simple hurts (depth 1, 25 trees: 0.653). Depth 2-5 with
+  100-400 trees all sit at 0.80-0.815. Very large models drift down slightly.
+- Fine (216): best 0.810 (depth 2, 200 trees, lr 0.2). Gain +0.002 -> KEEP.
+- min_child_weight 5 and lambda 10 were slightly worse almost everywhere.
+- FallAllD stays at 0.60-0.67 whatever the setting.
+- Conclusion: the model is on a plateau. Hyperparameters are not the
+  bottleneck; better features, threshold handling or data have to come next.
+- Figure: figures/stage35b_fitting_curve.png
+
 ==============================================================================
 STAGE 4 - LEARNING FROM EXISTING WORK (6 Oct 2026)
 ==============================================================================
